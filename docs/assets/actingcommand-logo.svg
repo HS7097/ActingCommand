@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 168" width="720" height="168" role="img" aria-label="ActingCommand">
+  <defs>
+    <linearGradient id="acg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4F46E5"/>
+      <stop offset="1" stop-color="#06B6D4"/>
+    </linearGradient>
+  </defs>
+  <!-- keycap mark -->
+  <rect x="20" y="24" width="120" height="120" rx="26" fill="url(#acg)"/>
+  <rect x="26" y="30" width="108" height="108" rx="21" fill="#FFFFFF" opacity="0.10"/>
+  <text x="80" y="103" text-anchor="middle" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="52" font-weight="800" fill="#FFFFFF">AC</text>
+  <text x="80" y="132" text-anchor="middle" font-family="Consolas,'Cascadia Mono',monospace" font-size="17" font-weight="700" fill="#FFFFFF" opacity="0.85">&#9654;_</text>
+  <!-- wordmark -->
+  <text x="170" y="90" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="56" font-weight="700" fill="url(#acg)">ActingCommand</text>
+  <text x="173" y="127" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="600" letter-spacing="1.8" fill="#8B949E">ZERO-GAME-LOGIC RUNTIME &#183; SEALED RESOURCE PACKS &#183; AGENTS OFF THE LOOP</text>
+</svg>

@@ -1,0 +1,79 @@
+name: sync-member-pointers
+
+# Moves the two submodule pointers (ActingCommand-Runtime, ActingCommand-UI)
+# to the latest commit of each member's main. Public members: no credential
+# beyond the workflow's own GITHUB_TOKEN. Nothing is cloned; the gitlinks are
+# rewritten from the members' tip SHAs read through the API.
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: sync-member-pointers
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: false
+          persist-credentials: true
+
+      - name: Resolve member tips and rewrite gitlinks
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          : > bump.log
+          bump() {
+            local path="$1" repo="$2" branch="$3"
+            local sha cur
+            sha=$(gh api "repos/$repo/commits/$branch" --jq .sha)
+            if ! [[ "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+              echo "::error::unresolved tip for $repo@$branch: '$sha'"
+              exit 1
+            fi
+            cur=$(git rev-parse "HEAD:$path")
+            if [ "$sha" = "$cur" ]; then
+              echo "$path unchanged at ${cur:0:12}"
+              return 0
+            fi
+            git update-index --add --cacheinfo "160000,$sha,$path"
+            echo "$path ${cur:0:12} -> ${sha:0:12}" | tee -a bump.log
+          }
+          bump ActingCommand-Runtime HS7097/ActingCommand-Runtime main
+          bump ActingCommand-UI      HS7097/ActingCommand-UI      main
+
+      - name: Commit and push
+        run: |
+          set -euo pipefail
+          if git diff --cached --quiet; then
+            echo "no pointer change"
+            exit 0
+          fi
+          git -c user.name='github-actions[bot]' \
+              -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              commit -m "sync: $(paste -sd ';' bump.log)"
+          git push origin HEAD:main
+
+      - name: Fail loud
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          n=$(gh issue list --label sync-failure --state open --limit 1 --json number --jq '.[0].number // empty')
+          if [ -n "$n" ]; then
+            gh issue comment "$n" --body "sync failed again: $url"
+          else
+            gh issue create --title "member pointer sync failed" --label sync-failure --body "run: $url"
+          fi
