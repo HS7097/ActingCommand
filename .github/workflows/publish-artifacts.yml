@@ -101,15 +101,16 @@ jobs:
         run: |
           set -euo pipefail
           title="Runtime ${RUNTIME_SHA:0:7} · UI ${UI_SHA:0:7} · $(date -u +%Y-%m-%d)"
-          notes="候选构建，未定版本号。
+          cat > out/NOTES.md <<EOF_NOTES
+          候选构建，未定版本号。
 
-来源：
-- Runtime \`${RUNTIME_SHA}\`：Windows exact-SHA build 产物 runtime（actingcommand-actingd.exe、actingctl.exe、配置模板、INSTALL.md、RELEASE-NOTES.md）与 tools（actinglab.exe、actingledger.exe、vision-provider-check、device-test、ac_fastdeploy_ppocr.dll）
-- UI \`${UI_SHA}\`：build 产物 acui-windows（acui.exe、LICENSE、README.md）
+          来源：
+          - Runtime \`${RUNTIME_SHA}\`：Windows exact-SHA build 产物 runtime（actingcommand-actingd.exe、actingctl.exe、配置模板、INSTALL.md、RELEASE-NOTES.md）与 tools（actinglab.exe、actingledger.exe、vision-provider-check、device-test、ac_fastdeploy_ppocr.dll）
+          - UI \`${UI_SHA}\`：build 产物 acui-windows（acui.exe、LICENSE、README.md）
 
-每个 zip 内含来源仓生成的 BUILD-MANIFEST.json，发布前已逐文件核对 SHA-256 与提交号；MEMBERS.json 记录来源运行与产物 ID；SHA256SUMS 覆盖全部资产。资源包不随本仓分发。"
-          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
-            --title "$title" --notes "$notes" out/*.zip out/MEMBERS.json out/SHA256SUMS
+          每个 zip 内含来源仓生成的 BUILD-MANIFEST.json，发布前已逐文件核对 SHA-256 与提交号；MEMBERS.json 记录来源运行与产物 ID；SHA256SUMS 覆盖全部资产。资源包不随本仓分发。
+          EOF_NOTES
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease             --title "$title" --notes-file out/NOTES.md out/*.zip out/MEMBERS.json out/SHA256SUMS
           echo "published $TAG"
 
       - name: Fail loud
