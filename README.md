@@ -34,3 +34,16 @@
 ```
 git clone --recurse-submodules https://github.com/HS7097/ActingCommand.git
 ```
+
+## 安装包与造物
+
+成员仓的构建产物按指针所指的提交同步到本仓的 [Releases](https://github.com/HS7097/ActingCommand/releases)，每个发布对应一对提交（`build-r<Runtime 前 7 位>-u<UI 前 7 位>`），标为预发布候选：
+
+| 资产 | 来源 |
+|---|---|
+| `actingcommand-runtime-<sha>.zip` | Runtime 仓"Windows exact-SHA build"的 runtime 产物：`actingcommand-actingd.exe`、`actingctl.exe`、配置模板、INSTALL.md、RELEASE-NOTES.md |
+| `actingcommand-tools-<sha>.zip` | 同一构建的 tools 产物：`actinglab.exe`、`actingledger.exe`、vision-provider-check、device-test、`ac_fastdeploy_ppocr.dll` |
+| `acui-windows-<sha>.zip` | UI 仓 build 的 Windows 产物：`acui.exe`、LICENSE、README |
+| `MEMBERS.json`、`SHA256SUMS` | 来源运行与产物 ID；全部资产的 SHA-256 |
+
+发布由工作流 `publish-artifacts` 完成：按指针取来源仓的产物，逐文件核对 BUILD-MANIFEST.json 里的 SHA-256 与提交号后再发布；指针每日对齐后自动触发，也可手动运行。来源仓产物保留 30 天，超期未发布的提交会在工作流里报错并开 issue。资源包不随本仓分发。

@@ -34,3 +34,16 @@ The `sync-member-pointers` workflow moves the pointers to the latest commit of e
 ```
 git clone --recurse-submodules https://github.com/HS7097/ActingCommand.git
 ```
+
+## Installers and artifacts
+
+Member build artifacts are published, for the commits the pointers name, as pre-releases on this repository's [Releases](https://github.com/HS7097/ActingCommand/releases) page, one release per commit pair (`build-r<Runtime 7>-u<UI 7>`):
+
+| Asset | Source |
+|---|---|
+| `actingcommand-runtime-<sha>.zip` | Runtime "Windows exact-SHA build" runtime artifact: `actingcommand-actingd.exe`, `actingctl.exe`, config template, INSTALL.md, RELEASE-NOTES.md |
+| `actingcommand-tools-<sha>.zip` | Tools artifact of the same build: `actinglab.exe`, `actingledger.exe`, vision-provider-check, device-test, `ac_fastdeploy_ppocr.dll` |
+| `acui-windows-<sha>.zip` | UI build Windows artifact: `acui.exe`, LICENSE, README |
+| `MEMBERS.json`, `SHA256SUMS` | Source runs and artifact ids; SHA-256 of every asset |
+
+The `publish-artifacts` workflow fetches the source artifacts for the pinned commits, re-checks every file against its BUILD-MANIFEST.json (SHA-256 and commit) and only then publishes. It runs automatically after the daily pointer sync and can be run by hand. Source artifacts are kept for 30 days; a pinned commit whose artifacts expired fails the workflow and opens an issue. Resource packs are not distributed here.

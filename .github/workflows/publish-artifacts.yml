@@ -1,0 +1,125 @@
+name: publish-artifacts
+
+# Publishes the member repositories' build artifacts for the commits pinned by
+# the two submodule pointers as one pre-release on this repository.
+#   Runtime: the "Windows exact-SHA build" run of the pinned commit
+#            (artifacts actingcommand-runtime-<sha>, actingcommand-tools-<sha>)
+#   UI:      the "build" run of the pinned commit (artifact acui-windows-<sha>)
+# Every artifact ships a BUILD-MANIFEST.json; files are re-hashed here before
+# anything is published. Only the workflow's own GITHUB_TOKEN is used: both
+# member repositories are public. Nothing is built here and nothing is pushed
+# to main; a release with its tag is the only write.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: publish-artifacts
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: false
+          persist-credentials: false
+
+      - name: Resolve pinned member commits and release tag
+        id: pins
+        run: |
+          set -euo pipefail
+          runtime=$(git rev-parse HEAD:ActingCommand-Runtime)
+          ui=$(git rev-parse HEAD:ActingCommand-UI)
+          tag="build-r${runtime:0:7}-u${ui:0:7}"
+          echo "RUNTIME_SHA=$runtime" >> "$GITHUB_ENV"
+          echo "UI_SHA=$ui" >> "$GITHUB_ENV"
+          echo "TAG=$tag" >> "$GITHUB_ENV"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "release $tag already exists; nothing to publish"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fetch and verify member artifacts
+        if: steps.pins.outputs.skip == 'false'
+        run: |
+          set -euo pipefail
+          mkdir -p work out
+          : > work/members.tsv
+          # fetch <repo> <workflow-file> <sha> <artifact-prefix>
+          fetch() {
+            local repo="$1" wf="$2" sha="$3" prefix="$4"
+            local name="$prefix$sha" run id
+            run=$(gh api "repos/$repo/actions/workflows/$wf/runs?head_sha=$sha&status=success&per_page=20" \
+                  --jq '[.workflow_runs[] | select(.event == "push")] | sort_by(.id) | last | .id // empty')
+            if [ -z "$run" ]; then
+              echo "::error::$repo: no successful push-triggered $wf run for $sha (never built, or artifacts expired)"
+              exit 1
+            fi
+            id=$(gh api "repos/$repo/actions/runs/$run/artifacts" --jq ".artifacts[] | select(.name == \"$name\" and .expired == false) | .id" | head -1)
+            if [ -z "$id" ]; then
+              echo "::error::$repo: artifact $name not found (or expired) in run $run"
+              exit 1
+            fi
+            gh api "repos/$repo/actions/artifacts/$id/zip" > "work/$name.zip"
+            mkdir -p "work/$name"
+            unzip -q "work/$name.zip" -d "work/$name"
+            test -f "work/$name/BUILD-MANIFEST.json" || { echo "::error::$name has no BUILD-MANIFEST.json"; exit 1; }
+            test "$(jq -r .commit_sha "work/$name/BUILD-MANIFEST.json")" = "$sha" || { echo "::error::$name manifest commit_sha != pinned $sha"; exit 1; }
+            test "$(jq -r .repository "work/$name/BUILD-MANIFEST.json")" = "$repo" || { echo "::error::$name manifest repository != $repo"; exit 1; }
+            jq -r '.files[] | "\(.sha256)  \(.path)"' "work/$name/BUILD-MANIFEST.json" > "work/$name.sums"
+            (cd "work/$name" && sha256sum -c "../$name.sums")
+            (cd "work/$name" && zip -q -r -X "../../out/$name.zip" .)
+            printf '%s\t%s\t%s\t%s\t%s\t%s.zip\n' "$repo" "$wf" "$sha" "$run" "$id" "$name" >> work/members.tsv
+            echo "verified $name from $repo run $run artifact $id"
+          }
+          fetch HS7097/ActingCommand-Runtime windows-remote-build.yml "$RUNTIME_SHA" actingcommand-runtime-
+          fetch HS7097/ActingCommand-Runtime windows-remote-build.yml "$RUNTIME_SHA" actingcommand-tools-
+          fetch HS7097/ActingCommand-UI      build.yml                "$UI_SHA"      acui-windows-
+          jq -Rn \
+            --arg umbrella "$GITHUB_SHA" --arg runtime "$RUNTIME_SHA" --arg ui "$UI_SHA" \
+            --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            '{umbrella_commit: $umbrella, runtime_sha: $runtime, ui_sha: $ui, published_at_utc: $at,
+              sources: [inputs | split("\t") | {repository: .[0], workflow: .[1], commit_sha: .[2],
+                        run_id: (.[3] | tonumber), artifact_id: (.[4] | tonumber), asset: .[5]}]}' \
+            work/members.tsv > out/MEMBERS.json
+          (cd out && sha256sum *.zip MEMBERS.json > SHA256SUMS)
+          ls -la out
+          cat out/SHA256SUMS
+
+      - name: Publish pre-release
+        if: steps.pins.outputs.skip == 'false'
+        run: |
+          set -euo pipefail
+          title="Runtime ${RUNTIME_SHA:0:7} · UI ${UI_SHA:0:7} · $(date -u +%Y-%m-%d)"
+          notes="候选构建，未定版本号。
+
+来源：
+- Runtime \`${RUNTIME_SHA}\`：Windows exact-SHA build 产物 runtime（actingcommand-actingd.exe、actingctl.exe、配置模板、INSTALL.md、RELEASE-NOTES.md）与 tools（actinglab.exe、actingledger.exe、vision-provider-check、device-test、ac_fastdeploy_ppocr.dll）
+- UI \`${UI_SHA}\`：build 产物 acui-windows（acui.exe、LICENSE、README.md）
+
+每个 zip 内含来源仓生成的 BUILD-MANIFEST.json，发布前已逐文件核对 SHA-256 与提交号；MEMBERS.json 记录来源运行与产物 ID；SHA256SUMS 覆盖全部资产。资源包不随本仓分发。"
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
+            --title "$title" --notes "$notes" out/*.zip out/MEMBERS.json out/SHA256SUMS
+          echo "published $TAG"
+
+      - name: Fail loud
+        if: failure()
+        run: |
+          set -euo pipefail
+          url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          n=$(gh issue list --repo "$GITHUB_REPOSITORY" --label sync-failure --state open --limit 1 --json number --jq '.[0].number // empty')
+          if [ -n "$n" ]; then
+            gh issue comment "$n" --repo "$GITHUB_REPOSITORY" --body "artifact publish failed: $url"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "artifact publish failed" --label sync-failure --body "run: $url"
+          fi
