@@ -1,9 +1,14 @@
 name: sync-member-pointers
 
 # Moves the two submodule pointers (ActingCommand-Runtime, ActingCommand-UI)
-# to the latest commit of each member's main. Public members: no credential
-# beyond the workflow's own GITHUB_TOKEN. Nothing is cloned; the gitlinks are
-# rewritten from the members' tip SHAs read through the API.
+# to the latest commit of each member's main. Public members: reading their
+# tips needs no credential beyond the workflow's own GITHUB_TOKEN. The push to
+# main must pass this repository's rulesets (same as Runtime/UI: updates to
+# main are restricted to the admin bypass), and GitHub does not let a personal
+# account list GitHub Actions as a bypass actor, so the push uses the secret
+# UMBRELLA_SYNC_TOKEN: a fine-grained PAT of HS7097 scoped to this repository
+# with Contents read/write. Nothing is cloned; gitlinks are rewritten from the
+# members' tip SHAs read through the API.
 
 on:
   schedule:
@@ -23,9 +28,20 @@ jobs:
   bump:
     runs-on: ubuntu-latest
     steps:
+      - name: Require the sync token
+        env:
+          UMBRELLA_SYNC_TOKEN: ${{ secrets.UMBRELLA_SYNC_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "$UMBRELLA_SYNC_TOKEN" ]; then
+            echo "::error::secret UMBRELLA_SYNC_TOKEN is missing. Create a fine-grained PAT as HS7097 (repository access: only HS7097/ActingCommand; permissions: Contents read and write) and store it as this repository's Actions secret UMBRELLA_SYNC_TOKEN."
+            exit 1
+          fi
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: false
+          token: ${{ secrets.UMBRELLA_SYNC_TOKEN }}
           persist-credentials: true
 
       - name: Resolve member tips and rewrite gitlinks
