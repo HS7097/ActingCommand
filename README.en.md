@@ -32,7 +32,7 @@ Member build artifacts are synced daily to this repository's [Releases](https://
 |---|---|
 | `actingcommand-runtime-<sha>.zip` | Runtime "Windows exact-SHA build" runtime artifact: `actingcommand-actingd.exe`, `actingctl.exe`, config template, INSTALL.md, RELEASE-NOTES.md |
 | `actingcommand-tools-<sha>.zip` | Tools artifact of the same build: `actinglab.exe`, `actingledger.exe`, vision-provider-check, device-test, `ac_fastdeploy_ppocr.dll` |
-| `acui-windows-<sha>.zip` | UI build Windows artifact: `acui.exe`, LICENSE, README |
+| `acui-windows-<sha>.zip` | UI build Windows artifact: `acui.exe`, `acsetup.exe` (the setup wizard), LICENSE, README |
 | `MEMBERS.json`, `SHA256SUMS` | Source runs and artifact ids; SHA-256 of every asset |
 
 The `publish-artifacts` workflow fetches the source artifacts, re-checks every file against its BUILD-MANIFEST.json (SHA-256 and commit) and only then publishes. It runs daily at 03:47 UTC and can be run by hand; each commit pair is published once. Source artifacts are kept for 30 days; a pinned commit whose artifacts expired fails the workflow and opens an issue. Resource packs are not distributed here.

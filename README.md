@@ -32,7 +32,7 @@
 |---|---|
 | `actingcommand-runtime-<sha>.zip` | Runtime 仓"Windows exact-SHA build"的 runtime 产物：`actingcommand-actingd.exe`、`actingctl.exe`、配置模板、INSTALL.md、RELEASE-NOTES.md |
 | `actingcommand-tools-<sha>.zip` | 同一构建的 tools 产物：`actinglab.exe`、`actingledger.exe`、vision-provider-check、device-test、`ac_fastdeploy_ppocr.dll` |
-| `acui-windows-<sha>.zip` | UI 仓 build 的 Windows 产物：`acui.exe`、LICENSE、README |
+| `acui-windows-<sha>.zip` | UI 仓 build 的 Windows 产物：`acui.exe`、`acsetup.exe`（安装引导程序）、LICENSE、README |
 | `MEMBERS.json`、`SHA256SUMS` | 来源运行与产物 ID；全部资产的 SHA-256 |
 
 发布由工作流 `publish-artifacts` 完成：取来源仓的产物，逐文件核对 BUILD-MANIFEST.json 里的 SHA-256 与提交号后再发布；每日 03:47 UTC 自动运行，也可手动运行；同一对提交只发一次。来源仓产物保留 30 天，超期未发布的提交会在工作流里报错并开 issue。资源包不随本仓分发。
