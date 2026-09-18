@@ -1,16 +1,21 @@
 name: publish-artifacts
 
-# Publishes the member repositories' build artifacts for the commits pinned by
-# the two submodule pointers as one pre-release on this repository.
-#   Runtime: the "Windows exact-SHA build" run of the pinned commit
-#            (artifacts actingcommand-runtime-<sha>, actingcommand-tools-<sha>)
-#   UI:      the "build" run of the pinned commit (artifact acui-windows-<sha>)
-# Every artifact ships a BUILD-MANIFEST.json; files are re-hashed here before
-# anything is published. Only the workflow's own GITHUB_TOKEN is used: both
-# member repositories are public. Nothing is built here and nothing is pushed
-# to main; a release with its tag is the only write.
+# Publishes the member repositories' build artifacts as one pre-release on this
+# repository, once a day and on demand. For each member it takes the newest
+# commit on main that has a successful push-triggered build with artifacts
+# (normally the tip; the previous commit only while the tip is still building):
+#   Runtime: "Windows exact-SHA build" (artifacts actingcommand-runtime-<sha>,
+#            actingcommand-tools-<sha>)
+#   UI:      "build" (artifact acui-windows-<sha>)
+# The submodule pointers are not consulted and not moved. Every artifact ships
+# a BUILD-MANIFEST.json; files are re-hashed here before anything is published.
+# Only the workflow's own GITHUB_TOKEN is used: both member repositories are
+# public, and a release with its tag is the only write (branch rulesets do not
+# apply to releases or tags).
 
 on:
+  schedule:
+    - cron: '47 3 * * *'
   workflow_dispatch:
 
 permissions:
@@ -32,12 +37,28 @@ jobs:
           submodules: false
           persist-credentials: false
 
-      - name: Resolve pinned member commits and release tag
+      - name: Resolve publishable member commits and release tag
         id: pins
         run: |
           set -euo pipefail
-          runtime=$(git rev-parse HEAD:ActingCommand-Runtime)
-          ui=$(git rev-parse HEAD:ActingCommand-UI)
+          # newest <repo> <workflow-file>: newest main commit (of the last 10) with a successful push run
+          newest() {
+            local repo="$1" wf="$2" sha run
+            for sha in $(gh api "repos/$repo/commits?sha=main&per_page=10" --jq '.[].sha'); do
+              run=$(gh api "repos/$repo/actions/workflows/$wf/runs?head_sha=$sha&status=success&per_page=20" \
+                    --jq '[.workflow_runs[] | select(.event == "push")] | sort_by(.id) | last | .id // empty')
+              if [ -n "$run" ]; then
+                echo "$repo: using $sha (run $run)" >&2
+                echo "$sha"
+                return 0
+              fi
+              echo "$repo: $sha has no successful push build yet, looking back" >&2
+            done
+            echo "::error::$repo: none of the last 10 main commits has a successful $wf push run"
+            return 1
+          }
+          runtime=$(newest HS7097/ActingCommand-Runtime windows-remote-build.yml)
+          ui=$(newest HS7097/ActingCommand-UI build.yml)
           tag="build-r${runtime:0:7}-u${ui:0:7}"
           echo "RUNTIME_SHA=$runtime" >> "$GITHUB_ENV"
           echo "UI_SHA=$ui" >> "$GITHUB_ENV"

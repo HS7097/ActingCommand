@@ -1,24 +1,21 @@
 name: sync-member-pointers
 
-# Moves the two submodule pointers (ActingCommand-Runtime, ActingCommand-UI)
-# to the latest commit of each member's main. Public members: reading their
-# tips needs no credential beyond the workflow's own GITHUB_TOKEN. The push to
-# main must pass this repository's rulesets (same as Runtime/UI: updates to
-# main are restricted to the admin bypass), and GitHub does not let a personal
-# account list GitHub Actions as a bypass actor, so the push uses the secret
-# UMBRELLA_SYNC_TOKEN: a fine-grained PAT of HS7097 scoped to this repository
-# with Contents read/write. Nothing is cloned; gitlinks are rewritten from the
-# members' tip SHAs read through the API.
+# Manual only. Moves the two submodule pointers (ActingCommand-Runtime,
+# ActingCommand-UI) to the latest commit of each member's main. Artifact
+# publishing does not depend on this (see publish-artifacts.yml). The push to
+# main must pass this repository's rulesets (updates to main are restricted to
+# the admin bypass) and GitHub does not let a personal account list GitHub
+# Actions as a bypass actor, so the push uses the secret UMBRELLA_SYNC_TOKEN
+# (a fine-grained PAT of HS7097 scoped to this repository, Contents read/write).
+# Nothing is cloned; gitlinks are rewritten from the members' tip SHAs read
+# through the API.
 
 on:
-  schedule:
-    - cron: '17 3 * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
   issues: write
-  actions: write
 
 concurrency:
   group: sync-member-pointers
@@ -80,8 +77,6 @@ jobs:
               -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
               commit -m "sync: $(paste -sd ';' bump.log)"
           git push origin HEAD:main
-          echo "pointer moved; requesting artifact publish"
-          GH_TOKEN="${{ github.token }}" gh workflow run publish-artifacts.yml --repo "${{ github.repository }}" --ref main
 
       - name: Fail loud
         if: failure()
