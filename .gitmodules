@@ -1,8 +1,0 @@
-[submodule "ActingCommand-Runtime"]
-	path = ActingCommand-Runtime
-	url = https://github.com/HS7097/ActingCommand-Runtime.git
-	branch = main
-[submodule "ActingCommand-UI"]
-	path = ActingCommand-UI
-	url = https://github.com/HS7097/ActingCommand-UI.git
-	branch = main

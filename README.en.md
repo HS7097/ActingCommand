@@ -22,22 +22,11 @@
 
 ## This repository
 
-This is the umbrella (portal) repository of the ActingCommand family; no development happens here. Runtime and UI hang under it as submodule pointers:
-
-| Directory | Points at |
-|---|---|
-| `ActingCommand-Runtime/` | Runtime repository, `main` |
-| `ActingCommand-UI/` | UI repository, `main` |
-
-The `sync-member-pointers` workflow, run by hand, moves the pointers to the latest commit of each `main` (main is protected by the same rulesets as Runtime and UI; only the bypass list can write it); a failed sync opens an issue labelled `sync-failure`. Resource packs are not distributed with this repository; each game ships from its own resource repository.
-
-```
-git clone --recurse-submodules https://github.com/HS7097/ActingCommand.git
-```
+This is the umbrella (portal) repository of the ActingCommand family. It holds no code: the code lives in the member repositories linked above, and each link goes to that repository's home page. This repository carries only the README and the installers and artifacts on its Releases page. Resource packs are not distributed here; each game ships from its own resource repository.
 
 ## Installers and artifacts
 
-Member build artifacts are synced daily to this repository's [Releases](https://github.com/HS7097/ActingCommand/releases) page: for each member the newest `main` commit that already has a successful build artifact, one pre-release per commit pair (`build-r<Runtime 7>-u<UI 7>`), independent of the pointers above:
+Member build artifacts are synced daily to this repository's [Releases](https://github.com/HS7097/ActingCommand/releases) page: for each member the newest `main` commit that already has a successful build artifact, one pre-release per commit pair (`build-r<Runtime 7>-u<UI 7>`):
 
 | Asset | Source |
 |---|---|

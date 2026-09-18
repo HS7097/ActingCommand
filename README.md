@@ -22,22 +22,11 @@
 
 ## 本仓
 
-本仓是 ActingCommand 项目族的伞仓（门面页），不承载开发。Runtime 与 UI 以子模块指针挂在本仓下：
-
-| 目录 | 指向 |
-|---|---|
-| `ActingCommand-Runtime/` | Runtime 仓 `main` |
-| `ActingCommand-UI/` | UI 仓 `main` |
-
-指针由工作流 `sync-member-pointers` 手动触发对齐到各自 `main` 的最新提交（main 受与 Runtime、UI 相同的规则集保护，只有绕过名单能写）；对齐失败会开一条带 `sync-failure` 标签的 issue。资源包不随本仓分发，按游戏各自的资源仓分发。
-
-```
-git clone --recurse-submodules https://github.com/HS7097/ActingCommand.git
-```
+本仓是 ActingCommand 项目族的伞仓（门面页），不承载代码；代码在上面各成员仓，链接直达仓库主页。本仓只放 README 与 Releases 里的安装包与造物。资源包不随本仓分发，按游戏各自的资源仓分发。
 
 ## 安装包与造物
 
-成员仓的构建产物每日自动同步到本仓的 [Releases](https://github.com/HS7097/ActingCommand/releases)：取各成员仓 `main` 上最新一个已有成功构建产物的提交，每个发布对应一对提交（`build-r<Runtime 前 7 位>-u<UI 前 7 位>`），标为预发布候选，不依赖上面的指针：
+成员仓的构建产物每日自动同步到本仓的 [Releases](https://github.com/HS7097/ActingCommand/releases)：取各成员仓 `main` 上最新一个已有成功构建产物的提交，每个发布对应一对提交（`build-r<Runtime 前 7 位>-u<UI 前 7 位>`），标为预发布候选：
 
 | 资产 | 来源 |
 |---|---|
