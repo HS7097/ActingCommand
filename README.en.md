@@ -30,6 +30,8 @@ This is the umbrella (portal) repository of the ActingCommand family. It holds n
 
 **How we do it:** The Runtime is a resident Rust program that contains no game logic of its own. It connects to Android emulators over ADB (and the emulator vendor's interfaces), captures frames on a cadence, recognizes materials in each frame (template, color, OCR, neural network), clicks inside regions declared in advance, and writes every step, what it saw, what it did and how it went, as typed events into an append-only ledger. The ledger is the single source of truth: the scheduler decides the next run from it, the console only reads it, and when something goes wrong it is traced from the ledger alone. Everything game-specific, the images, the click regions and the task order, lives in a per-game resource pack sealed by hash; the Runtime only loads, verifies and executes it. Switch the game by switching the pack; the program does not change.
 
+**Join in:** If you have a better idea, or run into a problem while using it, open an issue in this repository, or open a pull request directly in the repository concerned.
+
 ## Installers and artifacts
 
 Member build artifacts are synced daily to this repository's [Releases](https://github.com/HS7097/ActingCommand/releases) page: for each member the newest `main` commit that already has a successful build artifact, one pre-release per commit pair (`build-r<Runtime 7>-u<UI 7>`):
