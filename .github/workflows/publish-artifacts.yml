@@ -12,10 +12,15 @@ name: publish-artifacts
 # Member artifacts are read with the workflow's own GITHUB_TOKEN: both member
 # repositories are public, and a release with its tag is the only write (branch
 # rulesets do not apply to releases or tags).
-# Resource bundles: only when the secret RESOURCES_READ_TOKEN (read access to the
-# private resource repositories) is set, the newest bundle-* release of each
-# resource repository is downloaded with it, checked against its .sha256 sidecar
-# and attached as well; without the secret none are forwarded.
+# Resource bundles come from one of two sources:
+#   - secret RESOURCES_READ_TOKEN set (read access to the private resource
+#     repositories): the newest bundle-* release of each resource repository is
+#     downloaded with it, checked against its .sha256 sidecar and attached; this
+#     repository's bundles/ directory is ignored;
+#   - secret not set: every bundles/<game>-bundle-<sha7>.zip carried in this
+#     repository is checked against its .sha256 sidecar (sha256sum -c) and
+#     attached, its repository mapped from the game in its bundle.json and its tag
+#     taken as bundle-<sha7>; with no zip in bundles/ none are forwarded.
 # Installers: the UI artifact's acsetup.exe is published on its own (online
 # wizard) and as acsetup-full-<tag>.exe (offline wizard: acsetup.exe followed by
 # every release file, an INDEX and a 125-byte trailer, payload format v1). Each
@@ -139,8 +144,48 @@ jobs:
           set -euo pipefail
           : > work/bundles.jsonl
           if [ -z "${GH_TOKEN:-}" ]; then
-            echo "RESOURCES_READ_TOKEN is not configured; resource bundles are not forwarded"
-            echo "Resource bundles: not forwarded (RESOURCES_READ_TOKEN not configured)" > work/bundles-notes.md
+            # No read token: forward the bundles carried in this repository's bundles/ directory (one per game)
+            shopt -s nullglob
+            local_zips=(bundles/*-bundle-*.zip)
+            shopt -u nullglob
+            if [ "${#local_zips[@]}" -eq 0 ]; then
+              echo "RESOURCES_READ_TOKEN is not configured and bundles/ carries no bundle; resource bundles are not forwarded"
+              echo "Resource bundles: not forwarded (RESOURCES_READ_TOKEN not configured)" > work/bundles-notes.md
+              exit 0
+            fi
+            echo "RESOURCES_READ_TOKEN is not configured; forwarding the ${#local_zips[@]} bundle(s) carried in bundles/"
+            echo "Resource bundles (carried by this repository's bundles/ directory; RESOURCES_READ_TOKEN not configured):" > work/bundles-notes.md
+            declare -A repo_of=(
+              [bluearchive]=HS7097/ActingCommand-Resources-BlueArchive
+              [arknights]=HS7097/ActingCommand-Resources-Arknights
+              [azurlane]=HS7097/ActingCommand-Resources-AzurLane
+            )
+            declare -A seen=()
+            zip_re='^.+-bundle-([0-9a-f]{7})\.zip$'
+            for path in "${local_zips[@]}"; do
+              zip="${path##*/}"
+              [[ $zip =~ $zip_re ]] || { echo "::error::bundles/$zip: expected the name <game>-bundle-<sha7>.zip"; exit 1; }
+              tag="bundle-${BASH_REMATCH[1]}"
+              test -f "bundles/$zip.sha256" || { echo "::error::bundles/$zip has no $zip.sha256 sidecar"; exit 1; }
+              sha=$(sha256sum "bundles/$zip" | cut -d' ' -f1)
+              if ! (cd bundles && sha256sum -c -- "$zip.sha256") || [ "$(cat "bundles/$zip.sha256")" != "$sha  $zip" ]; then
+                echo "::error::bundles/$zip does not match its .sha256 sidecar"
+                exit 1
+              fi
+              game=$(unzip -p "bundles/$zip" bundle.json | jq -er '.game | select(type == "string" and length > 0)') \
+                || { echo "::error::bundles/$zip has no readable bundle.json with a game"; exit 1; }
+              src=$(unzip -p "bundles/$zip" bundle.json | jq -er '.source_sha | select(type == "string" and length > 0)') \
+                || { echo "::error::bundles/$zip has no bundle.json with a source_sha"; exit 1; }
+              repo="${repo_of[$game]:-}"
+              [ -n "$repo" ] || { echo "::error::bundles/$zip: game '$game' is not mapped to a resource repository"; exit 1; }
+              [ -z "${seen[$game]:-}" ] || { echo "::error::bundles/$zip: game '$game' already has ${seen[$game]}; bundles/ carries exactly one bundle per game"; exit 1; }
+              seen[$game]="$zip"
+              cp "bundles/$zip" out/
+              jq -nc --arg repository "$repo" --arg tag "$tag" --arg asset "$zip" --arg sha256 "$sha" --arg source_sha "$src" \
+                '{repository: $repository, tag: $tag, asset: $asset, sha256: $sha256, source_sha: $source_sha}' >> work/bundles.jsonl
+              printf -- '- %s `%s`: SHA-256 `%s`\n' "$repo" "$tag" "$sha" >> work/bundles-notes.md
+              echo "forwarded bundles/$zip as $repo $tag (game $game, source $src)"
+            done
             exit 0
           fi
           echo "Resource bundles (newest bundle-* release of each resource repository, checked against its .sha256 sidecar):" > work/bundles-notes.md
@@ -184,6 +229,8 @@ jobs:
           forward HS7097/ActingCommand-Resources-BlueArchive
           forward HS7097/ActingCommand-Resources-Arknights
           forward HS7097/ActingCommand-Resources-AzurLane
+          echo "RESOURCES_READ_TOKEN is configured; this repository's bundles/ directory is ignored"
+          printf '\n%s\n' "This repository's bundles/ directory is ignored while RESOURCES_READ_TOKEN is configured." >> work/bundles-notes.md
 
       - name: Write MEMBERS.json and SHA256SUMS
         if: steps.pins.outputs.skip == 'false'
@@ -201,6 +248,7 @@ jobs:
           (cd out && sha256sum *.zip MEMBERS.json > SHA256SUMS)
           ls -la out
           cat out/SHA256SUMS
+          jq '{bundles}' out/MEMBERS.json
 
       - name: Assemble installers
         if: steps.pins.outputs.skip == 'false'

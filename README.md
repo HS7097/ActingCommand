@@ -24,7 +24,7 @@
 
 ## This repository
 
-This is the umbrella (portal) repository of the ActingCommand family. It holds no code: the code lives in the member repositories linked above, and each link goes to that repository's home page. This repository carries only the README and the installers and artifacts on its Releases page. The latest bundle of each resource repository is forwarded into every daily release when available.
+This is the umbrella (portal) repository of the ActingCommand family. It holds no code: the code lives in the member repositories linked above, and each link goes to that repository's home page. This repository carries only the README and the installers and artifacts on its Releases page. The latest bundle of each resource repository is forwarded into every daily release when available, or, until the read token exists, the bundle carried in this repository's `bundles/` directory.
 
 **What we can do:** Let an AI agent deploy our program (or a person install it; the human-friendly setup wizard is still being built). Once the matching skill is loaded in your harness, you can have the agent produce the materials that a program running in an Android emulator needs, and then run it again and again on a schedule.
 
@@ -45,7 +45,7 @@ Member build artifacts are synced daily to this repository's [Releases](https://
 | `acui-windows-<sha>.zip` | UI build Windows artifact: `acui.exe`, `acsetup.exe` (the setup wizard), LICENSE, README |
 | `acsetup.exe` | Online setup wizard (the `acsetup.exe` of the UI artifact on its own): downloads the rest from this release; sidecar `acsetup.exe.sha256`; not listed in SHA256SUMS |
 | `acsetup-full-<tag>.exe` | Offline setup wizard with the whole release embedded: every zip, MEMBERS.json and SHA256SUMS; sidecar `acsetup-full-<tag>.exe.sha256`; not listed in SHA256SUMS |
-| `<game>-bundle-<sha7>.zip` | Latest resource bundle of each resource repository (its newest `bundle-*` release), when available: `applications.json`, `bundle.json`, `packs/` (the sealed resource packs) |
+| `<game>-bundle-<sha7>.zip` | Latest resource bundle of each resource repository (its newest `bundle-*` release), when available, or, until the read token exists, the bundle carried in this repository's `bundles/` directory: `applications.json`, `bundle.json`, `packs/` (the sealed resource packs) |
 | `MEMBERS.json`, `SHA256SUMS` | Source runs and artifact ids; SHA-256 of every zip and of MEMBERS.json |
 
-The `publish-artifacts` workflow fetches the source artifacts, re-checks every file against its BUILD-MANIFEST.json (SHA-256 and commit) and only then publishes. It runs daily at 03:47 UTC and can be run by hand; each commit pair is published once. Source artifacts are kept for 30 days; a pinned commit whose artifacts expired fails the workflow and opens an issue. The latest bundle of each resource repository is forwarded into every daily release when available, after it is checked against its `.sha256` sidecar.
+The `publish-artifacts` workflow fetches the source artifacts, re-checks every file against its BUILD-MANIFEST.json (SHA-256 and commit) and only then publishes. It runs daily at 03:47 UTC and can be run by hand; each commit pair is published once. Source artifacts are kept for 30 days; a pinned commit whose artifacts expired fails the workflow and opens an issue. The latest bundle of each resource repository is forwarded into every daily release when available, or, until the read token exists, the bundle carried in this repository's `bundles/` directory, after it is checked against its `.sha256` sidecar.

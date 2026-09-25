@@ -24,7 +24,7 @@
 
 ## 本仓
 
-本仓是 ActingCommand 项目族的伞仓（门面页），不承载代码；代码在上面各成员仓，链接直达仓库主页。本仓只放 README 与 Releases 里的安装包与造物。各资源仓最新的资源包（bundle）在可用时随每日发布一并转发。
+本仓是 ActingCommand 项目族的伞仓（门面页），不承载代码；代码在上面各成员仓，链接直达仓库主页。本仓只放 README 与 Releases 里的安装包与造物。各资源仓最新的资源包（bundle）在可用时随每日发布一并转发；在读取令牌就位之前，则改为转发本仓 `bundles/` 目录里携带的资源包。
 
 **我们能做什么：** 让智能体部署（或人类安装——人类友好的安装界面正在制作）我们的程序；在 Harness 里加载对应的 skill 之后，你就可以让智能体为运行在安卓模拟器上的程序制作所需的素材，然后定期重复运行。
 
@@ -45,7 +45,7 @@
 | `acui-windows-<sha>.zip` | UI 仓 build 的 Windows 产物：`acui.exe`、`acsetup.exe`（安装引导程序）、LICENSE、README |
 | `acsetup.exe` | 在线安装引导程序（即 UI 产物里的 `acsetup.exe` 单独一份）：其余文件从本发布件下载；旁有 `acsetup.exe.sha256`；不列入 SHA256SUMS |
 | `acsetup-full-<tag>.exe` | 离线安装引导程序，内嵌整个发布件：全部 zip、MEMBERS.json、SHA256SUMS；旁有 `acsetup-full-<tag>.exe.sha256`；不列入 SHA256SUMS |
-| `<game>-bundle-<sha7>.zip` | 各资源仓最新的资源包（其最新的 `bundle-*` 发布），有则转发：`applications.json`、`bundle.json`、`packs/`（封印后的资源包） |
+| `<game>-bundle-<sha7>.zip` | 各资源仓最新的资源包（其最新的 `bundle-*` 发布），有则转发；在读取令牌就位之前，则为本仓 `bundles/` 目录里携带的资源包：`applications.json`、`bundle.json`、`packs/`（封印后的资源包） |
 | `MEMBERS.json`、`SHA256SUMS` | 来源运行与产物 ID；全部 zip 与 MEMBERS.json 的 SHA-256 |
 
-发布由工作流 `publish-artifacts` 完成：取来源仓的产物，逐文件核对 BUILD-MANIFEST.json 里的 SHA-256 与提交号后再发布；每日 03:47 UTC 自动运行，也可手动运行；同一对提交只发一次。来源仓产物保留 30 天，超期未发布的提交会在工作流里报错并开 issue。各资源仓最新的资源包在可用时按其 `.sha256` 校验后，随每日发布一并转发。
+发布由工作流 `publish-artifacts` 完成：取来源仓的产物，逐文件核对 BUILD-MANIFEST.json 里的 SHA-256 与提交号后再发布；每日 03:47 UTC 自动运行，也可手动运行；同一对提交只发一次。来源仓产物保留 30 天，超期未发布的提交会在工作流里报错并开 issue。各资源仓最新的资源包在可用时（在读取令牌就位之前，则为本仓 `bundles/` 目录里携带的资源包）按其 `.sha256` 校验后，随每日发布一并转发。
