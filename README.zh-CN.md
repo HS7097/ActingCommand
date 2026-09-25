@@ -43,7 +43,9 @@
 | `actingcommand-runtime-<sha>.zip` | Runtime 仓"Windows exact-SHA build"的 runtime 产物：`actingcommand-actingd.exe`、`actingctl.exe`、配置模板、INSTALL.md、RELEASE-NOTES.md |
 | `actingcommand-tools-<sha>.zip` | 同一构建的 tools 产物：`actinglab.exe`、`actingledger.exe`、vision-provider-check、device-test、`ac_fastdeploy_ppocr.dll` |
 | `acui-windows-<sha>.zip` | UI 仓 build 的 Windows 产物：`acui.exe`、`acsetup.exe`（安装引导程序）、LICENSE、README |
+| `acsetup.exe` | 在线安装引导程序（即 UI 产物里的 `acsetup.exe` 单独一份）：其余文件从本发布件下载；旁有 `acsetup.exe.sha256`；不列入 SHA256SUMS |
+| `acsetup-full-<tag>.exe` | 离线安装引导程序，内嵌整个发布件：全部 zip、MEMBERS.json、SHA256SUMS；旁有 `acsetup-full-<tag>.exe.sha256`；不列入 SHA256SUMS |
 | `<game>-bundle-<sha7>.zip` | 各资源仓最新的资源包（其最新的 `bundle-*` 发布），有则转发：`applications.json`、`bundle.json`、`packs/`（封印后的资源包） |
-| `MEMBERS.json`、`SHA256SUMS` | 来源运行与产物 ID；全部资产的 SHA-256 |
+| `MEMBERS.json`、`SHA256SUMS` | 来源运行与产物 ID；全部 zip 与 MEMBERS.json 的 SHA-256 |
 
 发布由工作流 `publish-artifacts` 完成：取来源仓的产物，逐文件核对 BUILD-MANIFEST.json 里的 SHA-256 与提交号后再发布；每日 03:47 UTC 自动运行，也可手动运行；同一对提交只发一次。来源仓产物保留 30 天，超期未发布的提交会在工作流里报错并开 issue。各资源仓最新的资源包在可用时按其 `.sha256` 校验后，随每日发布一并转发。

@@ -43,7 +43,9 @@ Member build artifacts are synced daily to this repository's [Releases](https://
 | `actingcommand-runtime-<sha>.zip` | Runtime "Windows exact-SHA build" runtime artifact: `actingcommand-actingd.exe`, `actingctl.exe`, config template, INSTALL.md, RELEASE-NOTES.md |
 | `actingcommand-tools-<sha>.zip` | Tools artifact of the same build: `actinglab.exe`, `actingledger.exe`, vision-provider-check, device-test, `ac_fastdeploy_ppocr.dll` |
 | `acui-windows-<sha>.zip` | UI build Windows artifact: `acui.exe`, `acsetup.exe` (the setup wizard), LICENSE, README |
+| `acsetup.exe` | Online setup wizard (the `acsetup.exe` of the UI artifact on its own): downloads the rest from this release; sidecar `acsetup.exe.sha256`; not listed in SHA256SUMS |
+| `acsetup-full-<tag>.exe` | Offline setup wizard with the whole release embedded: every zip, MEMBERS.json and SHA256SUMS; sidecar `acsetup-full-<tag>.exe.sha256`; not listed in SHA256SUMS |
 | `<game>-bundle-<sha7>.zip` | Latest resource bundle of each resource repository (its newest `bundle-*` release), when available: `applications.json`, `bundle.json`, `packs/` (the sealed resource packs) |
-| `MEMBERS.json`, `SHA256SUMS` | Source runs and artifact ids; SHA-256 of every asset |
+| `MEMBERS.json`, `SHA256SUMS` | Source runs and artifact ids; SHA-256 of every zip and of MEMBERS.json |
 
 The `publish-artifacts` workflow fetches the source artifacts, re-checks every file against its BUILD-MANIFEST.json (SHA-256 and commit) and only then publishes. It runs daily at 03:47 UTC and can be run by hand; each commit pair is published once. Source artifacts are kept for 30 days; a pinned commit whose artifacts expired fails the workflow and opens an issue. The latest bundle of each resource repository is forwarded into every daily release when available, after it is checked against its `.sha256` sidecar.
