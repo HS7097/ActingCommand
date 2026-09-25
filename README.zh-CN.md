@@ -24,7 +24,7 @@
 
 ## 本仓
 
-本仓是 ActingCommand 项目族的伞仓（门面页），不承载代码；代码在上面各成员仓，链接直达仓库主页。本仓只放 README 与 Releases 里的安装包与造物。资源包不随本仓分发，按游戏各自的资源仓分发。
+本仓是 ActingCommand 项目族的伞仓（门面页），不承载代码；代码在上面各成员仓，链接直达仓库主页。本仓只放 README 与 Releases 里的安装包与造物。各资源仓最新的资源包（bundle）在可用时随每日发布一并转发。
 
 **我们能做什么：** 让智能体部署（或人类安装——人类友好的安装界面正在制作）我们的程序；在 Harness 里加载对应的 skill 之后，你就可以让智能体为运行在安卓模拟器上的程序制作所需的素材，然后定期重复运行。
 
@@ -43,6 +43,7 @@
 | `actingcommand-runtime-<sha>.zip` | Runtime 仓"Windows exact-SHA build"的 runtime 产物：`actingcommand-actingd.exe`、`actingctl.exe`、配置模板、INSTALL.md、RELEASE-NOTES.md |
 | `actingcommand-tools-<sha>.zip` | 同一构建的 tools 产物：`actinglab.exe`、`actingledger.exe`、vision-provider-check、device-test、`ac_fastdeploy_ppocr.dll` |
 | `acui-windows-<sha>.zip` | UI 仓 build 的 Windows 产物：`acui.exe`、`acsetup.exe`（安装引导程序）、LICENSE、README |
+| `<game>-bundle-<sha7>.zip` | 各资源仓最新的资源包（其最新的 `bundle-*` 发布），有则转发：`applications.json`、`bundle.json`、`packs/`（封印后的资源包） |
 | `MEMBERS.json`、`SHA256SUMS` | 来源运行与产物 ID；全部资产的 SHA-256 |
 
-发布由工作流 `publish-artifacts` 完成：取来源仓的产物，逐文件核对 BUILD-MANIFEST.json 里的 SHA-256 与提交号后再发布；每日 03:47 UTC 自动运行，也可手动运行；同一对提交只发一次。来源仓产物保留 30 天，超期未发布的提交会在工作流里报错并开 issue。资源包不随本仓分发。
+发布由工作流 `publish-artifacts` 完成：取来源仓的产物，逐文件核对 BUILD-MANIFEST.json 里的 SHA-256 与提交号后再发布；每日 03:47 UTC 自动运行，也可手动运行；同一对提交只发一次。来源仓产物保留 30 天，超期未发布的提交会在工作流里报错并开 issue。各资源仓最新的资源包在可用时按其 `.sha256` 校验后，随每日发布一并转发。
