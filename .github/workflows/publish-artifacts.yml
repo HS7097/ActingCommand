@@ -16,11 +16,25 @@ name: publish-artifacts
 # private resource repositories) is set, the newest bundle-* release of each
 # resource repository is downloaded with it, checked against its .sha256 sidecar
 # and attached as well; without the secret none are forwarded.
+# Installers: the UI artifact's acsetup.exe is published on its own (online
+# wizard) and as acsetup-full-<tag>.exe (offline wizard: acsetup.exe followed by
+# every release file, an INDEX and a 125-byte trailer, payload format v1). Each
+# has its own .sha256 sidecar; neither is listed in SHA256SUMS. The offline file
+# is read back as a foreign file before anything is published.
+# Manual runs take the input dry_run (default false): when true, an existing
+# release for the tag does not skip the run, everything is fetched, verified,
+# assembled and read back, and the publish step only lists out/ and prints
+# "dry run: not published" instead of creating the release.
 
 on:
   schedule:
     - cron: '47 3 * * *'
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Fetch, verify, assemble and read back, but do not create the release (an existing release does not skip the run)'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -35,6 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == true }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -68,8 +83,13 @@ jobs:
           echo "UI_SHA=$ui" >> "$GITHUB_ENV"
           echo "TAG=$tag" >> "$GITHUB_ENV"
           if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "release $tag already exists; nothing to publish"
-            echo "skip=true" >> "$GITHUB_OUTPUT"
+            if [ "$DRY_RUN" = true ]; then
+              echo "release $tag already exists; dry run continues without publishing"
+              echo "skip=false" >> "$GITHUB_OUTPUT"
+            else
+              echo "release $tag already exists; nothing to publish"
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+            fi
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
@@ -182,11 +202,181 @@ jobs:
           ls -la out
           cat out/SHA256SUMS
 
+      - name: Assemble installers
+        if: steps.pins.outputs.skip == 'false'
+        run: |
+          set -euo pipefail
+          # Offline installer, payload format v1 (the UI setup wizard reads exactly this):
+          #   acsetup.exe verbatim ‖ SHA256SUMS ‖ every file SHA256SUMS lists, in its line order ‖ INDEX ‖ TRAILER
+          # INDEX (UTF-8, LF): line 1 "acsetup-payload v1 <tag>", then "<sha256> <bytes> <name>" per file.
+          # TRAILER (125 bytes): "ACSETUP-PAYLOAD-1 <payload start %020d> <INDEX bytes %020d> <sha256 of INDEX>\n".
+          # Neither installer is listed in SHA256SUMS; each gets its own .sha256 sidecar.
+          exe="work/acui-windows-$UI_SHA/acsetup.exe"
+          out="out/acsetup-full-$TAG.exe"
+          idx="$RUNNER_TEMP/index.txt"
+          fail() { echo "::error::$*"; exit 1; }
+          name_re='^[A-Za-z0-9_]([A-Za-z0-9._-]*[A-Za-z0-9_-])?$'
+          device_re='^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$'
+          sums_re='^([0-9a-f]{64}) [ *](.+)$'
+          # check_name <what> <name>: charset (no leading . or -, no trailing .), no .part suffix, no Windows device name
+          check_name() {
+            local what="$1" n="$2" stem
+            [[ $n =~ $name_re ]] || fail "$what: expected only [A-Za-z0-9._-] with no leading . or - and no trailing ., actual '$n'"
+            [[ ${n,,} != *.part ]] || fail "$what: expected no .part suffix, actual '$n'"
+            stem="${n%%.*}"
+            if [[ ${stem^^} =~ $device_re ]]; then fail "$what: expected no Windows device name, actual '$n'"; fi
+          }
+          test -f "$exe" || fail "online installer: expected file $exe, actual missing"
+          check_name "release tag" "$TAG"
+          cd out
+          sha256sum -c SHA256SUMS || fail "SHA256SUMS: expected every listed file present and matching, actual sha256sum -c failed (see above)"
+          grep -Eq '^[0-9a-f]{64} [ *]MEMBERS\.json$' SHA256SUMS || fail "SHA256SUMS: expected MEMBERS.json listed, actual not listed"
+          names=(SHA256SUMS)
+          while IFS= read -r line; do
+            [[ $line =~ $sums_re ]] || fail "SHA256SUMS line: expected '<sha256>  <name>', actual '$line'"
+            n="${BASH_REMATCH[2]}"
+            check_name "SHA256SUMS name" "$n"
+            names+=("$n")
+          done < SHA256SUMS
+          dups=$(printf '%s\n' "${names[@]}" | sort -f | uniq -di)
+          [[ -z $dups ]] || fail "payload names: expected unique case-insensitively, actual duplicates: $dups"
+          printf 'acsetup-payload v1 %s\n' "$TAG" > "$idx"
+          for n in "${names[@]}"; do
+            h=$(sha256sum -- "$n" | cut -d' ' -f1)
+            s=$(wc -c < "$n")
+            [[ $h =~ ^[0-9a-f]{64}$ ]] || fail "sha256 of $n: expected 64 lowercase hex digits, actual '$h'"
+            [[ $s =~ ^(0|[1-9][0-9]*)$ ]] || fail "size of $n: expected a canonical decimal, actual '$s'"
+            printf '%s %s %s\n' "$h" "$s" "$n" >> "$idx"
+          done
+          cd ..
+          cat -- "$exe" > "$out"
+          for n in "${names[@]}"; do cat -- "out/$n" >> "$out"; done
+          cat -- "$idx" >> "$out"
+          printf 'ACSETUP-PAYLOAD-1 %020d %020d %s\n' "$(wc -c < "$exe")" "$(wc -c < "$idx")" "$(sha256sum -- "$idx" | cut -d' ' -f1)" >> "$out"
+          size=$(wc -c < "$out")
+          [[ $size -le 1610612736 ]] || fail "$out size: expected <= 1610612736 bytes (1.5 GiB), actual $size"
+          cp -- "$exe" out/acsetup.exe
+          (cd out && sha256sum acsetup.exe > acsetup.exe.sha256 && sha256sum "acsetup-full-$TAG.exe" > "acsetup-full-$TAG.exe.sha256")
+          echo "assembled $out: $size bytes, ${#names[@]} payload files, INDEX $(wc -c < "$idx") bytes"
+
+      - name: Read back installers
+        if: steps.pins.outputs.skip == 'false'
+        run: |
+          set -euo pipefail
+          # Independent verification: the offline installer is parsed as a foreign file
+          # (trailer -> INDEX -> files), not re-hashed from the bytes the previous step wrote.
+          full="out/acsetup-full-$TAG.exe"
+          exe="work/acui-windows-$UI_SHA/acsetup.exe"
+          rb="$RUNNER_TEMP/readback"
+          idx="$RUNNER_TEMP/readback-index.txt"
+          sums="$RUNNER_TEMP/readback-index.sums"
+          fail() { echo "::error::$*"; exit 1; }
+          name_re='^[A-Za-z0-9_]([A-Za-z0-9._-]*[A-Za-z0-9_-])?$'
+          line_re='^([0-9a-f]{64}) (0|[1-9][0-9]*) ([^ ]+)$'
+          sums_re='^([0-9a-f]{64}) [ *](.+)$'
+          trailer_re='^ACSETUP-PAYLOAD-1 ([0-9]{20}) ([0-9]{20}) ([0-9a-f]{64})$'
+          # slice <start, 1-based> <count> <dest>: tail -c +N | head -c M. head stops after M bytes, so tail may then
+          # die of SIGPIPE / report "Broken pipe" (expected); pipefail is off for that pipeline and the byte count
+          # of <dest> is checked instead.
+          slice() {
+            local st=0
+            set +o pipefail
+            tail -c "+$1" -- "$full" | head -c "$2" > "$3" || st=$?
+            set -o pipefail
+            [[ $st -eq 0 ]] || fail "$3: expected head to exit 0, actual $st"
+            [[ $(wc -c < "$3") -eq $2 ]] || fail "$3: expected $2 bytes, actual $(wc -c < "$3")"
+          }
+          test -f "$full" || fail "offline installer: expected file $full, actual missing"
+          file_len=$(wc -c < "$full")
+          # (a) trailer: the last 125 bytes
+          last=$(tail -c 1 -- "$full" | od -An -tx1 | tr -d ' \n')
+          [[ $last == 0a ]] || fail "trailer end: expected LF (0a), actual byte '$last'"
+          trailer=$(tail -c 125 -- "$full" | head -c 124)
+          [[ $trailer =~ $trailer_re ]] || fail "trailer: expected 'ACSETUP-PAYLOAD-1 <20 digits> <20 digits> <64 hex>', actual '$trailer'"
+          start_raw="${BASH_REMATCH[1]}"; len_raw="${BASH_REMATCH[2]}"; index_sha="${BASH_REMATCH[3]}"
+          payload_start=$((10#$start_raw)); index_len=$((10#$len_raw))
+          [[ $(printf '%020d' "$payload_start") == "$start_raw" ]] || fail "trailer payload start: expected a number that fits, actual '$start_raw'"
+          [[ $(printf '%020d' "$index_len") == "$len_raw" ]] || fail "trailer INDEX length: expected a number that fits, actual '$len_raw'"
+          [[ $payload_start -le $file_len && $index_len -le $file_len && $((payload_start + index_len + 125)) -le $file_len ]] \
+            || fail "trailer bounds: expected payload_start + index_len + 125 <= $file_len, actual $payload_start + $index_len + 125"
+          echo "read back (a) trailer ok: payload_start=$payload_start index_len=$index_len file_len=$file_len"
+          # (b) INDEX: the index_len bytes that end 125 bytes before EOF
+          st=0; set +o pipefail
+          tail -c "$((index_len + 125))" -- "$full" | head -c "$index_len" > "$idx" || st=$?
+          set -o pipefail
+          [[ $st -eq 0 && $(wc -c < "$idx") -eq $index_len ]] || fail "INDEX: expected $index_len bytes, actual $(wc -c < "$idx") (head exit $st)"
+          actual_sha=$(sha256sum -- "$idx" | cut -d' ' -f1)
+          [[ $actual_sha == "$index_sha" ]] || fail "INDEX sha256: expected $index_sha (trailer), actual $actual_sha"
+          [[ $(tail -c 1 -- "$idx" | od -An -tx1 | tr -d ' \n') == 0a ]] || fail "INDEX end: expected LF, actual not LF"
+          mapfile -t lines < "$idx"
+          [[ ${lines[0]:-} == "acsetup-payload v1 $TAG" ]] || fail "INDEX line 1: expected 'acsetup-payload v1 $TAG', actual '${lines[0]:-}'"
+          exe_len=$(wc -c < "$exe")
+          [[ $payload_start -eq $exe_len ]] || fail "payload start: expected $exe_len (size of $exe), actual $payload_start"
+          echo "read back (b) INDEX ok: sha256 matches the trailer, line 1 '${lines[0]}', payload_start == size of acsetup.exe ($exe_len)"
+          # (c) files: one per INDEX line, extracted into an empty directory
+          mkdir -p "$rb"
+          [[ -z $(ls -A -- "$rb") ]] || fail "$rb: expected an empty directory, actual not empty"
+          : > "$sums"
+          idx_names=(); idx_shas=()
+          pos=$payload_start; total=0
+          for ((i = 1; i < ${#lines[@]}; i++)); do
+            [[ ${lines[i]} =~ $line_re ]] || fail "INDEX line $((i + 1)): expected '<sha256> <bytes> <name>', actual '${lines[i]}'"
+            h="${BASH_REMATCH[1]}"; s="${BASH_REMATCH[2]}"; n="${BASH_REMATCH[3]}"
+            [[ $n =~ $name_re ]] || fail "INDEX line $((i + 1)) name: expected only [A-Za-z0-9._-] with no leading . or - and no trailing ., actual '$n'"
+            [[ ! -e $rb/$n ]] || fail "INDEX line $((i + 1)): expected a name not extracted yet, actual '$n' again"
+            [[ ${#s} -le ${#file_len} ]] || fail "INDEX line $((i + 1)) ($n): expected a size within the file, actual $s"
+            [[ $((pos + s)) -le $((file_len - index_len - 125)) ]] || fail "INDEX line $((i + 1)) ($n): expected to end before the INDEX, actual $pos + $s > $((file_len - index_len - 125))"
+            slice "$((pos + 1))" "$s" "$rb/$n"
+            printf '%s  %s\n' "$h" "$n" >> "$sums"
+            idx_names+=("$n"); idx_shas+=("$h")
+            pos=$((pos + s)); total=$((total + s))
+          done
+          [[ $((total + payload_start + index_len + 125)) -eq $file_len ]] \
+            || fail "payload total: expected sizes + payload_start + index_len + 125 == $file_len, actual $total + $payload_start + $index_len + 125 = $((total + payload_start + index_len + 125))"
+          echo "read back (c) files ok: ${#idx_names[@]} files extracted to $rb, $total payload bytes, sizes + payload_start + index_len + 125 == file length"
+          # (d) content: SHA256SUMS and every INDEX sha256 verify on the extracted files; MEMBERS.json present;
+          #     INDEX entries after SHA256SUMS equal the SHA256SUMS lines one-for-one
+          (cd "$rb" && sha256sum -c SHA256SUMS) || fail "extracted SHA256SUMS: expected every listed file present and matching in $rb, actual sha256sum -c failed (see above)"
+          (cd "$rb" && sha256sum -c "$sums") || fail "extracted files: expected every INDEX sha256 to match, actual sha256sum -c failed (see above)"
+          test -f "$rb/MEMBERS.json" || fail "extracted MEMBERS.json: expected present, actual missing"
+          [[ ${idx_names[0]:-} == SHA256SUMS ]] || fail "INDEX line 2: expected SHA256SUMS first, actual '${idx_names[0]:-}'"
+          idx_pairs=""; sums_pairs=""
+          for ((i = 1; i < ${#idx_names[@]}; i++)); do idx_pairs+="${idx_shas[i]} ${idx_names[i]}"$'\n'; done
+          while IFS= read -r line; do
+            [[ $line =~ $sums_re ]] || fail "extracted SHA256SUMS line: expected '<sha256>  <name>', actual '$line'"
+            sums_pairs+="${BASH_REMATCH[1]} ${BASH_REMATCH[2]}"$'\n'
+          done < "$rb/SHA256SUMS"
+          [[ $idx_pairs == "$sums_pairs" ]] || { printf 'INDEX entries:\n%sSHA256SUMS:\n%s' "$idx_pairs" "$sums_pairs"; fail "INDEX vs SHA256SUMS: expected the same names, order and sha256 one-for-one, actual differ (see above)"; }
+          echo "read back (d) content ok: SHA256SUMS verified in $rb, every INDEX sha256 verified, MEMBERS.json present, INDEX entries equal SHA256SUMS one-for-one"
+          # (e) prefix: byte-identical to acsetup.exe, whose sha256 is the one BUILD-MANIFEST.json records
+          head -c "$payload_start" -- "$full" | cmp - "$exe" || fail "prefix: expected the first $payload_start bytes of $full to equal $exe, actual differ"
+          manifest_sha=$(jq -r '[.files[] | select(.path == "acsetup.exe") | .sha256] | if length == 1 then .[0] else "" end' "work/acui-windows-$UI_SHA/BUILD-MANIFEST.json")
+          [[ $manifest_sha =~ ^[0-9a-f]{64}$ ]] || fail "BUILD-MANIFEST.json: expected exactly one acsetup.exe entry with a sha256, actual '$manifest_sha'"
+          exe_sha=$(sha256sum -- "$exe" | cut -d' ' -f1)
+          [[ $exe_sha == "$manifest_sha" ]] || fail "acsetup.exe sha256: expected $manifest_sha (BUILD-MANIFEST.json), actual $exe_sha"
+          echo "read back (e) prefix ok: first $payload_start bytes identical to acsetup.exe, whose sha256 $exe_sha matches BUILD-MANIFEST.json"
+          # (f) sidecars
+          (cd out && sha256sum -c acsetup.exe.sha256 && sha256sum -c "acsetup-full-$TAG.exe.sha256") \
+            || fail "sidecars: expected acsetup.exe.sha256 and acsetup-full-$TAG.exe.sha256 to verify in out/, actual sha256sum -c failed (see above)"
+          [[ $(cat out/acsetup.exe.sha256) == "$exe_sha  acsetup.exe" ]] || fail "acsetup.exe.sha256: expected '$exe_sha  acsetup.exe', actual '$(cat out/acsetup.exe.sha256)'"
+          echo "read back (f) sidecars ok: acsetup.exe.sha256 and acsetup-full-$TAG.exe.sha256 verify; the online installer is the manifest's acsetup.exe"
+          # (g) neither installer is listed in SHA256SUMS
+          while IFS= read -r line; do
+            [[ $line =~ $sums_re ]] || fail "SHA256SUMS line: expected '<sha256>  <name>', actual '$line'"
+            case "${BASH_REMATCH[2]}" in
+              acsetup.exe|"acsetup-full-$TAG.exe") fail "SHA256SUMS: expected no installer listed, actual lists '${BASH_REMATCH[2]}'" ;;
+            esac
+          done < out/SHA256SUMS
+          echo "read back (g) ok: neither acsetup.exe nor acsetup-full-$TAG.exe is listed in SHA256SUMS"
+          echo "read back: all checks passed for $full ($file_len bytes)"
+
       - name: Publish pre-release
         if: steps.pins.outputs.skip == 'false'
         run: |
           set -euo pipefail
           title="Runtime ${RUNTIME_SHA:0:7} · UI ${UI_SHA:0:7} · $(date -u +%Y-%m-%d)"
+          online_sha=$(cut -d' ' -f1 out/acsetup.exe.sha256)
+          full_sha=$(cut -d' ' -f1 "out/acsetup-full-$TAG.exe.sha256")
           cat > out/NOTES.md <<EOF_NOTES
           Candidate build, no version number assigned.
 
@@ -196,11 +386,20 @@ jobs:
           - Runtime \`${RUNTIME_SHA}\`: artifacts of the "Windows exact-SHA build" workflow: runtime (actingcommand-actingd.exe, actingctl.exe, config templates, INSTALL.md, RELEASE-NOTES.md) and tools (actinglab.exe, actingledger.exe, vision-provider-check, device-test, ac_fastdeploy_ppocr.dll)
           - UI \`${UI_SHA}\`: artifact of the "build" workflow: acui-windows (acui.exe, acsetup.exe, LICENSE, README.md)
 
-          Every member build zip contains the BUILD-MANIFEST.json generated by its source repository; each file's SHA-256 and commit were re-checked before publishing. MEMBERS.json records the source runs and artifact IDs; SHA256SUMS covers all assets.
+          Installers:
+          - \`acsetup.exe\` (online setup wizard; downloads the rest from this release): SHA-256 \`${online_sha}\`
+          - \`acsetup-full-${TAG}.exe\` (offline setup wizard; self-contained: every zip, MEMBERS.json and SHA256SUMS embedded): SHA-256 \`${full_sha}\`
+
+          Every member build zip contains the BUILD-MANIFEST.json generated by its source repository; each file's SHA-256 and commit were re-checked before publishing. MEMBERS.json records the source runs and artifact IDs; SHA256SUMS covers every zip and MEMBERS.json; the two installers \`acsetup.exe\` (online) and \`acsetup-full-${TAG}.exe\` (offline, self-contained) each have their own \`.sha256\`.
           EOF_NOTES
           { echo; cat work/bundles-notes.md; } >> out/NOTES.md
-          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease             --title "$title" --notes-file out/NOTES.md out/*.zip out/MEMBERS.json out/SHA256SUMS
-          echo "published $TAG"
+          if [ "$DRY_RUN" = true ]; then
+            ls -la out
+            echo "dry run: not published"
+          else
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease             --title "$title" --notes-file out/NOTES.md out/*.zip out/MEMBERS.json out/SHA256SUMS out/*.exe out/*.sha256
+            echo "published $TAG"
+          fi
 
       - name: Fail loud
         if: failure()
