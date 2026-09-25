@@ -9,9 +9,13 @@ name: publish-artifacts
 #   UI:      "build" (artifact acui-windows-<sha>)
 # The submodule pointers are not consulted and not moved. Every artifact ships
 # a BUILD-MANIFEST.json; files are re-hashed here before anything is published.
-# Only the workflow's own GITHUB_TOKEN is used: both member repositories are
-# public, and a release with its tag is the only write (branch rulesets do not
-# apply to releases or tags).
+# Member artifacts are read with the workflow's own GITHUB_TOKEN: both member
+# repositories are public, and a release with its tag is the only write (branch
+# rulesets do not apply to releases or tags).
+# Resource bundles: only when the secret RESOURCES_READ_TOKEN (read access to the
+# private resource repositories) is set, the newest bundle-* release of each
+# resource repository is downloaded with it, checked against its .sha256 sidecar
+# and attached as well; without the secret none are forwarded.
 
 on:
   schedule:
@@ -106,12 +110,73 @@ jobs:
           fetch HS7097/ActingCommand-Runtime windows-remote-build.yml "$RUNTIME_SHA" actingcommand-runtime-
           fetch HS7097/ActingCommand-Runtime windows-remote-build.yml "$RUNTIME_SHA" actingcommand-tools-
           fetch HS7097/ActingCommand-UI      build.yml                "$UI_SHA"      acui-windows-
+
+      - name: Forward resource bundles
+        if: steps.pins.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.RESOURCES_READ_TOKEN }}
+        run: |
+          set -euo pipefail
+          : > work/bundles.jsonl
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "RESOURCES_READ_TOKEN is not configured; resource bundles are not forwarded"
+            echo "Resource bundles: not forwarded (RESOURCES_READ_TOKEN not configured)" > work/bundles-notes.md
+            exit 0
+          fi
+          echo "Resource bundles (newest bundle-* release of each resource repository, checked against its .sha256 sidecar):" > work/bundles-notes.md
+          # forward <repo>: newest bundle-* release of <repo>; a repository without one is noted, not an error
+          forward() {
+            local repo="$1" tag sha7 dir zips zip sha src
+            tag=$(gh release list --repo "$repo" --exclude-drafts --limit 100 --json tagName,createdAt \
+                  --jq '[.[] | select(.tagName | startswith("bundle-"))] | sort_by(.createdAt) | last | .tagName // empty') \
+              || { echo "::error::$repo: listing the releases failed"; exit 1; }
+            if [ -z "$tag" ]; then
+              echo "$repo: no bundle yet"
+              printf -- '- %s: no bundle yet\n' "$repo" >> work/bundles-notes.md
+              return 0
+            fi
+            sha7="${tag#bundle-}"
+            dir="work/bundles/$repo"
+            mkdir -p "$dir"
+            gh release download "$tag" --repo "$repo" --dir "$dir" \
+              --pattern "*-bundle-$sha7.zip" --pattern "*-bundle-$sha7.zip.sha256" \
+              || { echo "::error::$repo: downloading the assets of release $tag failed"; exit 1; }
+            zips=("$dir"/*-bundle-"$sha7".zip)
+            if [ "${#zips[@]}" -ne 1 ] || [ ! -f "${zips[0]}" ]; then
+              echo "::error::$repo release $tag must carry exactly one *-bundle-$sha7.zip"
+              exit 1
+            fi
+            zip="${zips[0]##*/}"
+            test -f "$dir/$zip.sha256" || { echo "::error::$repo release $tag has no $zip.sha256 sidecar"; exit 1; }
+            sha=$(sha256sum "$dir/$zip" | cut -d' ' -f1)
+            if [ "$(cat "$dir/$zip.sha256")" != "$sha  $zip" ]; then
+              echo "::error::$repo release $tag: $zip does not match its .sha256 sidecar"
+              exit 1
+            fi
+            src=$(unzip -p "$dir/$zip" bundle.json | jq -er '.source_sha | select(type == "string" and length > 0)') \
+              || { echo "::error::$repo release $tag: $zip has no bundle.json with a source_sha"; exit 1; }
+            cp "$dir/$zip" out/
+            jq -nc --arg repository "$repo" --arg tag "$tag" --arg asset "$zip" --arg sha256 "$sha" --arg source_sha "$src" \
+              '{repository: $repository, tag: $tag, asset: $asset, sha256: $sha256, source_sha: $source_sha}' >> work/bundles.jsonl
+            printf -- '- %s `%s`: SHA-256 `%s`\n' "$repo" "$tag" "$sha" >> work/bundles-notes.md
+            echo "forwarded $zip from $repo release $tag (source $src)"
+          }
+          forward HS7097/ActingCommand-Resources-BlueArchive
+          forward HS7097/ActingCommand-Resources-Arknights
+          forward HS7097/ActingCommand-Resources-AzurLane
+
+      - name: Write MEMBERS.json and SHA256SUMS
+        if: steps.pins.outputs.skip == 'false'
+        run: |
+          set -euo pipefail
           jq -Rn \
             --arg umbrella "$GITHUB_SHA" --arg runtime "$RUNTIME_SHA" --arg ui "$UI_SHA" \
             --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --slurpfile bundles work/bundles.jsonl \
             '{umbrella_commit: $umbrella, runtime_sha: $runtime, ui_sha: $ui, published_at_utc: $at,
               sources: [inputs | split("\t") | {repository: .[0], workflow: .[1], commit_sha: .[2],
-                        run_id: (.[3] | tonumber), artifact_id: (.[4] | tonumber), asset: .[5]}]}' \
+                        run_id: (.[3] | tonumber), artifact_id: (.[4] | tonumber), asset: .[5]}],
+              bundles: $bundles}' \
             work/members.tsv > out/MEMBERS.json
           (cd out && sha256sum *.zip MEMBERS.json > SHA256SUMS)
           ls -la out
@@ -131,8 +196,9 @@ jobs:
           - Runtime \`${RUNTIME_SHA}\`: artifacts of the "Windows exact-SHA build" workflow: runtime (actingcommand-actingd.exe, actingctl.exe, config templates, INSTALL.md, RELEASE-NOTES.md) and tools (actinglab.exe, actingledger.exe, vision-provider-check, device-test, ac_fastdeploy_ppocr.dll)
           - UI \`${UI_SHA}\`: artifact of the "build" workflow: acui-windows (acui.exe, acsetup.exe, LICENSE, README.md)
 
-          Every zip contains the BUILD-MANIFEST.json generated by its source repository; each file's SHA-256 and commit were re-checked before publishing. MEMBERS.json records the source runs and artifact IDs; SHA256SUMS covers all assets. Resource packs are not distributed through this repository.
+          Every member build zip contains the BUILD-MANIFEST.json generated by its source repository; each file's SHA-256 and commit were re-checked before publishing. MEMBERS.json records the source runs and artifact IDs; SHA256SUMS covers all assets.
           EOF_NOTES
+          { echo; cat work/bundles-notes.md; } >> out/NOTES.md
           gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease             --title "$title" --notes-file out/NOTES.md out/*.zip out/MEMBERS.json out/SHA256SUMS
           echo "published $TAG"
 
