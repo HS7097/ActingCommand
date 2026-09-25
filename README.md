@@ -24,7 +24,7 @@
 
 ## This repository
 
-This is the umbrella (portal) repository of the ActingCommand family. It holds no code: the code lives in the member repositories linked above, and each link goes to that repository's home page. This repository carries only the README and the installers and artifacts on its Releases page. The latest bundle of each resource repository is forwarded into every daily release when available, or, until the read token exists, the bundle carried in this repository's `bundles/` directory.
+This is the umbrella (portal) repository of the ActingCommand family. It holds no code: the code lives in the member repositories linked above, and each link goes to that repository's home page. This repository carries only the README, the resource bundles under `bundles/`, and the installers and artifacts on its Releases page. Each daily release forwards one bundle per resource repository: the bundle carried under `bundles/` (the current arrangement), or, when a read token is configured, the newest bundle published by that resource repository.
 
 **What we can do:** Let an AI agent deploy our program (or a person install it; the human-friendly setup wizard is still being built). Once the matching skill is loaded in your harness, you can have the agent produce the materials that a program running in an Android emulator needs, and then run it again and again on a schedule.
 
