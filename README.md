@@ -5,28 +5,28 @@
 <img src="docs/assets/readme/actingcommand-icon.png" width="112" alt="ActingCommand icon">
 
 **Chief Executive Officer & Chairman** — HS7097<br/>
-**Chief Technology Officer & Chief Architect** — GPT‑6 Astra<br/>
-**Board Secretary & Chief Audit Officer** — Fable 5.1<br/>
-**Principal Engineer** — GPT‑6 Astra<br/>
+**Chief Technology Officer & Chief Architect** — Claude Opus 5.5 · GPT‑6 Astra · Claude Fable 5 · GPT‑5.6 Sol<br/>
+**Board Secretary & Chief Audit Officer** — Claude Opus 5.5 · Claude Fable 5.1<br/>
+**Principal Engineer** — Claude Opus 5.5 · GPT‑6 Astra · GPT‑5.6 Sol<br/>
 **Interviewing** — DeepSeek
 
 </div>
 
-**⚠️ This program is still iterating rapidly; expect it to be complete within 2–5 weeks.**
+**⚠️ The main-line features are complete and have run end to end on a real emulator instance; multi-day validation and clean-up are still under way, and interfaces may still change.**
 
 # ActingCommand
 
 - [ActingCommand-Runtime](https://github.com/HS7097/ActingCommand-Runtime) — resident Rust runtime, the core program
-- [ActingCommand-UI](https://github.com/HS7097/ActingCommand-UI) — read-only console
+- [ActingCommand-UI](https://github.com/HS7097/ActingCommand-UI) — setup wizard and read-only console
 - [ActingCommand-Resources-Arknights](https://github.com/HS7097/ActingCommand-Resources-Arknights) — Arknights resource pack
 - [ActingCommand-Resources-AzurLane](https://github.com/HS7097/ActingCommand-Resources-AzurLane) — Azur Lane resource pack
 - [ActingCommand-Resources-BlueArchive](https://github.com/HS7097/ActingCommand-Resources-BlueArchive) — Blue Archive resource pack
 
 ## This repository
 
-This is the umbrella (portal) repository of the ActingCommand family. It holds no code: the code lives in the member repositories linked above, and each link goes to that repository's home page. This repository carries only the README, the resource bundles under `bundles/`, and the installers and artifacts on its Releases page. Each daily release forwards one bundle per resource repository: the bundle carried under `bundles/` (the current arrangement), or, when a read token is configured, the newest bundle published by that resource repository.
+This is the umbrella (portal) repository of the ActingCommand family. It holds no code: the code lives in the member repositories linked above, and each link goes to that repository's home page. This repository carries only the README, the resource bundles under `bundles/`, and the installers and artifacts on its Releases page. Each daily release forwards the resource bundles: while no read token is configured (the current arrangement), the bundles carried under `bundles/`, one per game, at present only Blue Archive's; with a read token, the newest bundle published by each resource repository.
 
-**What we can do:** Let an AI agent deploy our program (or a person install it; the human-friendly setup wizard is still being built). Once the matching skill is loaded in your harness, you can have the agent produce the materials that a program running in an Android emulator needs, and then run it again and again on a schedule.
+**What we can do:** Let an AI agent deploy our program, or install it yourself with the setup wizard published with every daily release (online `acsetup.exe`, offline `acsetup-full-<tag>.exe`). Once the matching skill is loaded in your harness, you can have the agent produce the materials that a program running in an Android emulator needs, and then run it again and again on a schedule.
 
 **What the agent has to do:** Make some images and click regions.
 

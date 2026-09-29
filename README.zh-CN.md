@@ -5,28 +5,28 @@
 <img src="docs/assets/readme/actingcommand-icon.png" width="112" alt="ActingCommand 图标">
 
 **首席执行官 兼 董事长** — HS7097<br/>
-**首席技术官 兼 首席架构师** — GPT‑6 Astra<br/>
-**董事会秘书 兼 首席审计官** — Fable 5.1<br/>
-**首席技术工程师** — GPT‑6 Astra<br/>
+**首席技术官 兼 首席架构师** — Claude Opus 5.5 · GPT‑6 Astra · Claude Fable 5 · GPT‑5.6 Sol<br/>
+**董事会秘书 兼 首席审计官** — Claude Opus 5.5 · Claude Fable 5.1<br/>
+**首席技术工程师** — Claude Opus 5.5 · GPT‑6 Astra · GPT‑5.6 Sol<br/>
 **正在面试** — DeepSeek
 
 </div>
 
-**⚠️ 本程序仍在快速迭代，预计 2–5 星期内完成。**
+**⚠️ 主线功能已完成，并已在真实模拟器实例上端到端跑通；多日长跑验证与收尾仍在进行，接口仍可能调整。**
 
 # ActingCommand
 
 - [ActingCommand-Runtime](https://github.com/HS7097/ActingCommand-Runtime) — Rust 常驻运行时，核心程序
-- [ActingCommand-UI](https://github.com/HS7097/ActingCommand-UI) — 只读监控台
+- [ActingCommand-UI](https://github.com/HS7097/ActingCommand-UI) — 安装向导与只读监控台
 - [ActingCommand-Resources-Arknights](https://github.com/HS7097/ActingCommand-Resources-Arknights) — Arknights 资源包
 - [ActingCommand-Resources-AzurLane](https://github.com/HS7097/ActingCommand-Resources-AzurLane) — Azur Lane 资源包
 - [ActingCommand-Resources-BlueArchive](https://github.com/HS7097/ActingCommand-Resources-BlueArchive) — Blue Archive 资源包
 
 ## 本仓
 
-本仓是 ActingCommand 项目族的伞仓（门面页），不承载代码；代码在上面各成员仓，链接直达仓库主页。本仓只放 README、`bundles/` 目录下的资源包，以及 Releases 里的安装包与造物。每日发布为每个资源仓转发一个资源包（bundle）：默认取本仓 `bundles/` 目录携带的资源包（当前做法）；若配置了读取令牌，则改取该资源仓最新发布的资源包。
+本仓是 ActingCommand 项目族的伞仓（门面页），不承载代码；代码在上面各成员仓，链接直达仓库主页。本仓只放 README、`bundles/` 目录下的资源包，以及 Releases 里的安装包与造物。每日发布会转发资源包（bundle）：未配置读取令牌时（当前做法），转发本仓 `bundles/` 目录携带的资源包，每个游戏一个，目前只有蔚蓝档案（Blue Archive）一个；配置了读取令牌后，改取各资源仓最新发布的资源包。
 
-**我们能做什么：** 让智能体部署（或人类安装——人类友好的安装界面正在制作）我们的程序；在 Harness 里加载对应的 skill 之后，你就可以让智能体为运行在安卓模拟器上的程序制作所需的素材，然后定期重复运行。
+**我们能做什么：** 让智能体部署我们的程序，或由人使用随每日发布一并发布的安装向导（在线 `acsetup.exe`、离线 `acsetup-full-<tag>.exe`）自行安装；在 Harness 里加载对应的 skill 之后，你就可以让智能体为运行在安卓模拟器上的程序制作所需的素材，然后定期重复运行。
 
 **智能体需要做什么：** 制作一些图片和点击区域。
 
