@@ -428,7 +428,7 @@ jobs:
           cat > out/NOTES.md <<EOF_NOTES
           Candidate build, no version number assigned.
 
-          The human-friendly setup wizard is not finished yet. If you want to test this build, ask an AI agent to deploy it for you.
+          To install this build, download one setup wizard: \`acsetup.exe\` (online; downloads the rest from this release) or \`acsetup-full-${TAG}.exe\` (offline; carries the whole release). An AI agent can also deploy it for you.
 
           Sources:
           - Runtime \`${RUNTIME_SHA}\`: artifacts of the "Windows exact-SHA build" workflow: runtime (actingcommand-actingd.exe, actingctl.exe, config templates, INSTALL.md, RELEASE-NOTES.md) and tools (actinglab.exe, actingledger.exe, vision-provider-check, device-test, ac_fastdeploy_ppocr.dll)
