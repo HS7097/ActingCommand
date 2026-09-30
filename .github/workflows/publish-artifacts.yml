@@ -1,7 +1,7 @@
 name: publish-artifacts
 
 # Publishes the member repositories' build artifacts as one pre-release on this
-# repository, once a day and on demand. For each member it takes the newest
+# repository, on demand only (the daily schedule is paused). For each member it takes the newest
 # commit on main that has a successful push-triggered build with artifacts
 # (normally the tip; the previous commit only while the tip is still building):
 #   Runtime: "Windows exact-SHA build" (artifacts actingcommand-runtime-<sha>,
@@ -32,8 +32,6 @@ name: publish-artifacts
 # "dry run: not published" instead of creating the release.
 
 on:
-  schedule:
-    - cron: '47 3 * * *'
   workflow_dispatch:
     inputs:
       dry_run:

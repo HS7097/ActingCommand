@@ -36,6 +36,8 @@ This is the umbrella (portal) repository of the ActingCommand family. It holds n
 
 ## Installers and artifacts
 
+**Daily publishing is paused.** The scheduled daily run is switched off while the release process moves to versioned releases; the `build-r*-u*` pre-releases already on the Releases page stay available, and the `publish-artifacts` workflow now runs only when started by hand. The description below is how it has worked so far.
+
 Member build artifacts are synced daily to this repository's [Releases](https://github.com/HS7097/ActingCommand/releases) page: for each member the newest `main` commit that already has a successful build artifact, one pre-release per commit pair (`build-r<Runtime 7>-u<UI 7>`):
 
 | Asset | Source |
@@ -48,4 +50,4 @@ Member build artifacts are synced daily to this repository's [Releases](https://
 | `<game>-bundle-<sha7>.zip` | Latest resource bundle of each resource repository (its newest `bundle-*` release), when available, or, until the read token exists, the bundle carried in this repository's `bundles/` directory: `applications.json`, `bundle.json`, `packs/` (the sealed resource packs) |
 | `MEMBERS.json`, `SHA256SUMS` | Source runs and artifact ids; SHA-256 of every zip and of MEMBERS.json |
 
-The `publish-artifacts` workflow fetches the source artifacts, re-checks every file against its BUILD-MANIFEST.json (SHA-256 and commit) and only then publishes. It runs daily at 03:47 UTC and can be run by hand; each commit pair is published once. Source artifacts are kept for 30 days; a pinned commit whose artifacts expired fails the workflow and opens an issue. The latest bundle of each resource repository is forwarded into every daily release when available, or, until the read token exists, the bundle carried in this repository's `bundles/` directory, after it is checked against its `.sha256` sidecar.
+The `publish-artifacts` workflow fetches the source artifacts, re-checks every file against its BUILD-MANIFEST.json (SHA-256 and commit) and only then publishes. Its daily 03:47 UTC run is paused; it runs only when started by hand; each commit pair is published once. Source artifacts are kept for 30 days; a pinned commit whose artifacts expired fails the workflow and opens an issue. The latest bundle of each resource repository is forwarded into every daily release when available, or, until the read token exists, the bundle carried in this repository's `bundles/` directory, after it is checked against its `.sha256` sidecar.
