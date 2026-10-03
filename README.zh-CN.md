@@ -28,7 +28,7 @@
 
 **我们能做什么：** 让智能体部署我们的程序，或由人使用随每个版本一并发布的安装向导（在线 `acsetup.exe`、离线 `acsetup-full-<tag>.exe`）自行安装；在 Harness 里加载对应的 skill 之后，你就可以让智能体为运行在安卓模拟器上的程序制作所需的素材，然后定期重复运行。
 
-**程序 skill：** [`skills/actingcommand/SKILL.md`](skills/actingcommand/SKILL.md) 是给智能体用的车间手册，讲怎样用命令行操作已安装的 ActingCommand（CLI 版 v0，对应 Runtime v0.9.1 与 UI v0.9.0）。
+**程序 skill：** [`skills/actingcommand/SKILL.md`](skills/actingcommand/SKILL.md) 是给智能体用的车间手册，讲怎样用命令行操作已安装的 ActingCommand（CLI 版 v0，对应 Runtime v0.9.1 与 UI v0.9.0；第 7 节讲 Runtime v0.10.0 的 Lab 录制与挂起任务报告）。
 
 **智能体需要做什么：** 制作一些图片和点击区域。
 
