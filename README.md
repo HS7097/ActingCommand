@@ -24,9 +24,9 @@
 
 ## This repository
 
-This is the umbrella (portal) repository of the ActingCommand family. It holds no code: the code lives in the member repositories linked above, and each link goes to that repository's home page. This repository carries only the README, the resource bundles under `bundles/`, and the installers and artifacts on its Releases page. Each daily release forwards the resource bundles: while no read token is configured (the current arrangement), the bundles carried under `bundles/`, one per game, at present only Blue Archive's; with a read token, the newest bundle published by each resource repository.
+This is the umbrella (portal) repository of the ActingCommand family. It holds no code: the code lives in the member repositories linked above, and each link goes to that repository's home page. This repository carries only the README, the program skill under `skills/`, and the versioned releases on its Releases page: the setup wizards and, unchanged, the release assets of the member repositories for each version.
 
-**What we can do:** Let an AI agent deploy our program, or install it yourself with the setup wizard published with every daily release (online `acsetup.exe`, offline `acsetup-full-<tag>.exe`). Once the matching skill is loaded in your harness, you can have the agent produce the materials that a program running in an Android emulator needs, and then run it again and again on a schedule.
+**What we can do:** Let an AI agent deploy our program, or install it yourself with the setup wizard published with every release (online `acsetup.exe`, offline `acsetup-full-<tag>.exe`). Once the matching skill is loaded in your harness, you can have the agent produce the materials that a program running in an Android emulator needs, and then run it again and again on a schedule.
 
 **Program skill:** [`skills/actingcommand/SKILL.md`](skills/actingcommand/SKILL.md) is the workshop manual for an AI agent that operates an installed ActingCommand from the command line (CLI version v0, for Runtime v0.9.1 and UI v0.9.0).
 
@@ -36,20 +36,38 @@ This is the umbrella (portal) repository of the ActingCommand family. It holds n
 
 **Join in:** If you have a better idea, or run into a problem while using it, open an issue in this repository, or open a pull request directly in the repository concerned.
 
-## Installers and artifacts
+## Install
 
-**Daily publishing is paused.** The scheduled daily run is switched off while the release process moves to versioned releases; the `build-r*-u*` pre-releases already on the Releases page stay available, and the `publish-artifacts` workflow now runs only when started by hand. The description below is how it has worked so far.
+Requirements: Windows, and the MuMu Android emulator for the game instances. The installation is per user; no administrator rights are needed.
 
-Member build artifacts are synced daily to this repository's [Releases](https://github.com/HS7097/ActingCommand/releases) page: for each member the newest `main` commit that already has a successful build artifact, one pre-release per commit pair (`build-r<Runtime 7>-u<UI 7>`):
+1. From the [Releases](https://github.com/HS7097/ActingCommand/releases) page, take the newest release `vX.Y.Z` and download **one** setup wizard:
+   - `acsetup.exe` (online): downloads the rest of that release itself;
+   - `acsetup-full-<tag>.exe` (offline): carries the whole release.
 
-| Asset | Source |
+   Each has a `.sha256` file next to it if you want to check the download.
+2. Run it. The wizard has five steps:
+   1. **Location**: the install root, by default `%LOCALAPPDATA%\Programs\ActingCommand`. If an installation is already there, this run is an upgrade.
+   2. **Install**: fetches (or extracts) the release, checks every file against `SHA256SUMS` and the `BUILD-MANIFEST.json` inside each zip, and stops if anything differs. Only then does it lay out `runtime\`, `ui\` and `tools\`.
+   3. **Options**: writes the Runtime configuration `actingd.config.json` and the console settings. Start at boot, a Start menu shortcut and a desktop shortcut are optional.
+   4. **Instances** (optional): finds MuMu and its instances, and offers the game resource packages carried by the release. You can skip it and do it later with the console's Instance Configuration button.
+   5. **Finish**: a summary of what was installed and where the install log is.
+3. To upgrade, run the wizard of a newer release on the same install root. Your configuration and state are kept, and the version it replaces is kept under `previous\`.
+
+An AI agent can do all of this for you; the program skill above tells it how. The complete description of the wizard, including upgrades, the offline edition and the install log, is in the UI repository's README, section [Setup wizard acsetup](https://github.com/HS7097/ActingCommand-UI#setup-wizard-acsetup).
+
+## Releases
+
+Each version is a release `vX.Y.Z` on this repository (at present previews, marked as pre-releases). Every member is first released from an exact commit by its own repository's release workflow; the release here carries those assets unchanged:
+
+| Asset | Content |
 |---|---|
-| `actingcommand-runtime-<sha>.zip` | Runtime "Windows exact-SHA build" runtime artifact: `actingcommand-actingd.exe`, `actingctl.exe`, config template, INSTALL.md, RELEASE-NOTES.md |
-| `actingcommand-tools-<sha>.zip` | Tools artifact of the same build: `actinglab.exe`, `actingledger.exe`, vision-provider-check, device-test, `ac_fastdeploy_ppocr.dll` |
-| `acui-windows-<sha>.zip` | UI build Windows artifact: `acui.exe`, `acsetup.exe` (the setup wizard), LICENSE, README |
-| `acsetup.exe` | Online setup wizard (the `acsetup.exe` of the UI artifact on its own): downloads the rest from this release; sidecar `acsetup.exe.sha256`; not listed in SHA256SUMS |
-| `acsetup-full-<tag>.exe` | Offline setup wizard with the whole release embedded: every zip, MEMBERS.json and SHA256SUMS; sidecar `acsetup-full-<tag>.exe.sha256`; not listed in SHA256SUMS |
-| `<game>-bundle-<sha7>.zip` | Latest resource bundle of each resource repository (its newest `bundle-*` release), when available, or, until the read token exists, the bundle carried in this repository's `bundles/` directory: `applications.json`, `bundle.json`, `packs/` (the sealed resource packs) |
-| `MEMBERS.json`, `SHA256SUMS` | Source runs and artifact ids; SHA-256 of every zip and of MEMBERS.json |
+| `actingcommand-runtime-<sha>.zip` | The Runtime: `actingcommand-actingd.exe`, `actingctl.exe`, the configuration template, INSTALL.md, RELEASE-NOTES.md |
+| `actingcommand-tools-<sha>.zip` | The tools of the same build: `actinglab.exe`, `actingledger.exe` and the OCR provider |
+| `acui-windows-<sha>.zip` | The console `acui.exe` and the setup wizard |
+| `<game>-resources-<sha7>.zip` | A game's standard resource package from its resource repository |
+| `MEMBERS.json`, `SHA256SUMS` | The member commits and releases; the SHA-256 of every zip and of `MEMBERS.json` |
+| `acsetup.exe`, `acsetup-full-<tag>.exe` | The online and offline setup wizards, each with its own `.sha256` |
 
-The `publish-artifacts` workflow fetches the source artifacts, re-checks every file against its BUILD-MANIFEST.json (SHA-256 and commit) and only then publishes. Its daily 03:47 UTC run is paused; it runs only when started by hand; each commit pair is published once. Source artifacts are kept for 30 days; a pinned commit whose artifacts expired fails the workflow and opens an issue. The latest bundle of each resource repository is forwarded into every daily release when available, or, until the read token exists, the bundle carried in this repository's `bundles/` directory, after it is checked against its `.sha256` sidecar.
+Before a release is published, every member zip is checked against its `BUILD-MANIFEST.json` (repository, commit, size and SHA-256 of every file), and the offline wizard is read back after it is assembled. This repository has no CI: releases are assembled and checked by hand.
+
+The `build-r<Runtime>-u<UI>` pre-releases from the earlier daily publishing stay on the Releases page for reference; that publishing has been retired.

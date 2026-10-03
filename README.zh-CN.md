@@ -24,9 +24,9 @@
 
 ## 本仓
 
-本仓是 ActingCommand 项目族的伞仓（门面页），不承载代码；代码在上面各成员仓，链接直达仓库主页。本仓只放 README、`bundles/` 目录下的资源包，以及 Releases 里的安装包与造物。每日发布会转发资源包（bundle）：未配置读取令牌时（当前做法），转发本仓 `bundles/` 目录携带的资源包，每个游戏一个，目前只有蔚蓝档案（Blue Archive）一个；配置了读取令牌后，改取各资源仓最新发布的资源包。
+本仓是 ActingCommand 项目族的伞仓（门面页），不承载代码；代码在上面各成员仓，链接直达仓库主页。本仓只放 README、`skills/` 下的程序 skill，以及 Releases 里按版本号发布的版本：每个版本包含安装向导，以及各成员仓为该版本发布的原样资产。
 
-**我们能做什么：** 让智能体部署我们的程序，或由人使用随每日发布一并发布的安装向导（在线 `acsetup.exe`、离线 `acsetup-full-<tag>.exe`）自行安装；在 Harness 里加载对应的 skill 之后，你就可以让智能体为运行在安卓模拟器上的程序制作所需的素材，然后定期重复运行。
+**我们能做什么：** 让智能体部署我们的程序，或由人使用随每个版本一并发布的安装向导（在线 `acsetup.exe`、离线 `acsetup-full-<tag>.exe`）自行安装；在 Harness 里加载对应的 skill 之后，你就可以让智能体为运行在安卓模拟器上的程序制作所需的素材，然后定期重复运行。
 
 **程序 skill：** [`skills/actingcommand/SKILL.md`](skills/actingcommand/SKILL.md) 是给智能体用的车间手册，讲怎样用命令行操作已安装的 ActingCommand（CLI 版 v0，对应 Runtime v0.9.1 与 UI v0.9.0）。
 
@@ -36,20 +36,38 @@
 
 **欢迎参与：** 如果您有更好的想法，或者在使用中遇到了什么问题，可以直接在本仓创建 issue，或是在对应仓直接创建 PR。
 
-## 安装包与造物
+## 安装
 
-**每日发布已暂停。** 发布流程正在改为带版本号的发布，定时的每日运行已关闭；Releases 里已有的 `build-r*-u*` 预发布继续保留，工作流 `publish-artifacts` 现在只在手动启动时运行。下文是此前的做法。
+需要 Windows；游戏实例运行在 MuMu 安卓模拟器上。按当前用户安装，不需要管理员权限。
 
-成员仓的构建产物每日自动同步到本仓的 [Releases](https://github.com/HS7097/ActingCommand/releases)：取各成员仓 `main` 上最新一个已有成功构建产物的提交，每个发布对应一对提交（`build-r<Runtime 前 7 位>-u<UI 前 7 位>`），标为预发布候选：
+1. 在 [Releases](https://github.com/HS7097/ActingCommand/releases) 页面找到最新的版本 `vX.Y.Z`，**只下载一个**安装向导：
+   - `acsetup.exe`（在线版）：自己去下载该版本的其余文件；
+   - `acsetup-full-<tag>.exe`（离线版）：已带上整个版本。
 
-| 资产 | 来源 |
+   两者旁边各有一个 `.sha256` 文件，可以用来校验下载。
+2. 运行安装向导，共五步：
+   1. **位置**：选择安装根目录，默认 `%LOCALAPPDATA%\Programs\ActingCommand`。该目录里已有安装时，这次运行就是升级。
+   2. **安装**：下载（或解出）该版本，逐个文件对照 `SHA256SUMS` 和每个 zip 里的 `BUILD-MANIFEST.json` 核对，有任何不符就停下；全部核对通过后，才铺设 `runtime\`、`ui\`、`tools\`。
+   3. **选项**：写好 Runtime 配置 `actingd.config.json` 和监控台设置。开机启动、开始菜单快捷方式、桌面快捷方式都是可选项。
+   4. **实例**（可跳过）：找到 MuMu 及其实例，并列出该版本附带的游戏资源包。跳过的话，以后可以用监控台顶栏的“实例配置”按钮补上。
+   5. **完成**：汇总装了什么，以及安装日志在哪里。
+3. 升级时，在同一个安装根目录上运行更新版本的安装向导即可。原有的配置和状态都会保留，被替换的版本放在 `previous\` 里。
+
+这些也可以交给智能体来做，上面的程序 skill 写了怎么做。安装向导的完整说明（包括升级、离线版、安装日志）见 UI 仓 README 的 [Setup wizard acsetup](https://github.com/HS7097/ActingCommand-UI#setup-wizard-acsetup) 一节。
+
+## 版本发布
+
+每个版本在本仓发布为 `vX.Y.Z`（目前都是预览版，标记为 pre-release）。各成员先由自己仓库的发布工作流从确切的提交发布，本仓的发布原样带上这些资产：
+
+| 资产 | 内容 |
 |---|---|
-| `actingcommand-runtime-<sha>.zip` | Runtime 仓"Windows exact-SHA build"的 runtime 产物：`actingcommand-actingd.exe`、`actingctl.exe`、配置模板、INSTALL.md、RELEASE-NOTES.md |
-| `actingcommand-tools-<sha>.zip` | 同一构建的 tools 产物：`actinglab.exe`、`actingledger.exe`、vision-provider-check、device-test、`ac_fastdeploy_ppocr.dll` |
-| `acui-windows-<sha>.zip` | UI 仓 build 的 Windows 产物：`acui.exe`、`acsetup.exe`（安装引导程序）、LICENSE、README |
-| `acsetup.exe` | 在线安装引导程序（即 UI 产物里的 `acsetup.exe` 单独一份）：其余文件从本发布件下载；旁有 `acsetup.exe.sha256`；不列入 SHA256SUMS |
-| `acsetup-full-<tag>.exe` | 离线安装引导程序，内嵌整个发布件：全部 zip、MEMBERS.json、SHA256SUMS；旁有 `acsetup-full-<tag>.exe.sha256`；不列入 SHA256SUMS |
-| `<game>-bundle-<sha7>.zip` | 各资源仓最新的资源包（其最新的 `bundle-*` 发布），有则转发；在读取令牌就位之前，则为本仓 `bundles/` 目录里携带的资源包：`applications.json`、`bundle.json`、`packs/`（封印后的资源包） |
-| `MEMBERS.json`、`SHA256SUMS` | 来源运行与产物 ID；全部 zip 与 MEMBERS.json 的 SHA-256 |
+| `actingcommand-runtime-<sha>.zip` | Runtime：`actingcommand-actingd.exe`、`actingctl.exe`、配置模板、INSTALL.md、RELEASE-NOTES.md |
+| `actingcommand-tools-<sha>.zip` | 同一次构建的工具：`actinglab.exe`、`actingledger.exe` 和 OCR 提供者 |
+| `acui-windows-<sha>.zip` | 监控台 `acui.exe` 和安装向导 |
+| `<game>-resources-<sha7>.zip` | 各游戏资源仓发布的标准资源包 |
+| `MEMBERS.json`、`SHA256SUMS` | 各成员的提交与发布；每个 zip 以及 `MEMBERS.json` 的 SHA-256 |
+| `acsetup.exe`、`acsetup-full-<tag>.exe` | 在线版、离线版安装向导，各带一个 `.sha256` |
 
-发布由工作流 `publish-artifacts` 完成：取来源仓的产物，逐文件核对 BUILD-MANIFEST.json 里的 SHA-256 与提交号后再发布；每日 03:47 UTC 的自动运行已暂停，只在手动启动时运行；同一对提交只发一次。来源仓产物保留 30 天，超期未发布的提交会在工作流里报错并开 issue。各资源仓最新的资源包在可用时（在读取令牌就位之前，则为本仓 `bundles/` 目录里携带的资源包）按其 `.sha256` 校验后，随每日发布一并转发。
+发布之前，每个成员 zip 都会对照它自带的 `BUILD-MANIFEST.json`（仓库、提交、每个文件的大小和 SHA-256）核对一遍；离线版安装向导组装好后还会回读核对。本仓没有 CI，版本由人工组装和核对。
+
+以前每日发布留下的 `build-r<Runtime>-u<UI>` 预发布仍保留在 Releases 页面上供参考；每日发布已经停用。
