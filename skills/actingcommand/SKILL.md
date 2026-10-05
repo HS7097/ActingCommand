@@ -26,7 +26,7 @@ description: Operate an installed ActingCommand through its local MCP server (ac
 
 ## Handles, cursors and pauses
 
-- A run's handle is its Runtime `request_id`. It stays valid across MCP and actingd restarts, and any process reads it with `ac_get_run`.
+- A run's handle is its Runtime `request_id`; any process can query it with `ac_get_run`. In v0.11.0, lookup survives MCP and actingd restarts after main-pack admission. If actingd restarts before main-pack admission, including during return-home or prerequisite packs, lookup may return `not_found` and resubmitting the original request may be refused. Report the uncertain result; do not automatically submit another run.
 - Every other job handle (from `ac_pause`, `ac_resume`, `ac_emulator`, `ac_stop_run`, `ac_pack_check`, `ac_catalog_check` and the author tools) lives in its MCP process only and answers `handle_unknown` after that process ends. Then read a pause's `revision` and `owner_epoch`, or the emulator's state, from `ac_overview`, a run from `ac_get_run`, and a recording from `ac_record_status`.
 - An `ac_events` cursor dies with the Runtime connection or the server (`cursor_invalid`). Read again from the first page.
 - A pause made with `ac_pause` is the CLI's pause. It stays until `ac_resume` or an actingd restart, which clears every pause; it does not end with the MCP process.
@@ -121,7 +121,7 @@ The server's own codes:
 
 ## Tools
 
-The table generated from `actingctl mcp-serve --list-tools --format markdown` at Runtime `3bf664e0` is in `references/tools.md`. At run time, `tools/list` is authoritative.
+The table generated from `actingctl mcp-serve --list-tools --format markdown` at Runtime `b7051894` is in `references/tools.md`. At run time, `tools/list` is authoritative.
 
 - observer (9): `ac_overview`, `ac_events`, `ac_material`, `ac_get_run`, `ac_diagnose`, `ac_resources_list`, `ac_targets_get`, `ac_pack_check`, `ac_catalog_check`
 - operator (6): `ac_run_pack`, `ac_stop_run`, `ac_pause`, `ac_resume`, `ac_emulator`, `ac_targets_set`
