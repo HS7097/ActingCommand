@@ -1,0 +1,9 @@
+interface:
+  display_name: "ActingCommand"
+  short_description: "Operate a local ActingCommand install through its MCP tools"
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "actingcommand"
+      description: "ActingCommand local MCP server (actingctl mcp-serve, stdio)"
