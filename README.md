@@ -28,7 +28,7 @@ This is the umbrella (portal) repository of the ActingCommand family. It holds n
 
 **What we can do:** Let an AI agent deploy our program, or install it yourself with the setup wizard published with every release (online `acsetup.exe`, offline `acsetup-full-<tag>.exe`). Once the matching skill is loaded in your harness, you can have the agent produce the materials that a program running in an Android emulator needs, and then run it again and again on a schedule.
 
-**Program skill:** [`skills/actingcommand/SKILL.md`](skills/actingcommand/SKILL.md) is the workshop manual for an AI agent that operates an installed ActingCommand from the command line (CLI version v0, for Runtime v0.9.1 and UI v0.9.0; its section 7 covers Runtime v0.10.0 Lab recording and self-check coverage, declared target consensus, bounded immediate retries and the suspended-task report).
+**Program skill:** [`skills/actingcommand/SKILL.md`](skills/actingcommand/SKILL.md) is the manual for an AI agent that operates an installed ActingCommand through its local MCP server `actingctl mcp-serve` (Runtime v0.11.0), with the command-line manual as the fallback. To install it, copy or link the whole `skills/actingcommand` directory to `~/.claude/skills/actingcommand` (Claude Code) and `~/.agents/skills/actingcommand` (Codex).
 
 **What the agent has to do:** Make some images and click regions.
 
