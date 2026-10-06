@@ -4,7 +4,7 @@ This is the Lab recording part of the `actingcommand` skill: §7 of the CLI manu
 
 ## MCP mapping (author tier)
 
-With the server's author tier, the recording commands of §7 are tools. Each tool runs `tools\actinglab.exe --json` of the server's installation (from v0.11.1 that of the selected slot, `<root>\A\` or `<root>\B\`, with the server's selection pinned; before, `<root>\tools\`) with one argument per flag and answers actinglab's data verbatim, with the class taken from actinglab's exit code (2 usage, 3 safety, 4 device, 5 runtime, 6 usage `not_implemented`). When the server knows its state root, it sets `ACTINGCOMMAND_RUNTIME_STATE_ROOT` to it, so `cli-workshop.md` §5 item 8 does not apply.
+With the server's author tier, the recording commands of §7 are tools. Each tool runs `tools\actinglab.exe --json` of the server's installation (from v0.11.2 `<root>\tools\`, outside the slots, with the server's selection pinned; in v0.11.1 that of the selected slot, `<root>\A\` or `<root>\B\`; before, `<root>\tools\`) with one argument per flag and answers actinglab's data verbatim, with the class taken from actinglab's exit code (2 usage, 3 safety, 4 device, 5 runtime, 6 usage `not_implemented`). When the server knows its state root, it sets `ACTINGCOMMAND_RUNTIME_STATE_ROOT` to it, so `cli-workshop.md` §5 item 8 does not apply.
 
 | Tool | actinglab command |
 |---|---|
