@@ -5,7 +5,7 @@ One real call sequence for each recipe of `SKILL.md`, with abridged real answers
 - `→` is a call: the tool and its arguments as sent. `←` is the answer, the `structuredContent` that equals its text content, with the time the client measured when it printed one. Lines starting with `#` are notes added here.
 - `…` marks text left out here. `...(+N bytes)` marks a cut that is already in the CI log.
 - Paths are temporary paths of the CI runner. `neutral.instance`, `fixture-instance-a` and `node.a` are fixture instances, and the packs are fixture packs.
-- The tool table (`tools.md`) is generated at `3bf664e0`, whose tree equals product commit `24b752b7`. For the samples taken on earlier product commits of the same stack, the same scripted S1 and S2 checks passed again on the `24b752b7` build in run 37264244025 (S1 4/4, S2 3/3).
+- The tool table (`tools.md`) is generated at `732a546f` (v0.11.1); it is byte for byte the table generated at `3bf664e0`, whose tree equals product commit `24b752b7`. For the samples taken on earlier product commits of the same stack, the same scripted S1 and S2 checks passed again on the `24b752b7` build in run 37264244025 (S1 4/4, S2 3/3).
 
 | Sample | One-off run | Job, step | Product commit (exact-SHA build run) |
 |---|---|---|---|

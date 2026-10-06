@@ -1,6 +1,6 @@
 ---
 name: actingcommand
-description: Operate an installed ActingCommand through its local MCP server (actingctl mcp-serve, Runtime v0.11.0) and its ac_* tools. Use when the machine has an ActingCommand install (actingd.config.json beside runtime\, tools\ and ui\ folders) and the user wants the system's health, what each emulator instance is doing, one task pack run once or stopped, a pack checked, a failed or suspended scheduled task diagnosed, instance resource targets set, or a task pack recorded with Lab. Without the MCP server it follows references/cli-workshop.md. It never approves, never edits the daemon configuration and never starts or stops the daemon.
+description: Operate an installed ActingCommand through its local MCP server (actingctl mcp-serve, Runtime v0.11.1) and its ac_* tools. Use when the machine has an ActingCommand install (runtime\, tools\ and ui\ folders beside install\active.json, or before v0.11.1 beside actingd.config.json) and the user wants the system's health, what each emulator instance is doing, one task pack run once or stopped, a pack checked, a failed or suspended scheduled task diagnosed, instance resource targets set, or a task pack recorded with Lab. Without the MCP server it follows references/cli-workshop.md. It never approves, never edits the daemon configuration and never starts or stops the daemon.
 ---
 
 # ActingCommand program skill v1 (MCP)
@@ -15,9 +15,9 @@ description: Operate an installed ActingCommand through its local MCP server (ac
 
 ## Connecting
 
-- `<root>\runtime\actingctl.exe mcp-config --client claude` (or `--client codex`), optionally with `--tier observer,operator,author`, prints the configuration snippet and writes nothing. The user adds it to the client: for Claude Code the printed `claude mcp add --scope user actingcommand -- "<exe>" mcp-serve --tier observer`, for Codex the printed `[mcp_servers.actingcommand]` table in its `config.toml`. Never edit a client's configuration yourself.
+- `<root>\runtime\actingctl.exe mcp-config --client claude` (or `--client codex`), optionally with `--tier observer,operator,author`, prints the configuration snippet and writes nothing. The user adds it to the client: for Claude Code the printed `claude mcp add --scope user actingcommand -- "<exe>" mcp-serve --tier observer`, for Codex the printed `[mcp_servers.actingcommand]` table in its `config.toml`. On an A/B install the printed `<exe>` is a slot program (`<root>\A\…` or `<root>\B\…`) that stops starting once the other slot is selected (`install_process_slot_mismatch`); register the fixed entry `<root>\runtime\actingctl.exe` as `<exe>` instead. Never edit a client's configuration yourself.
 - **Tiers.** `observer` reads and is always on. `operator` adds device and scheduling writes, `author` adds Lab recording. The default is observer only. Enabling a tier is the user's step: they change `--tier` and restart the server. A tool outside the enabled tiers answers `tier_not_enabled`. Report it; do not do the same work through the CLI instead.
-- **Location.** The server takes the install root from its own path (`<root>\runtime\actingctl.exe`) and reads only `state_root` from `<root>\actingd.config.json`; `--root` and `--state-root` override them. It reads nothing at start. `ac_overview` shows what it found (`install`, `lab_tool`).
+- **Location.** Through the fixed entry the server uses the program slot and private configuration that `<root>\install\active.json` selects, with their root and state root, and keeps them for its lifetime: after a slot switch the user restarts it. Without `active.json` it takes the root from its own path and `state_root` from `<root>\actingd.config.json` (`--root` and `--state-root` override them). `ac_overview` shows what it found (`install`, `lab_tool`).
 - **Time and size.** Every call answers within 25 s; longer work answers a handle at once. Every result is at most 24 KiB: lists page with cursors, and screenshots and oversized Lab answers are written to files under `%TEMP%\actingcommand-mcp\materials\`.
   - Codex: the snippet sets `startup_timeout_sec = 10` and `tool_timeout_sec = 60`. Keep the tool timeout above 25 s. The commented `enabled_tools` line is an optional second restriction.
   - Claude Code warns when a tool result passes 10,000 tokens and cuts it at 25,000 by default (`MAX_MCP_OUTPUT_TOKENS`). The 24 KiB cap keeps every result under that limit; a large result can still raise the warning.
@@ -26,7 +26,7 @@ description: Operate an installed ActingCommand through its local MCP server (ac
 
 ## Handles, cursors and pauses
 
-- A run's handle is its Runtime `request_id`; any process can query it with `ac_get_run`. In v0.11.0, lookup survives MCP and actingd restarts after main-pack admission. If actingd restarts before main-pack admission, including during return-home or prerequisite packs, lookup may return `not_found` and resubmitting the original request may be refused. Report the uncertain result; do not automatically submit another run.
+- A run's handle is its Runtime `request_id`; any process can query it with `ac_get_run`, across MCP and actingd restarts. From v0.11.1 this includes a run interrupted in its return-home or prerequisite packs: the next actingd start settles it as `cancelled` (`contained_task_recovered_after_restart`), and a resubmission of the original request meets that terminal and runs nothing; a run left unsettled reads `interrupted_unterminated`. A v0.11.0 install answers `not_found` for such a run and may refuse the resubmission. Report an uncertain result; never submit another run on your own.
 - Every other job handle (from `ac_pause`, `ac_resume`, `ac_emulator`, `ac_stop_run`, `ac_pack_check`, `ac_catalog_check` and the author tools) lives in its MCP process only and answers `handle_unknown` after that process ends. Then read a pause's `revision` and `owner_epoch`, or the emulator's state, from `ac_overview`, a run from `ac_get_run`, and a recording from `ac_record_status`.
 - An `ac_events` cursor dies with the Runtime connection or the server (`cursor_invalid`). Read again from the first page.
 - A pause made with `ac_pause` is the CLI's pause. It stays until `ac_resume` or an actingd restart, which clears every pause; it does not end with the MCP process.
@@ -121,7 +121,7 @@ The server's own codes:
 
 ## Tools
 
-The table generated from `actingctl mcp-serve --list-tools --format markdown` at Runtime `b7051894` is in `references/tools.md`. At run time, `tools/list` is authoritative.
+The table generated from `actingctl mcp-serve --list-tools --format markdown` at Runtime `732a546f` (v0.11.1) is in `references/tools.md`. At run time, `tools/list` is authoritative.
 
 - observer (9): `ac_overview`, `ac_events`, `ac_material`, `ac_get_run`, `ac_diagnose`, `ac_resources_list`, `ac_targets_get`, `ac_pack_check`, `ac_catalog_check`
 - operator (6): `ac_run_pack`, `ac_stop_run`, `ac_pause`, `ac_resume`, `ac_emulator`, `ac_targets_set`

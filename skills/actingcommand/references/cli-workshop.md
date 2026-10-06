@@ -1,12 +1,12 @@
 # ActingCommand CLI workshop (fallback)
 
-This is the command-line fallback of the `actingcommand` skill. Use it when the harness has no ActingCommand MCP server (`SKILL.md`, Connecting), or for a command that no MCP tool covers. It is §1–§6 of the CLI manual v0, which was the skill's `SKILL.md` before the MCP edition; its §7, Lab recording, is now `lab-recording.md`. Changed from v0: this paragraph, the first sentence below, the references to §7, and the heading and MCP note of §6.
+This is the command-line fallback of the `actingcommand` skill. Use it when the harness has no ActingCommand MCP server (`SKILL.md`, Connecting), or for a command that no MCP tool covers. It is §1–§6 of the CLI manual v0, which was the skill's `SKILL.md` before the MCP edition; its §7, Lab recording, is now `lab-recording.md`. Changed from v0: this paragraph, the first sentence below, the references to §7, the heading and MCP note of §6, and for v0.11.1 the install layout (§2.1, §2.2, the note under §2.4, R5 step 1), the "Never on your own" row of §1 and §6's v0.11.1 item.
 
-It is a command-line manual for an AI agent that operates an installed ActingCommand. §1–§5 cover Runtime **v0.9.1** and UI **v0.9.0**; they were not checked again for v0.10.0 except the explicitly marked additions. `lab-recording.md` covers what Runtime **v0.10.0** adds: Lab recording and its self-check coverage, `linear_steps` packages with declared target consensus, and scheduled tasks' bounded immediate retries and suspension. It holds no game knowledge; that lives in the resource packs.
+It is a command-line manual for an AI agent that operates an installed ActingCommand. §1–§5 cover Runtime **v0.9.1** and UI **v0.9.0**; they were not checked again for v0.10.0 except the explicitly marked additions. The install layout of §2.1 and §2.2 is that of v0.11.1 (Workflow #352). `lab-recording.md` covers what Runtime **v0.10.0** adds: Lab recording and its self-check coverage, `linear_steps` packages with declared target consensus, and scheduled tasks' bounded immediate retries and suspension. It holds no game knowledge; that lives in the resource packs.
 
-**Evidence key.** `[run]`: checked by running the v0.9.1 release binaries with side-effect-free arguments only. `path:line`: checked in source, in HS7097/ActingCommand-Runtime at v0.9.1 (`8e0ac191`), or in HS7097/ActingCommand-UI v0.9.0 (`3056039`) when marked `UI`. `file.md "Section"` (in `lab-recording.md`): checked in that contract and the [v0.10.0 Runtime candidate at `0d3e686e`](https://github.com/HS7097/ActingCommand-Runtime/tree/0d3e686e3ad6026c8e667597d884abb52b3e1009) (PR #608). Nothing in `lab-recording.md` is `[run]`; source checks do not establish a released build or real-device behavior. **Unverified**: not checked; check it before you rely on it.
+**Evidence key.** `[run]`: checked by running the v0.9.1 release binaries with side-effect-free arguments only. `path:line`: checked in source, in HS7097/ActingCommand-Runtime at v0.9.1 (`8e0ac191`), or in HS7097/ActingCommand-UI v0.9.0 (`3056039`) when marked `UI`. `file.md "Section"` (in `lab-recording.md`): checked in that contract and the [v0.10.0 Runtime candidate at `0d3e686e`](https://github.com/HS7097/ActingCommand-Runtime/tree/0d3e686e3ad6026c8e667597d884abb52b3e1009) (PR #608). Nothing in `lab-recording.md` is `[run]`; source checks do not establish a released build or real-device behavior. `UI@c47bab66 path:line` and `RT@732a546f path:line`: checked in source, in HS7097/ActingCommand-UI v0.11.1 (`c47bab66`) or HS7097/ActingCommand-Runtime v0.11.1 (`732a546f`). **Unverified**: not checked; check it before you rely on it.
 
-**Citation paths.** Runtime: an unqualified `main.rs` is `apps/actingctl/src/main.rs`; `actingd main.rs`, `config.rs` and `check_config.rs` are in `apps/actingd/src/`; `actinglab main.rs` and the other actinglab files (`cli_parse.rs`, `flag_args.rs`, `lab2_cli.rs`, `run_summary.rs`, …) are in `apps/actinglab/src/`; `ledger-forensics lib.rs`/`main.rs` are in `apps/ledger-forensics/src/`; `runtime.rs`, `package.rs`, `taskflow.rs`, `event.rs`, `event/ids.rs`, `resource_targets.rs` and `contract lab.rs` are in `crates/actingcommand-contract/src/`; `client.rs` and `error.rs` are in `crates/runtime-client/src/`; `host.rs` and `host/lease.rs` are in `crates/runtime-host/src/`; `resource-tooling …` is `crates/resource-tooling/src/`; `ledger global/projection.rs` is `crates/ledger/src/global/projection.rs`. `Runtime README.md` is the repository's root README; `distribution/windows/INSTALL.md` is written out; every other `*.md` (`resource-targets.md`, `scheduling/README.md`, …) is under `contracts/`. UI: `crates/acui-setup/src/`.
+**Citation paths.** Runtime: an unqualified `main.rs` is `apps/actingctl/src/main.rs`; `actingd main.rs`, `config.rs` and `check_config.rs` are in `apps/actingd/src/`; `actinglab main.rs` and the other actinglab files (`cli_parse.rs`, `flag_args.rs`, `lab2_cli.rs`, `run_summary.rs`, …) are in `apps/actinglab/src/`; `ledger-forensics lib.rs`/`main.rs` are in `apps/ledger-forensics/src/`; `runtime.rs`, `package.rs`, `taskflow.rs`, `event.rs`, `event/ids.rs`, `resource_targets.rs` and `contract lab.rs` are in `crates/actingcommand-contract/src/`; `client.rs` and `error.rs` are in `crates/runtime-client/src/`; `host.rs` and `host/lease.rs` are in `crates/runtime-host/src/`; `resource-tooling …` is `crates/resource-tooling/src/`; `ledger global/projection.rs` is `crates/ledger/src/global/projection.rs`. `Runtime README.md` is the repository's root README; `distribution/windows/INSTALL.md` is written out; every other `*.md` (`resource-targets.md`, `scheduling/README.md`, …) is under `contracts/`; `contract installation.rs` is `crates/actingcommand-contract/src/installation.rs`. UI: `crates/acui-setup/src/`; `acui-installation main.rs` is `crates/acui-installation/src/main.rs`.
 
 ## 1. Scope
 
@@ -18,7 +18,7 @@ It is a command-line manual for an AI agent that operates an installed ActingCom
 |---|---|
 | Read only | `actingctl status`, `status --config`, `facts --program`, `monitor-status`, `emulator status`; every `actingledger` command; `actinglab --json` `help`, `capabilities`, `schema`, `package digest`, `package validate`, `scheduling compile`, `run summary`, plus `record status`, `package preflight`, `resource catalog` in v0.10.0; `actingd check-config`, `actingd suspended` (v0.10.0) |
 | Uses the device or changes scheduling: only on the user's request | `actingctl task-run`, `reset`, `observe` and `stream` (they capture frames), `selfcheck`, `emulator start`, `stop`, `restart`, `monitor-set`, `monitor-clear`, `pause`, `resume`, `task-offset`, `agent-publish-facts`, `agent-apply-resource-targets`; a Lab recording (v0.10.0, `lab-recording.md`): `actinglab record start`, `record mark`, `record stop`, and `capture`, `observe --capture`, `do --capture`, `session app` with `--record` |
-| Never on your own | `actingctl request-shutdown`, `emulator discover`; starting `actingd`, `actingd unlock-owner`, `actingd ledger-maintenance`; `actinglab config set` |
+| Never on your own | `actingctl request-shutdown`, `emulator discover`, `install-transition` (v0.11.1); starting `actingd`, `actingd unlock-owner`, `actingd ledger-maintenance`; `actinglab config set` |
 
 **Never:**
 - Approve anything. Approval decisions are accepted only from User/Ui (Runtime README.md:58). Do not touch `policy.catalog_approval_ids`.
@@ -32,12 +32,18 @@ It is a command-line manual for an AI agent that operates an installed ActingCom
 
 The setup wizard installs per user. The default root is `%LOCALAPPDATA%\Programs\ActingCommand` (UI platform.rs:31-34). The console's settings file `%APPDATA%\ActingCommand\acui.toml` holds the real paths in the keys `state_root`, `actingd_config` and `actingd_exe` (UI install.rs:221-260, platform.rs:45-48). Read it when the default folder does not exist.
 
+From v0.11.1 (Workflow #352) the programs live in two slots, `<root>\A\` and `<root>\B\`, and `<root>\install\active.json` selects one slot and one private configuration generation; only acsetup writes it. The root's `runtime\`, `tools\` and `ui\` hold fixed entries: copies of the UI's `acforward.exe` under the program names. Each runs the program of the same name in the selected slot with that selection pinned, passes stdio through and returns its exit code; for `actingctl mcp-serve` it adds `--root` and `--state-root` (UI@c47bab66 acui-installation main.rs:20-106). Always use the fixed entries: a slot's program started directly refuses to run once the other slot is selected (`install_process_slot_mismatch`, RT@732a546f contract installation.rs:306-346). An upgrade prepares the other slot before it switches; the replaced slot stays, and `<root>\ui\acsetup.exe --rollback` selects it again (UI@c47bab66 slots.rs:52-143, upgrade.rs:297-349). An install from before v0.11.1 has its programs directly in `runtime\`, `tools\` and `ui\` and its configuration at `<root>\actingd.config.json`; its first v0.11.1 upgrade moves them to `<root>\install\initial-backup-<generation>\` (UI@c47bab66 migration.rs:68-100).
+
 | Path | Content | Source |
 |---|---|---|
-| `<root>\actingd.config.json` | Daemon configuration: `state_root`, `instances[]`, optional `policy` (scheduling catalog, approvals), the secret salt | UI install.rs:190; config.rs:60-118 |
-| `<root>\runtime\` | `actingcommand-actingd.exe` (the daemon, "actingd"), `actingctl.exe`, `actingd.config.example.json`, `INSTALL.md`, `RELEASE-NOTES.md`, `BUILD-MANIFEST.json` | UI install.rs:30-43; `[run]` release zip |
-| `<root>\tools\` | `actinglab.exe`, `actingledger.exe`, `ac_fastdeploy_ppocr.dll`, nothing else | UI verify.rs:32 |
-| `<root>\ui\` | `acui.exe` (the console) and the other UI files | UI install.rs:30-56 |
+| `<root>\install\active.json` | The selection (`actingcommand.install-selection.v1`): `slot` (`A` or `B`), `generation`, and `path` and `sha256` of the slot's `MEMBERS.json` (`members`), of the configuration in force (`config`) and of an optional provider file | RT@732a546f contract installation.rs:406-431 |
+| `<root>\install\generations\<generation>\actingd.config.json` | The daemon configuration in force: `state_root`, `instances[]`, optional `policy` (scheduling catalog, approvals), the secret salt. Every change is a new generation, written by acsetup | UI@c47bab66 generations.rs:102-142; config.rs:60-118 |
+| `<root>\actingd.config.json` | No file from v0.11.1: an argument alias that the fixed `runtime\` entries turn into the selected configuration (`--config <root>\actingd.config.json`). Before v0.11.1 the configuration itself | UI@c47bab66 acui-installation main.rs:73-86, 148-170 |
+| `<root>\runtime\` | Fixed entries `actingcommand-actingd.exe` (the daemon, "actingd") and `actingctl.exe` | UI@c47bab66 install.rs:214-257 |
+| `<root>\tools\` | Fixed entries `actinglab.exe`, `actingledger.exe`, `actingcommand-vision-provider-check.exe`, `actingcommand-device-test.exe` | UI@c47bab66 install.rs:214-257 |
+| `<root>\ui\` | Fixed entry `acui.exe` (the console), and `acsetup.exe`, the fixed management entry for upgrades, configuration changes and `--rollback` | UI@c47bab66 install.rs:214-307 |
+| `<root>\A\`, `<root>\B\` | One program slot each: `runtime\` (`actingcommand-actingd.exe`, `actingctl.exe`, `actingd.config.example.json`, `INSTALL.md`, `RELEASE-NOTES.md`, `BUILD-MANIFEST.json`), `tools\` (`actinglab.exe`, `actingledger.exe`, `ac_fastdeploy_ppocr.dll`, adb in `platform-tools\`, …), `ui\` (`acui.exe`, `acsetup.exe`, `acforward.exe`, …) and `MEMBERS.json` | UI@c47bab66 install.rs:33-82, verify.rs:28-44; v0.11.1 Runtime release zip |
+| `<root>\install\slot-A.lock`, `slot-B.lock` | Empty files whose OS locks mark a slot in use; never write, move or delete them | UI@c47bab66 slots.rs:16-50 |
 | `<root>\packages\<game>\` | Resource packs from bundles: `<digest>\` content directories (bundle v2) or pack ZIPs (bundle v1) | UI bundle.rs:7-17 |
 | `<root>\state\` | The state root the wizard creates; the config's `state_root` is the authority | UI main.rs:931 |
 
@@ -47,9 +53,11 @@ Every client needs the **state root**, not its `ledger` subfolder (Runtime READM
 
 ```powershell
 $Root    = Join-Path $env:LOCALAPPDATA 'Programs\ActingCommand'
-$Config  = Join-Path $Root 'actingd.config.json'
-$State   = (Get-Content $Config -Raw | ConvertFrom-Json).state_root   # read this key only; never print the file
-$Ctl     = Join-Path $Root 'runtime\actingctl.exe'
+$Config  = Join-Path $Root 'actingd.config.json'   # from v0.11.1 an alias the fixed entries resolve; no file is there
+$Active  = Join-Path $Root 'install\active.json'
+$ConfigFile = if (Test-Path $Active) { Join-Path $Root (Get-Content $Active -Raw | ConvertFrom-Json).config.path } else { $Config }
+$State   = (Get-Content $ConfigFile -Raw | ConvertFrom-Json).state_root   # read this key only; never print the file
+$Ctl     = Join-Path $Root 'runtime\actingctl.exe'   # these four are fixed entries; never call a slot's program
 $Actingd = Join-Path $Root 'runtime\actingcommand-actingd.exe'
 $Lab     = Join-Path $Root 'tools\actinglab.exe'
 $Ledger  = Join-Path $Root 'tools\actingledger.exe'
@@ -58,7 +66,7 @@ $env:ACTINGCOMMAND_RUNTIME_STATE_ROOT = $State   # actinglab reads this, not the
 
 ```bash
 ROOT="$(cygpath -u "$LOCALAPPDATA")/Programs/ActingCommand"
-STATE='C:\...\state'   # state_root from the config; JSON "\\" is one "\"; single quotes keep it
+STATE='C:\...\state'   # state_root from the configuration in force (§2.1); JSON "\\" is one "\"; single quotes keep it
 CTL="$ROOT/runtime/actingctl.exe"; LAB="$ROOT/tools/actinglab.exe"; LEDGER="$ROOT/tools/actingledger.exe"
 export ACTINGCOMMAND_RUNTIME_STATE_ROOT="$STATE"
 ```
@@ -85,6 +93,8 @@ How each program finds the state root:
 | `actingledger` | One line of JSON report; bare `export` prints text | stderr `actingledger: <code> during <operation>: <detail>` | 0 ok, 1 failure. An incomplete report is printed first, then exit 1 with a `*_incomplete` code or `runtime_facts_not_available` (ledger-forensics lib.rs:92-157, main.rs:3-8) `[run]` |
 
 None of them has `--help` (§5).
+
+From v0.11.1 each runs through its fixed entry (§2.1). A failure of the entry itself is `FATAL acforward: <reason>` on stderr, exit 1, before the program starts (UI@c47bab66 acui-installation main.rs:10-18); `actingctl` that cannot pin its installation prints `FATAL actingctl: runtime contract validation failed with install_…`, exit 1 (RT@732a546f main.rs:36-39).
 
 ## 3. Recipes
 
@@ -210,7 +220,7 @@ v0.9.1 has no "suspended task" state. In v0.10.0 a scheduled `linear_steps` task
 
 ### R5. Resource targets, document v2 (Workflow #335; only on the user's request)
 
-1. **Find what can take a target.** v0.9.1 has no command that lists it. Read the active scheduling catalog named by `policy.catalog.pools` and `policy.catalog.tasks` in `actingd.config.json`; relative paths resolve against the config file's folder (config.rs:588-592, 1065-1076). A pool qualifies when its `observation` is `{"kind":"fact","fact_key":…}` with a `fact_key` that starts with `resource.` or `inventory.`, and its `scope` covers the instance. A task produces it when one of its `produces[]` entries names that `pool_id` (resource-targets.md:54, 60-63). Without a `policy` section the Runtime refuses every document with `catalog_unavailable` (resource-targets.md:65-68). To check the catalog offline: `& $Lab --json scheduling compile --tasks <file> --pools <file> --activity <file> --timeline <file>` (scheduling/README.md:10-18).
+1. **Find what can take a target.** v0.9.1 has no command that lists it. Read the active scheduling catalog named by `policy.catalog.pools` and `policy.catalog.tasks` in the configuration in force (`$ConfigFile`, §2.2); relative paths resolve against the config file's folder (config.rs:588-592, 1065-1076). A pool qualifies when its `observation` is `{"kind":"fact","fact_key":…}` with a `fact_key` that starts with `resource.` or `inventory.`, and its `scope` covers the instance. A task produces it when one of its `produces[]` entries names that `pool_id` (resource-targets.md:54, 60-63). Without a `policy` section the Runtime refuses every document with `catalog_unavailable` (resource-targets.md:65-68). To check the catalog offline: `& $Lab --json scheduling compile --tasks <file> --pools <file> --activity <file> --timeline <file>` (scheduling/README.md:10-18).
 2. **Write the document** (resource-targets.md:87-118). `instance` is the alias: the policy's instance id is the alias (runtime-host host.rs:322-331). `valid_until_unix_ms` must lie in `(now, now + 31_536_000_000]`, that is at most 365 days (resource-targets.md:51). Give 0 to 16 targets, at most one per resource. Leave out `scale` and `importance_milli` only when the pool declares a `valuation` with a `gap`. `tasks` is optional in `adjust` mode and required in `override` mode. The file is at most 65,536 bytes of UTF-8; write it without a byte-order mark.
 
 ```powershell
@@ -271,9 +281,13 @@ To withdraw every target, send `{"schema_version":"actingcommand.resource-target
 8. **actinglab's default state root is not the installed one** (§2.2). Set `ACTINGCOMMAND_RUNTIME_STATE_ROOT`.
 9. **actingledger argument order.** `--state-root <root>` must be the first two arguments (ledger-forensics lib.rs:164-186).
 
-## 6. What changes in v0.10.0 and v0.11.0
+## 6. What changes in v0.10.0, v0.11.0 and v0.11.1
 
-None of these commands exist in v0.9.1. Do not call them until the installed version has them; `actinglab --json capabilities` lists the installed commands.
+None of the new commands below exist in v0.9.1. Do not call them until the installed version has them; `actinglab --json capabilities` lists the installed commands.
 
-- **v0.10.0**: pack making with Lab, described in `lab-recording.md`. The agent marks regions of real frames as recognition points or click points by recording through `actinglab` (CLI first) and gets a draft of the configuration binding, which the user applies and approves. Linear tasks consume declared target consensus (`lab-recording.md` §7.6). Scheduled `linear_steps` tasks can retry immediately within the original activity window and budget cycle, and qualifying repeated failures suspend them (`lab-recording.md` §7.9); `actingd suspended --config` lists them. The older `record step`, `candidates`, `amend`, `build-task` and `promote` actions keep their behaviour and are not covered here.
+- **v0.10.0**: pack making with Lab, described in `lab-recording.md`. The agent marks regions of real frames as recognition points or click points by recording through `actinglab` (CLI first) and gets a draft of the configuration binding, which the user applies and approves. Linear tasks consume declared target consensus (`lab-recording.md` §7.6). Scheduled `linear_steps` tasks can retry immediately within the original activity window and budget cycle, and qualifying repeated failures suspend them (`lab-recording.md` §7.9); `actingd suspended --config` lists them. The older `record step`, `candidates` and `amend` actions keep their behaviour and are not covered here; `build-task` and `promote` are retired in v0.11.1 (below).
 - **v0.11.0** (Workflow #338, not released when this was written): `actingctl mcp-serve`, a local stdio MCP server with 22 task-level tools, all named `ac_*` (the Lab ones included), in three tiers: `observer` (read only, the default), `operator` (device and scheduling writes) and `author` (Lab recording). The user enables the higher tiers in the harness configuration. The skill's `SKILL.md` now works with these tools, and `tools.md` holds the tool table generated from `actingctl mcp-serve --list-tools`; this CLI manual stays as the fallback.
+- **v0.11.1** (Workflow #351, #352 and #288 A5):
+  - **Retired pack production.** `actinglab package build-task`, `package build-pack`, `resource convert` (derived-file production), `record build-task`, `record promote` and `record publish`, and their `session record` aliases, are retired. They refuse with `resource_production_retired`, exit 2, before any side effect, also with `--dry-run` or `--version` (actinglab-dry-run.md "Commands"). Instead author a content directory `packs/<package_id>/` (package-reference.md "Self-contained source layout") or record the pack with Lab (`lab-recording.md`), then check the source with `resource validate`, take its reference with `package digest` and make a standard bundle with `package bundle`. A `resource restore` draft is transferred into such a directory by hand (resource-restore.md).
+  - **A/B install**: program slots `A\` and `B\`, fixed entries and `install\active.json` (§2.1). `actingctl install-transition` is acsetup's control of a slot switch; never use it yourself.
+  - **Runs interrupted in maintenance packs.** A manual run interrupted in its return-home or prerequisite packs, before its main pack was admitted, is known from its first task fact. The next actingd start writes `task.cancelled` with `contained_task_recovered_after_restart` on its links, and a resubmission of the original request meets that terminal (task-diagnostic-stream.md; runtime-state-observation.md "Contained-run queries").
