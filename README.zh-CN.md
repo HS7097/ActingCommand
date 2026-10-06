@@ -47,26 +47,39 @@
    两者旁边各有一个 `.sha256` 文件，可以用来校验下载。
 2. 运行安装向导，共五步：
    1. **位置**：选择安装根目录，默认 `%LOCALAPPDATA%\Programs\ActingCommand`。该目录里已有安装时，这次运行就是升级。
-   2. **安装**：下载（或解出）该版本，逐个文件对照 `SHA256SUMS` 和每个 zip 里的 `BUILD-MANIFEST.json` 核对，有任何不符就停下；全部核对通过后，才把程序（`runtime\`、`ui\`、`tools\`）铺进程序槽 `A\`，并在安装根目录的 `runtime\`、`ui\`、`tools\` 里放好固定入口，固定入口总是启动 `install\active.json` 选中的槽。
+   2. **安装**：下载（或解出）该版本，逐个文件对照 `SHA256SUMS` 和每个 zip 里的 `BUILD-MANIFEST.json` 核对，有任何不符就停下；全部核对通过后，才把程序核心（`runtime\` 和 `ui\`）铺进程序槽 `A\`，并在安装根目录的 `runtime\`、`ui\` 里放好固定入口，固定入口总是启动 `install\active.json` 选中的槽。槽里只有程序核心：工具在安装根目录的 `tools\` 里，视觉模型和 ONNX Runtime 在 `vision\` 里（模型在 `vision\models\<model_ref>\`，ONNX Runtime 在 `vision\ort\`），资源包（`packages\`）和状态（`state\`）也都留在安装根目录；切换槽位时它们都保持原样。
    3. **选项**：写好 Runtime 配置 `actingd.config.json` 和监控台设置。开机启动、开始菜单快捷方式、桌面快捷方式都是可选项。
    4. **实例**（可跳过）：找到 MuMu 及其实例，并列出该版本附带的游戏资源包。跳过的话，以后可以用监控台顶栏的“实例配置”按钮补上。
    5. **完成**：汇总装了什么，以及安装日志在哪里。
 3. 升级时，在同一个安装根目录上运行更新版本的安装向导即可。它先在另一个槽（`B\` 或 `A\`）里准备好新版本，再切换过去。原有的配置和状态都会保留，被替换的版本留在它的槽里，可以用 `ui\acsetup.exe --rollback` 切回。v0.11.1 之前的安装在第一次升级时，原有程序和配置会移到 `install\initial-backup-<generation>\`。
 
+**命令行：** acsetup 也可以不开窗口运行：
+
+```
+acsetup --root <abs path> (--plan|--yes) [--conflicts new|old] [--associate <alias>=<bundle>/<server>] [--allow-downgrade] [--online|--from <folder>]
+```
+
+`--plan` 列出全部改动和差异，安装根目录下不改任何文件；`--yes` 执行安装或升级。`--associate` 可以重复，每个实例别名一次。退出码：0 完成，1 失败，2 用法错误，3 维护绑定有差异而未给 `--conflicts`，4 降级而未给 `--allow-downgrade`，5 有资源关联要选择而未给 `--associate`；2、3、4、5 都停在安装改动之前。离线版 `acsetup-full-<tag>.exe` 只用自带的版本；在线版 `acsetup.exe` 需要 `--online` 或 `--from <folder>`。`acsetup --help` 打印完整用法。acsetup 是窗口程序，交互式控制台的提示符不会等它结束；下面的一键脚本会等它结束，并原样传出它的退出码。
+
+**一键脚本：** 从 v0.11.2 起，每个版本还附带两个脚本，它们只是发布资产，不是本仓里的文件：
+- `install.ps1`：从同一个版本下载 `acsetup-full-<tag>.exe` 及其 `.sha256`，核对 SHA-256，再以命令行模式运行 acsetup，打印并原样传出它的退出码。脚本自己的退出码是 10（下载失败）和 11（SHA-256 不符）。先运行 `powershell -NoProfile -ExecutionPolicy Bypass -File install.ps1 -Root F:\AC --plan`，再把 `--plan` 换成 `--yes` 运行一次。
+- `install.sh`（Git Bash）：取该版本的 `install.ps1`，按 install.sh 里记录的 SHA-256 核对，再用同样的参数运行它，例如 `bash install.sh -Root F:/AC --plan`。
+
 这些也可以交给智能体来做，上面的程序 skill 写了怎么做。安装向导的完整说明（包括升级、离线版、安装日志）见 UI 仓 README 的 [Setup wizard acsetup](https://github.com/HS7097/ActingCommand-UI#setup-wizard-acsetup) 一节。
 
 ## 版本发布
 
-每个版本在本仓发布为 `vX.Y.Z`（目前都是预览版，标记为 pre-release）。各成员先由自己仓库的发布工作流从确切的提交发布，本仓的发布原样带上这些资产：
+每个版本在本仓发布为 `vX.Y.Z`（目前都是预览版，标记为 pre-release）。各组件已解耦：每个组件仓（Runtime、UI、各资源仓）各自发布，由自己的发布工作流从确切的提交发布，并且只在有改动时才发布；只要接口保持兼容，各组件就能继续搭配使用。本仓的每个版本带上每个成员最新的发布，资产原样不动，因此各成员的版本号可以彼此不同，也可以与本仓的版本号不同；`MEMBERS.json` 记录每个成员自己的 tag。例如 v0.11.2 带的是 Runtime v0.11.2、UI v0.11.2、Azur Lane 资源 v0.11.2、Arknights 资源 v0.11.1 和 Blue Archive 资源 v0.11.1：
 
 | 资产 | 内容 |
 |---|---|
 | `actingcommand-runtime-<sha>.zip` | Runtime：`actingcommand-actingd.exe`、`actingctl.exe`、配置模板、INSTALL.md、RELEASE-NOTES.md |
-| `actingcommand-tools-<sha>.zip` | 同一次构建的工具：`actinglab.exe`、`actingledger.exe` 和 OCR 提供者 |
+| `actingcommand-tools-<sha>.zip` | 同一次构建的工具：`actinglab.exe`、`actingledger.exe`、两个检查程序和 adb。从 v0.11.2 起不再带 OCR 提供者：OCR 在 Runtime 进程内运行 |
 | `acui-windows-<sha>.zip` | 监控台 `acui.exe` 和安装向导 |
 | `<game>-resources-<sha7>.zip` | 各游戏资源仓发布的标准资源包 |
 | `MEMBERS.json`、`SHA256SUMS` | 各成员的提交与发布；每个 zip 以及 `MEMBERS.json` 的 SHA-256 |
 | `acsetup.exe`、`acsetup-full-<tag>.exe` | 在线版、离线版安装向导，各带一个 `.sha256` |
+| `install.ps1`、`install.sh` | 从 v0.11.2 起：一键安装脚本（见“安装”一节） |
 
 发布之前，每个成员 zip 都会对照它自带的 `BUILD-MANIFEST.json`（仓库、提交、每个文件的大小和 SHA-256）核对一遍；离线版安装向导组装好后还会回读核对。本仓没有 CI，版本由人工组装和核对。
 

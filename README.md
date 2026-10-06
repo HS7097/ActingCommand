@@ -47,26 +47,39 @@ Requirements: Windows, and the MuMu Android emulator for the game instances. The
    Each has a `.sha256` file next to it if you want to check the download.
 2. Run it. The wizard has five steps:
    1. **Location**: the install root, by default `%LOCALAPPDATA%\Programs\ActingCommand`. If an installation is already there, this run is an upgrade.
-   2. **Install**: fetches (or extracts) the release, checks every file against `SHA256SUMS` and the `BUILD-MANIFEST.json` inside each zip, and stops if anything differs. Only then does it lay out the programs (`runtime\`, `ui\`, `tools\`) in the program slot `A\`, and at the install root the fixed entries in `runtime\`, `ui\` and `tools\`, which always start the slot that `install\active.json` selects.
+   2. **Install**: fetches (or extracts) the release, checks every file against `SHA256SUMS` and the `BUILD-MANIFEST.json` inside each zip, and stops if anything differs. Only then does it lay out the program core (`runtime\` and `ui\`) in the program slot `A\`, and at the install root the fixed entries in `runtime\` and `ui\`, which always start the slot that `install\active.json` selects. A slot holds only the program core: the tools are in `tools\` at the install root, the vision models and ONNX Runtime in `vision\` (models in `vision\models\<model_ref>\`, ONNX Runtime in `vision\ort\`), and the resource packages (`packages\`) and the state (`state\`) stay at the install root as well; switching the slot leaves all of them as they are.
    3. **Options**: writes the Runtime configuration `actingd.config.json` and the console settings. Start at boot, a Start menu shortcut and a desktop shortcut are optional.
    4. **Instances** (optional): finds MuMu and its instances, and offers the game resource packages carried by the release. You can skip it and do it later with the console's Instance Configuration button.
    5. **Finish**: a summary of what was installed and where the install log is.
 3. To upgrade, run the wizard of a newer release on the same install root. It prepares the new version in the other slot (`B\` or `A\`) before it switches. Your configuration and state are kept, and the version it replaces stays in its slot, where `ui\acsetup.exe --rollback` selects it again. An install from before v0.11.1 has its programs and configuration moved to `install\initial-backup-<generation>\` on its first upgrade.
 
+**Command line:** acsetup also runs without its window:
+
+```
+acsetup --root <abs path> (--plan|--yes) [--conflicts new|old] [--associate <alias>=<bundle>/<server>] [--allow-downgrade] [--online|--from <folder>]
+```
+
+`--plan` lists every change and difference and changes nothing under the install root; `--yes` installs or upgrades. `--associate` can be repeated, once per instance alias. Exit codes: 0 done, 1 failed, 2 usage, 3 maintenance-binding differences without `--conflicts`, 4 a downgrade without `--allow-downgrade`, 5 a resource association to choose without `--associate`; 2, 3, 4 and 5 stop before the installation changes. The offline `acsetup-full-<tag>.exe` uses only the release it carries; the online `acsetup.exe` needs `--online` or `--from <folder>`. `acsetup --help` prints the whole usage. acsetup is a windowed program, so an interactive console prompt does not wait for it; the one-step scripts below wait for it and pass its exit code through.
+
+**One-step scripts:** from v0.11.2 each release also carries two scripts, as release assets only, not as files of this repository:
+- `install.ps1` downloads `acsetup-full-<tag>.exe` and its `.sha256` from the same release, checks the SHA-256, runs acsetup in command-line mode, prints its exit code and passes it through. The script's own exit codes are 10 (a download failed) and 11 (SHA-256 mismatch). Run `powershell -NoProfile -ExecutionPolicy Bypass -File install.ps1 -Root F:\AC --plan` first, then the same with `--yes`.
+- `install.sh` (Git Bash) fetches that release's `install.ps1`, checks it against the SHA-256 recorded inside install.sh and runs it with the same arguments, for example `bash install.sh -Root F:/AC --plan`.
+
 An AI agent can do all of this for you; the program skill above tells it how. The complete description of the wizard, including upgrades, the offline edition and the install log, is in the UI repository's README, section [Setup wizard acsetup](https://github.com/HS7097/ActingCommand-UI#setup-wizard-acsetup).
 
 ## Releases
 
-Each version is a release `vX.Y.Z` on this repository (at present previews, marked as pre-releases). Every member is first released from an exact commit by its own repository's release workflow; the release here carries those assets unchanged:
+Each version is a release `vX.Y.Z` on this repository (at present previews, marked as pre-releases). The components are decoupled: each component repository (Runtime, UI, each resource repository) releases on its own, from an exact commit by its own release workflow, and only when it changes; the components keep working together as long as their interfaces stay compatible. A release here carries each member's newest release with its assets unchanged, so the members' versions can differ from one another and from this release's; `MEMBERS.json` records each member's own tag. v0.11.2, for example, carries Runtime v0.11.2, UI v0.11.2, Azur Lane resources v0.11.2, Arknights resources v0.11.1 and Blue Archive resources v0.11.1:
 
 | Asset | Content |
 |---|---|
 | `actingcommand-runtime-<sha>.zip` | The Runtime: `actingcommand-actingd.exe`, `actingctl.exe`, the configuration template, INSTALL.md, RELEASE-NOTES.md |
-| `actingcommand-tools-<sha>.zip` | The tools of the same build: `actinglab.exe`, `actingledger.exe` and the OCR provider |
+| `actingcommand-tools-<sha>.zip` | The tools of the same build: `actinglab.exe`, `actingledger.exe`, two check programs and adb. From v0.11.2 it no longer carries the OCR provider: OCR runs inside the Runtime |
 | `acui-windows-<sha>.zip` | The console `acui.exe` and the setup wizard |
 | `<game>-resources-<sha7>.zip` | A game's standard resource package from its resource repository |
 | `MEMBERS.json`, `SHA256SUMS` | The member commits and releases; the SHA-256 of every zip and of `MEMBERS.json` |
 | `acsetup.exe`, `acsetup-full-<tag>.exe` | The online and offline setup wizards, each with its own `.sha256` |
+| `install.ps1`, `install.sh` | From v0.11.2: the one-step install scripts (see Install) |
 
 Before a release is published, every member zip is checked against its `BUILD-MANIFEST.json` (repository, commit, size and SHA-256 of every file), and the offline wizard is read back after it is assembled. This repository has no CI: releases are assembled and checked by hand.
 
