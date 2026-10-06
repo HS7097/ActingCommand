@@ -47,11 +47,11 @@ Requirements: Windows, and the MuMu Android emulator for the game instances. The
    Each has a `.sha256` file next to it if you want to check the download.
 2. Run it. The wizard has five steps:
    1. **Location**: the install root, by default `%LOCALAPPDATA%\Programs\ActingCommand`. If an installation is already there, this run is an upgrade.
-   2. **Install**: fetches (or extracts) the release, checks every file against `SHA256SUMS` and the `BUILD-MANIFEST.json` inside each zip, and stops if anything differs. Only then does it lay out `runtime\`, `ui\` and `tools\`.
+   2. **Install**: fetches (or extracts) the release, checks every file against `SHA256SUMS` and the `BUILD-MANIFEST.json` inside each zip, and stops if anything differs. Only then does it lay out the programs (`runtime\`, `ui\`, `tools\`) in the program slot `A\`, and at the install root the fixed entries in `runtime\`, `ui\` and `tools\`, which always start the slot that `install\active.json` selects.
    3. **Options**: writes the Runtime configuration `actingd.config.json` and the console settings. Start at boot, a Start menu shortcut and a desktop shortcut are optional.
    4. **Instances** (optional): finds MuMu and its instances, and offers the game resource packages carried by the release. You can skip it and do it later with the console's Instance Configuration button.
    5. **Finish**: a summary of what was installed and where the install log is.
-3. To upgrade, run the wizard of a newer release on the same install root. Your configuration and state are kept, and the version it replaces is kept under `previous\`.
+3. To upgrade, run the wizard of a newer release on the same install root. It prepares the new version in the other slot (`B\` or `A\`) before it switches. Your configuration and state are kept, and the version it replaces stays in its slot, where `ui\acsetup.exe --rollback` selects it again. An install from before v0.11.1 has its programs and configuration moved to `install\initial-backup-<generation>\` on its first upgrade.
 
 An AI agent can do all of this for you; the program skill above tells it how. The complete description of the wizard, including upgrades, the offline edition and the install log, is in the UI repository's README, section [Setup wizard acsetup](https://github.com/HS7097/ActingCommand-UI#setup-wizard-acsetup).
 

@@ -47,11 +47,11 @@
    两者旁边各有一个 `.sha256` 文件，可以用来校验下载。
 2. 运行安装向导，共五步：
    1. **位置**：选择安装根目录，默认 `%LOCALAPPDATA%\Programs\ActingCommand`。该目录里已有安装时，这次运行就是升级。
-   2. **安装**：下载（或解出）该版本，逐个文件对照 `SHA256SUMS` 和每个 zip 里的 `BUILD-MANIFEST.json` 核对，有任何不符就停下；全部核对通过后，才铺设 `runtime\`、`ui\`、`tools\`。
+   2. **安装**：下载（或解出）该版本，逐个文件对照 `SHA256SUMS` 和每个 zip 里的 `BUILD-MANIFEST.json` 核对，有任何不符就停下；全部核对通过后，才把程序（`runtime\`、`ui\`、`tools\`）铺进程序槽 `A\`，并在安装根目录的 `runtime\`、`ui\`、`tools\` 里放好固定入口，固定入口总是启动 `install\active.json` 选中的槽。
    3. **选项**：写好 Runtime 配置 `actingd.config.json` 和监控台设置。开机启动、开始菜单快捷方式、桌面快捷方式都是可选项。
    4. **实例**（可跳过）：找到 MuMu 及其实例，并列出该版本附带的游戏资源包。跳过的话，以后可以用监控台顶栏的“实例配置”按钮补上。
    5. **完成**：汇总装了什么，以及安装日志在哪里。
-3. 升级时，在同一个安装根目录上运行更新版本的安装向导即可。原有的配置和状态都会保留，被替换的版本放在 `previous\` 里。
+3. 升级时，在同一个安装根目录上运行更新版本的安装向导即可。它先在另一个槽（`B\` 或 `A\`）里准备好新版本，再切换过去。原有的配置和状态都会保留，被替换的版本留在它的槽里，可以用 `ui\acsetup.exe --rollback` 切回。v0.11.1 之前的安装在第一次升级时，原有程序和配置会移到 `install\initial-backup-<generation>\`。
 
 这些也可以交给智能体来做，上面的程序 skill 写了怎么做。安装向导的完整说明（包括升级、离线版、安装日志）见 UI 仓 README 的 [Setup wizard acsetup](https://github.com/HS7097/ActingCommand-UI#setup-wizard-acsetup) 一节。
 
