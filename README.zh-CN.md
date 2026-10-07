@@ -51,7 +51,7 @@
    3. **选项**：写好 Runtime 配置 `actingd.config.json` 和监控台设置。开机启动、开始菜单快捷方式、桌面快捷方式都是可选项。
    4. **实例**（可跳过）：找到 MuMu 及其实例，并列出该版本附带的游戏资源包。跳过的话，以后可以用监控台顶栏的“实例配置”按钮补上。
    5. **完成**：汇总装了什么，以及安装日志在哪里。
-3. 升级时，在同一个安装根目录上运行更新版本的安装向导即可。它先在另一个槽（`B\` 或 `A\`）里准备好新版本，再切换过去。原有的配置和状态都会保留，被替换的版本留在它的槽里，可以用 `ui\acsetup.exe --rollback` 切回。v0.11.1 之前的安装在第一次升级时，原有程序和配置会移到 `install\initial-backup-<generation>\`。
+3. 升级时，在同一个安装根目录上运行更新版本的安装向导即可。它先在另一个槽（`B\` 或 `A\`）里准备好新版本，再切换过去。原有的配置和状态都会保留，被替换的版本留在它的槽里，可以用 `ui\acsetup.exe --rollback` 切回。Runtime 不能从 v0.11.3 或更新的版本回滚到 v0.11.2 或更早的版本：从 v0.11.3 起它按接口修订 2 写账本，更早的 Runtime 读不了，所以 `--rollback` 到这样的槽会以退出码 1 停下，不做任何改动；也不要手工把 `install\active.json` 改回去。v0.11.1 之前的安装在第一次升级时，原有程序和配置会移到 `install\initial-backup-<generation>\`。
 
 **命令行：** acsetup 也可以不开窗口运行：
 
@@ -59,22 +59,24 @@
 acsetup --root <abs path> (--plan|--yes) [--conflicts new|old] [--associate <alias>=<bundle>/<server>] [--allow-downgrade] [--online|--from <folder>]
 ```
 
-`--plan` 列出全部改动和差异，安装根目录下不改任何文件；`--yes` 执行安装或升级。`--associate` 可以重复，每个实例别名一次。退出码：0 完成，1 失败，2 用法错误，3 维护绑定有差异而未给 `--conflicts`，4 降级而未给 `--allow-downgrade`，5 有资源关联要选择而未给 `--associate`；2、3、4、5 都停在安装改动之前。离线版 `acsetup-full-<tag>.exe` 只用自带的版本；在线版 `acsetup.exe` 需要 `--online` 或 `--from <folder>`。`acsetup --help` 打印完整用法。acsetup 是窗口程序，交互式控制台的提示符不会等它结束；下面的一键脚本会等它结束，并原样传出它的退出码。
+`--plan` 列出全部改动和差异，安装根目录下不改任何文件；`--yes` 执行安装或升级。`--associate` 可以重复，每个实例别名一次。退出码：0 完成，1 失败，2 用法错误，3 维护绑定有差异而未给 `--conflicts`，4 降级而未给 `--allow-downgrade`，5 有资源关联要选择而未给 `--associate`，6（从 v0.11.3 起）接口不兼容，即 Runtime、UI、acsetup 与资源标准包声明的接口修订对不上；2 到 6 都停在安装改动之前。从 v0.11.3 起，`acsetup --root <abs path> --resources <标准包 zip> (--plan|--yes)` 把一个资源仓的标准包放进已有的 A/B 安装，既不换程序，也不切槽。离线版 `acsetup-full-<tag>.exe` 只用自带的版本；在线版 `acsetup.exe` 需要 `--online` 或 `--from <folder>`。`acsetup --help` 打印完整用法。acsetup 是窗口程序，交互式控制台的提示符不会等它结束；下面的一键脚本会等它结束，并原样传出它的退出码。
 
 **一键脚本：** 从 v0.11.2 起，每个版本还附带两个脚本，它们只是发布资产，不是本仓里的文件：
 - `install.ps1`：从同一个版本下载 `acsetup-full-<tag>.exe` 及其 `.sha256`，核对 SHA-256，再以命令行模式运行 acsetup，打印并原样传出它的退出码。脚本自己的退出码是 10（下载失败）和 11（SHA-256 不符）。先运行 `powershell -NoProfile -ExecutionPolicy Bypass -File install.ps1 -Root F:\AC --plan`，再把 `--plan` 换成 `--yes` 运行一次。
 - `install.sh`（Git Bash）：取该版本的 `install.ps1`，按 install.sh 里记录的 SHA-256 核对，再用同样的参数运行它，例如 `bash install.sh -Root F:/AC --plan`。
 
+**Runtime 守护：** 从 v0.11.3 起，Runtime 没经过正式关闭就结束时（崩溃、窗口被关、重启电脑），可以自动再拉起来。安装向导不会启用它：请在 Runtime 所属用户的普通（非管理员）PowerShell 里运行一次 `<root>\runtime\actingctl.exe watchdog install --root <root>`。它注册一个按用户运行的计划任务，每分钟运行 `<root>\tools\actingwatch.exe`。守护从不拉起正式关闭的 Runtime；最后一份 Runtime 日志以 FATAL 行结束时保持停止；30 分钟内最多拉起 3 次。`watchdog status --root <root>` 只报告、不改动任何东西，`watchdog uninstall --root <root>` 删除该任务（移除安装之前先运行它），记录在 `<root>\watchdog\watchdog.log`。详见 Runtime 的 INSTALL.md「Runtime watchdog」一节。
+
 这些也可以交给智能体来做，上面的程序 skill 写了怎么做。安装向导的完整说明（包括升级、离线版、安装日志）见 UI 仓 README 的 [Setup wizard acsetup](https://github.com/HS7097/ActingCommand-UI#setup-wizard-acsetup) 一节。
 
 ## 版本发布
 
-每个版本在本仓发布为 `vX.Y.Z`（目前都是预览版，标记为 pre-release）。各组件已解耦：每个组件仓（Runtime、UI、各资源仓）各自发布，由自己的发布工作流从确切的提交发布，并且只在有改动时才发布；只要接口保持兼容，各组件就能继续搭配使用。本仓的每个版本带上每个成员最新的发布，资产原样不动，因此各成员的版本号可以彼此不同，也可以与本仓的版本号不同；`MEMBERS.json` 记录每个成员自己的 tag。例如 v0.11.2 带的是 Runtime v0.11.2、UI v0.11.2、Azur Lane 资源 v0.11.2、Arknights 资源 v0.11.1 和 Blue Archive 资源 v0.11.1：
+每个版本在本仓发布为 `vX.Y.Z`（目前都是预览版，标记为 pre-release）。各组件已解耦：每个组件仓（Runtime、UI、各资源仓）各自发布，由自己的发布工作流从确切的提交发布，并且只在有改动时才发布；只要接口保持兼容，各组件就能继续搭配使用。从 v0.11.3 起，每次 Runtime 和 UI 构建都在自己的 `BUILD-MANIFEST.json` 里声明它读写的接口修订，acsetup 在改动任何东西之前，按这些声明核对它要安装的每一种组合。本仓的每个版本带上每个成员最新的发布，资产原样不动，因此各成员的版本号可以彼此不同，也可以与本仓的版本号不同；`MEMBERS.json` 记录每个成员自己的 tag。例如 v0.11.3 带的是 Runtime v0.11.3、UI v0.11.3、Azur Lane 资源 v0.11.3、Arknights 资源 v0.11.4 和 Blue Archive 资源 v0.11.4：
 
 | 资产 | 内容 |
 |---|---|
 | `actingcommand-runtime-<sha>.zip` | Runtime：`actingcommand-actingd.exe`、`actingctl.exe`、配置模板、INSTALL.md、RELEASE-NOTES.md |
-| `actingcommand-tools-<sha>.zip` | 同一次构建的工具：`actinglab.exe`、`actingledger.exe`、两个检查程序和 adb。从 v0.11.2 起不再带 OCR 提供者：OCR 在 Runtime 进程内运行 |
+| `actingcommand-tools-<sha>.zip` | 同一次构建的工具：`actinglab.exe`、`actingledger.exe`、两个检查程序、从 v0.11.3 起的守护启动器 `actingwatch.exe`，以及 adb。从 v0.11.2 起不再带 OCR 提供者：OCR 在 Runtime 进程内运行 |
 | `acui-windows-<sha>.zip` | 监控台 `acui.exe` 和安装向导 |
 | `<game>-resources-<sha7>.zip` | 各游戏资源仓发布的标准资源包 |
 | `MEMBERS.json`、`SHA256SUMS` | 各成员的提交与发布；每个 zip 以及 `MEMBERS.json` 的 SHA-256 |

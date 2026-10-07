@@ -1,6 +1,6 @@
 ---
 name: actingcommand
-description: Operate an installed ActingCommand through its local MCP server (actingctl mcp-serve, Runtime v0.11.2) and its ac_* tools. Use when the machine has an ActingCommand install (runtime\, tools\ and ui\ folders beside install\active.json, or before v0.11.1 beside actingd.config.json) and the user wants the system's health, what each emulator instance is doing, one task pack run once or stopped, a pack checked, a failed or suspended scheduled task diagnosed, instance resource targets set, or a task pack recorded with Lab. Without the MCP server it follows references/cli-workshop.md. It never approves, never edits the daemon configuration and never starts or stops the daemon.
+description: Operate an installed ActingCommand through its local MCP server (actingctl mcp-serve, Runtime v0.11.3) and its ac_* tools. Use when the machine has an ActingCommand install (runtime\, tools\ and ui\ folders beside install\active.json, or before v0.11.1 beside actingd.config.json) and the user wants the system's health, what each emulator instance is doing, one task pack run once or stopped, a pack checked, a failed or suspended scheduled task diagnosed, instance resource targets set, or a task pack recorded with Lab. Without the MCP server it follows references/cli-workshop.md. It never approves, never edits the daemon configuration and never starts or stops the daemon.
 ---
 
 # ActingCommand program skill v1 (MCP)
@@ -29,7 +29,7 @@ description: Operate an installed ActingCommand through its local MCP server (ac
 - A run's handle is its Runtime `request_id`; any process can query it with `ac_get_run`, across MCP and actingd restarts. From v0.11.1 this includes a run interrupted in its return-home or prerequisite packs: the next actingd start settles it as `cancelled` (`contained_task_recovered_after_restart`), and a resubmission of the original request meets that terminal and runs nothing; a run left unsettled reads `interrupted_unterminated`. A v0.11.0 install answers `not_found` for such a run and may refuse the resubmission. Report an uncertain result; never submit another run on your own.
 - Every other job handle (from `ac_pause`, `ac_resume`, `ac_emulator`, `ac_stop_run`, `ac_pack_check`, `ac_catalog_check` and the author tools) lives in its MCP process only and answers `handle_unknown` after that process ends. Then read a pause's `revision` and `owner_epoch`, or the emulator's state, from `ac_overview`, a run from `ac_get_run`, and a recording from `ac_record_status`.
 - An `ac_events` cursor dies with the Runtime connection or the server (`cursor_invalid`). Read again from the first page.
-- A pause made with `ac_pause` is the CLI's pause. It stays until `ac_resume` or an actingd restart, which clears every pause; it does not end with the MCP process.
+- A pause made with `ac_pause` is the CLI's pause. It stays until `ac_resume`; it does not end with the MCP process. From v0.11.3 it also survives an actingd restart: the restart restores it with a new `owner_epoch` and revision 1 (an instance pause comes back with stage `released`), so read both from `ac_overview` before `ac_resume`. Before v0.11.3 an actingd restart cleared every pause.
 
 ## Recipes
 
@@ -46,7 +46,7 @@ description: Operate an installed ActingCommand through its local MCP server (ac
 3. **Exclusive use** of the instance means `ac_pause` for that instance first and `ac_resume` afterwards. The pause drains every in-flight run on that instance, manual runs and other sessions' runs included: when the drain times out, the Runtime asks them all to stop. Pause only with the user's consent, and keep `owner_epoch` and the pause's `revision` from the answer.
 4. `ac_run_pack` answers at once with the handle (phase `submitting`). It never pauses anything: a busy instance comes back in `ac_get_run` as the Runtime's `LeaseBusy` or `ContainedTaskBusy`, class safety.
 5. `ac_get_run` with the handle, waiting up to 25 s per call, until the state is `succeeded`, `failed` or `cancelled`. `interrupted_unterminated` is uncertain (Failures).
-6. After step 3, `ac_resume` with the `owner_epoch` and `revision` you kept (or that `ac_overview` shows). A refusal with `details.host_failure.code` `scheduling_pause_owner_epoch_mismatch` or `scheduling_pause_revision_mismatch` means the pause is no longer the one you made: report it, never retry with other values.
+6. After step 3, `ac_resume` with the `owner_epoch` and `revision` you kept (or that `ac_overview` shows; after an actingd restart only those). A refusal with `details.host_failure.code` `scheduling_pause_owner_epoch_mismatch` or `scheduling_pause_revision_mismatch` means the pause is no longer the one you made: report it, never retry with other values.
 7. If `ac_run_pack` was interrupted before it answered, call `ac_overview` before you submit again.
 
 Report the state, outcome, failure code, final page and executed steps.
@@ -112,7 +112,7 @@ The server's own codes:
 
 ## Never
 
-- Approve anything or touch `catalog_approval_ids`; edit `actingd.config.json`; start, stop or restart actingd; add, remove or discover instances. Propose it; the user or the UI console does it.
+- Approve anything or touch `catalog_approval_ids`; edit `actingd.config.json`; start, stop or restart actingd; install, uninstall or run the Runtime watchdog (`actingctl watchdog install`, `uninstall`, `run-once`; only `watchdog status` reads); add, remove or discover instances. Propose it; the user or the UI console does it.
 - Edit a client's MCP configuration or enable a tier.
 - Take over or release a lease you do not hold, or stop a scheduled run other than through a pause the user agreed to.
 - Overwrite an active recording. `--force` is never passed; overwriting is the user's CLI step.
@@ -121,7 +121,7 @@ The server's own codes:
 
 ## Tools
 
-The table generated from `actingctl mcp-serve --list-tools --format markdown` at Runtime `732a546f` (v0.11.1) is in `references/tools.md`. At run time, `tools/list` is authoritative.
+The table generated from `actingctl mcp-serve --list-tools --format markdown` at Runtime `484bdc14` (v0.11.3) is in `references/tools.md`. At run time, `tools/list` is authoritative.
 
 - observer (9): `ac_overview`, `ac_events`, `ac_material`, `ac_get_run`, `ac_diagnose`, `ac_resources_list`, `ac_targets_get`, `ac_pack_check`, `ac_catalog_check`
 - operator (6): `ac_run_pack`, `ac_stop_run`, `ac_pause`, `ac_resume`, `ac_emulator`, `ac_targets_set`
