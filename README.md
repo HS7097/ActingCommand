@@ -5,9 +5,9 @@
 <img src="docs/assets/readme/actingcommand-icon.png" width="112" alt="ActingCommand icon">
 
 **Chief Executive Officer & Chairman** — HS7097<br/>
-**Chief Technology Officer & Chief Architect** — Claude Opus 5.5 · GPT‑6 Astra · Claude Fable 5 · GPT‑5.6 Sol<br/>
-**Board Secretary & Chief Audit Officer** — Claude Opus 5.5 · Claude Fable 5.1<br/>
-**Principal Engineer** — Claude Opus 5.5 · GPT‑6 Astra · GPT‑5.6 Sol<br/>
+**Chief Technology Officer & Chief Architect** — Claude Opus 5.5 · GPT‑6 Astra · Claude Fable 5.1 · Claude Fable 5 · GPT‑5.5<br/>
+**Board Secretary & Chief Audit Officer** — Claude Opus 5.5 · Claude Fable 5.1 · Claude Fable 5 · Claude Opus 4.8<br/>
+**Principal Engineer** — Claude Opus 5.5 · GPT‑6 Astra · GPT‑5.6 Sol · GPT‑5.5<br/>
 **Interviewing** — DeepSeek
 
 </div>
@@ -45,7 +45,7 @@ This is the umbrella (portal) repository of the ActingCommand family. It holds n
 | Part | What it does |
 |---|---|
 | Runtime (`actingcommand-actingd.exe`) | Resident process that accepts requests only on the loopback address (127.0.0.1 / [::1]) and has no network code; clients can close without affecting it. Scheduler: runs task packs by the approved catalog and its clock slots, with leases and fences re-checked on every device touch, pause and resume (global or per instance, kept across restarts from v0.11.3), priority offsets, resource targets and a disk-capacity gate; one request queue per instance from v0.11.5 and one worker per instance from v0.11.6. A failed routine run goes to the three-rung recovery ladder: return home, restart the app, restart the emulator (runs started by hand do not). From v0.11.6, after a restart every unfinished run is settled exactly once, by its terminal state or as interrupted, and a run that cannot be settled at start pauses only its instance and reports an Error. |
-| Recognition and devices | Template, color, click-only, OCR and neural-network targets, plus color digests; OCR and NN run in process on ONNX Runtime, with models loaded on first use. MuMu: Nemu IPC capture and input, instance discovery and start/stop through MuMuManager; the bundled adb 37.0.1. |
+| Recognition and devices | Seven target kinds: template, color, click-only, OCR, neural network, color digest and composite (a combination of 2 to 8 other targets); OCR and NN run in process on ONNX Runtime, with models loaded on first use. MuMu: Nemu IPC capture and input, instance discovery and start/stop through MuMuManager; the bundled adb 37.0.1. |
 | Ledger | A single-writer SQLite ledger of sanitized typed events; frames are stored by content digest. From v0.11.6 a frame retention cleaner removes frames that are no longer needed and moves the frames kept for errors and Lab into `<state root>\kept\<date>\`, where a person deletes them. |
 | Command line and tools | `actingctl` (status, pause and resume, emulator control, request shutdown, watchdog, MCP); `actinglab` for recording `linear_steps` task packs from a live screen and checking packs and catalogs; `actingledger` for reading the ledger offline; `actingwatch.exe`, the watchdog launcher. |
 | MCP server | `actingctl mcp-serve` (from v0.11.0): 22 tools for AI agents, see [Use with an AI agent](#use-with-an-ai-agent-mcp). |
@@ -152,7 +152,7 @@ The `build-r<Runtime>-u<UI>` pre-releases from the earlier daily publishing stay
 - **Games come in through resource packs.** All game content, the images, recognition regions, click boxes, task order and data tables, lives only in the packs: task packs, gathered into one standard pack per game, sealed by digest and checked before they load.
 - **Fail loud.** Every error is visible: a clear message, a non-zero exit code, an Error or Warning in the ledger. A refusal is also a receipt, never silence; invalid configuration, a non-loopback address or missing evidence fail explicitly instead of degrading quietly, and "unknown" is never taken as "no".
 - **The ledger is the authoritative record.** What the ledger says is what happened in the Runtime; a problem can be traced from the ledger alone.
-- **Result codes.** Every outcome has a code registered in the outcome catalog (catalog and CI guard from v0.11.5); the codes are being unified in the 0.12 series.
+- **Result codes.** A code catalog with a CI guard exists since v0.11.5 and covers part of the Runtime so far; registering every program's outcomes in it is planned for the 0.12 series.
 - **Local only.** The Runtime listens only on loopback and has no network code.
 - **Decoupled members.** The Runtime, the UI and each standard pack release on their own; whether they fit is decided by their declared interfaces.
 
@@ -178,7 +178,7 @@ Nothing in this section is released yet. The order inside a series may still cha
 | MCP additions | Everyday reads (filtered and long-polled events, run lists, instance data, frame export, one run's evidence, diagnosis of all instances, a sectioned overview), code lookup, pack lists, "why did it not run / when is it due next", asking the scheduler for one run, reading and writing instance goals; an agent inbox and briefings; the known issues above fixed. The command line is the reference and MCP maps to it one to one. |
 | Automatic emulator start | One configuration key, off by default. |
 | Resolution support (end of the 0.12 series) | Any 16:9 landscape or 9:16 portrait frame converted to the pack's declared base coordinate system (1280×720 today), with the short side at least 720; other ratios refused with a reason. |
-| Next UI release | Installer page for the two Lab options, errors explained by code (Chinese and English), reading the new ledger, machine-readable installer output (`--json`); planned as a major version step of the UI. |
+| Next UI release | Installer page for the two Lab options, errors explained by code (Chinese and English), the console showing why a task did not run, reading the new ledger, machine-readable installer output (`--json`); planned as a major version step of the UI. |
 
 **0.13 series:**
 
@@ -188,4 +188,4 @@ Nothing in this section is released yet. The order inside a series may still cha
 | Generic spatial components (clean-room) | Multi-finger hold gestures with sensitivity and latency calibration, minimap localization, path finding on route maps, closed-loop walking and camera turning. Written clean-room from public principles, with no third-party code, maps or models and no unpacking; in-process backends alongside color matching, color digests and OCR. Maps, route maps and control layouts are pack data; localization and walking come during 0.13.x. |
 | MaaFramework pipeline import/export | A package view that converts our task packs to and from MaaFramework-style pipeline JSON; a converted pack is saved back only when it passes the pack check, otherwise it reports the error and writes nothing. It follows the newest format and reports format changes. Editing happens in our own UI (a node-graph editor in the next authoring workbench); no third-party editor ships with the release. |
 
-**Breaking changes during the 0.12 series:** the new ledger, with no 0.11 state root carried over; changed command-line output and exit codes; no more MCP tiers; Lab not installed by default. The current setup wizard (UI v0.11.3) is expected not to install a 0.12.0 Runtime; that comes with the next UI release.
+**Breaking changes during the 0.12 series:** the new ledger, with no 0.11 state root carried over; changed command-line output and exit codes; no more MCP tiers; Lab not installed by default. The current setup wizard and console (UI v0.11.3) are expected not to work with a 0.12.0 Runtime; that comes with the next UI release.
