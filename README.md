@@ -112,7 +112,7 @@ An AI agent can do all of this for you; the program skill tells it how. The comp
 
 On an A/B install the printed program is the fixed entry `<root>\runtime\actingctl.exe`, so the registration keeps working after a slot switch. Start a new client session to load the server.
 
-**Tiers.** `observer` reads and is always on; it is the default. `operator` adds devices, applications and scheduling, `author` adds Lab recording. A tool outside the enabled tiers answers `tier_not_enabled`; to change the tiers, register again with another `--tier`. Runtime v0.12.10 has these 38 tools:
+**Tiers.** `observer` is always on and is the default; besides reads it holds the settings the Runtime may change while running, handset device binding, the local capability-gap log and an instance's remedy choices. `operator` adds devices, applications and scheduling, `author` adds Lab recording. A tool outside the enabled tiers answers `tier_not_enabled`; to change the tiers, register again with another `--tier`. Runtime v0.12.10 has these 38 tools:
 
 | Tier | Tools |
 |---|---|

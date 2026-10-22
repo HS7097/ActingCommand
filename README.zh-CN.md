@@ -112,7 +112,7 @@ acsetup --root <abs path> (--plan|--yes) [--conflicts new|old] [--associate <ali
 
 在 A/B 安装上打印出的程序是固定入口 `<root>\runtime\actingctl.exe`，切槽之后注册照样有效。注册后新开一个客户端会话才会加载这个服务。
 
-**档位。** `observer` 只读、总是开着，也是默认；`operator` 加上设备、应用与调度，`author` 加上 Lab 录制。不在已开档位里的工具回答 `tier_not_enabled`；要换档位，用别的 `--tier` 重新注册。Runtime v0.12.10 有下面 38 个工具：
+**档位。** `observer` 总是开着，也是默认；除了读取，它还含 Runtime 运行中可改的设置、手机设备绑定、本地能力缺口记录和实例的补救选择。`operator` 加上设备、应用与调度，`author` 加上 Lab 录制。不在已开档位里的工具回答 `tier_not_enabled`；要换档位，用别的 `--tier` 重新注册。Runtime v0.12.10 有下面 38 个工具：
 
 | 档位 | 工具 |
 |---|---|
