@@ -5,12 +5,12 @@
 <img src="docs/assets/readme/actingcommand-icon.png" width="112" alt="ActingCommand 图标">
 
 **首席执行官 兼 董事长** — HS7097<br/>
-**首席技术官 兼 首席架构师** — Claude Opus 5.5 · GPT‑6 Astra · Claude Fable 5.1 · Claude Fable 5 · GPT‑5.5<br/>
-**董事会秘书 兼 首席审计官** — Claude Opus 5.5 · Claude Fable 5.1 · Claude Fable 5 · Claude Opus 4.8<br/>
-**首席技术工程师** — Claude Opus 5.5 · GPT‑6 Astra · GPT‑5.6 Sol · GPT‑5.5<br/>
+**首席技术官 兼 首席架构师** — Claude Opus 5.5 · GPT‑6 Astra · Claude Fable 5.2 · Claude Fable 5.1 · Claude Fable 5 · GPT‑5.5<br/>
+**董事会秘书 兼 首席审计官** — Claude Opus 5.5 · Claude Fable 5.2 · Claude Fable 5.1 · Claude Fable 5 · Claude Opus 4.8<br/>
+**首席技术工程师** — GPT‑6 Astra · Claude Opus 5.5 · GPT‑5.6 Sol · GPT‑5.5<br/>
 **运维总监** — GPT‑6 Astra<br/>
 **运维主管** — GPT‑5.6 Sol Daybreak · DeepSeek V4.1 Flash 1017<br/>
-**正在面试** — Gemini‑4 Argon
+**业务运营组长** — Gemini‑4 Carbon · Gemini‑4 Argon
 
 </div>
 
@@ -19,8 +19,8 @@
 # ActingCommand
 
 - [ActingCommand-Runtime](https://github.com/HS7097/ActingCommand-Runtime) — Rust 常驻运行时，核心程序，含命令行、工具与本地 MCP 服务
-- [ActingCommand-UI](https://github.com/HS7097/ActingCommand-UI) — 安装向导与只读控制台
-- **明日方舟**、**碧蓝航线**、**蔚蓝档案**三个标准包 — 在不公开的单独仓库里制作；已公开的标准包作为本仓 [Releases](https://github.com/HS7097/ActingCommand/releases) 的资产发布
+- [ActingCommand-UI](https://github.com/HS7097/ActingCommand-UI) — 控制台与安装向导（UI 的 0.12 系列版本不带安装向导）
+- **明日方舟**、**碧蓝航线**、**蔚蓝档案**、**少女前线2**四个标准包 — 在不公开的单独仓库里制作；0.12 系列的标准包未公开，前三个游戏 0.11 系列的标准包作为本仓 [Releases](https://github.com/HS7097/ActingCommand/releases) 的资产发布
 
 ## 本仓
 
@@ -38,29 +38,29 @@
 
 - **调试阶段。** 主循环是：发现问题 → 修复 → 对照预期检查 → 再改。部署与易用性是次要的。
 - **只有预发布。** 每个成员的每次发布都是预发布。只支持最新版，旧系列不出修复。
-- **各成员现状。** Runtime 已进入 0.12 系列，最新是 v0.12.10。UI 最新是 v0.11.4；0.12 系列没有对应的 UI 版本，v0.11.4 的安装向导和控制台都不能用于 0.12 的 Runtime（见[安装](#安装)）。本仓最新的版本仍是 v0.11.4，带的是 Runtime v0.11.4（见[版本发布](#版本发布)）。
-- **Runtime 0.12 带来的变化。** 新账本：0.12 的 Runtime 从空的状态根开始，打不开 0.11 的账本，0.11 的程序也读不了 0.12 的账本。新的包格式：0.11 的标准包在 0.12 里装载不了。命令行和看门狗都以登记过的结果码作答，按结果的类别以 0、1 或 2 退出；MCP 工具报错也带同样的码。Runtime v0.12.10 是第一个账本修订 4 的版本，从它退回更早的 Runtime 不受支持。
-- **实机现状。** 项目自己的机器上，0.12 系列的 Runtime 在五台 MuMu 实例上全天运行。三个标准包每天跑例行批次；另有两台实例接入了少女前线2，它的标准包正在制作，未公开。标准包还没有覆盖全部任务。
-- **版本号规则。** X 为重大或不兼容的变化，Y 为新特性或新覆盖面，Z 为修复（含为修复服务的特性）。各成员各自发版；能否搭配看各自声明的接口版本，不看版本号是否一致。
+- **各成员现状。** Runtime 已进入 0.12 系列，最新是 v0.12.54。UI 最新是 v0.12.15：它的控制台能用于 0.12 的 Runtime，UI 的 0.12 系列版本不带安装向导（见[安装](#安装)）。本仓最新的版本仍是 v0.11.4，带的是 Runtime v0.11.4（见[版本发布](#版本发布)）。
+- **Runtime 0.12 带来的变化。** 新账本：0.12 的 Runtime 从空的状态根开始，打不开 0.11 的账本，0.11 的程序也读不了 0.12 的账本。新的包格式：0.11 的标准包在 0.12 里装载不了。命令行和看门狗都以登记过的结果码作答，按结果的类别以 0、1 或 2 退出；MCP 工具报错也带同样的码。系列内账本修订从 4（v0.12.10）升到 5（v0.12.36）、6（v0.12.39）和 7（v0.12.43）。每一步都是单向的：跨过它的更新要带 `--accept-ledger-one-way`，安装工具拒绝退回它之前的 Runtime。配置里写了比 Runtime 自身更新的配置修订才有的键，Runtime 会拒收这份配置，所以退回较旧的 Runtime 之前先去掉这些键。
+- **实机现状。** 项目自己的机器上，0.12 系列的 Runtime 在五台 MuMu 实例上全天运行：明日方舟、碧蓝航线、蔚蓝档案各一台，少女前线2 两台。10 月底有意暂停了例行调度，以便补齐标准包的任务覆盖和调度器需要的价值数据；从 2026 年 11 月 11 日起，例行调度在一台实例上恢复试运行，其余实例经 Lab 手动操作。标准包还没有覆盖全部任务。
+- **版本号规则。** X 为重大或不兼容的变化。Y 表示一个系列：0.12 系列让程序收敛，系列内的新特性、行为变化和修复都发为 0.12.z，完成这个系列的那一版编为 1.00，结束预览。各成员只在自身有变化时各自发版；能否搭配看各自声明的接口版本，不看版本号是否一致。
 
 ## 现在能用的
 
-Runtime 各行按 Runtime v0.12.10 写；控制台与安装向导两行按 UI v0.11.4 写。
+Runtime 各行按 Runtime v0.12.54 写；控制台与安装向导两行按 UI v0.12.15 写。
 
 | 部分 | 做什么 |
 |---|---|
-| Runtime（`actingcommand-actingd.exe`） | 常驻进程，只在本机回环地址（127.0.0.1 / [::1]）上收请求，没有网络代码；客户端关掉不影响它运行。调度器：按已批准的目录运行任务包，可按时钟槽，也可按条件（例如从实例事实里读到的时刻）；每个实例一个请求队列、一个工作线程，租约与围栏在每次触碰设备时复核；暂停与恢复（全局或单个实例，熬过重启）、优先级偏移、资源目标、磁盘容量准入。每个没跑的任务都写明原因。例行运行失败后，由恢复阶梯接手这台实例，阶梯的触发条件和各级都写在配置里（回主页、重启应用、重启模拟器）；手动发起的运行不走阶梯。一台实例出故障（截图、应用控制、一次观察）只影响这一台。 |
-| 识别与设备 | 八种识别目标：模板、颜色、仅点击、OCR、神经网络、颜色摘要、组合（由 2 到 8 个其他目标组成）、数值检验（比较读到的值）；OCR 与神经网络在进程内用 ONNX Runtime 推理，模型第一次用到才加载。MuMu：Nemu IPC 截图与输入，经 MuMuManager 发现实例、启停模拟器，可选由 Runtime 自动开启实例的模拟器。USB 连接的安卓真机也可以绑定为实例。自带 adb 37.0.1。在框里点击时，落点集中在框的中部，并在几个候选点之间轮换。 |
-| 账本 | 单写者的 SQLite 账本，记的是脱敏后的类型化事件，每个结果都带登记过的结果码；截图按内容摘要存放。截图清理器删去不再需要的截图，并把为错误与 Lab 保留的截图移进 `<state root>\kept\<date>\`，由人删除。 |
-| 命令行与工具 | `actingctl`（状态与总览、事件、运行列表与运行证据、「为什么没跑」、暂停与恢复、模拟器控制、设置、设备、请求关闭、看门狗、MCP）；`actinglab` 从实机画面录制 `linear_steps` 任务包，检查任务包、标准包与资源仓；`actingledger` 离线读账本；看门狗启动器 `actingwatch.exe`。 |
-| MCP 服务 | `actingctl mcp-serve`：给智能体用的 38 个工具，见[配合智能体使用](#配合智能体使用mcp)。 |
-| 控制台（`acui.exe`） | 只读账本的原生控制台：实例卡、时间线、详情；六个页签对应账本的六个视图；可离线直接读状态根，也可经 Runtime 在线读。顶栏启动器可拉起 Runtime 或请求它关闭，「实例配置」窗口可编辑实例。只能用于 0.11 的 Runtime。 |
-| 安装向导（`acsetup`） | 安装本仓的版本：A/B 安装与升级，改动之前逐个文件核对；也有命令行（见[安装](#安装)）。它是整个项目族里唯一有网络代码的程序。它拒绝安装 0.12 的 Runtime。 |
-| 标准包 | 明日方舟、碧蓝航线、蔚蓝档案：各游戏的全部任务包，加上程序与智能体所需的数据。本仓（v0.11.4）里公开的是 0.11 的标准包；0.12 系列的标准包未公开。标准包都按 1280×720 的画面制作；截图尺寸不符时任务明确失败。 |
+| Runtime（`actingcommand-actingd.exe`） | 常驻进程，只在本机回环地址（127.0.0.1 / [::1]）上收请求，没有网络代码；客户端关掉不影响它运行。调度器：按已批准的目录，或按它从各标准包的 `schedule.json` 组合出的目录运行任务包，可按时钟槽，也可按条件（例如从实例事实里读到的时刻）；每个实例一个请求队列、一个工作线程，租约与围栏在每次触碰设备时复核；业务任务按「一次运行的净收益 ÷ 预计时长」排先后，净收益未知或不为正的不派；资源池可以写停止线和硬线来限制花费；暂停与恢复（全局或单个实例，熬过重启）、优先级偏移、资源目标、磁盘容量准入。每个没跑的任务都写明原因。一段时间内没有任务的实例，Runtime 关掉它的游戏（或停掉模拟器），在下一个任务之前再拉起来。例行运行失败后，由恢复阶梯接手这台实例，阶梯的触发条件和各级都写在配置里（回主页、重启应用、重启模拟器）；手动发起的运行不走阶梯。一台实例出故障（截图、应用控制、一次观察）只影响这一台。 |
+| 识别与设备 | 八种识别目标：模板、颜色、仅点击、OCR、神经网络、颜色摘要、组合（由 2 到 8 个其他目标组成）、数值检验（比较读到的值）；OCR 与神经网络在进程内用 ONNX Runtime 推理，模型第一次用到才加载，从 v0.12.44 起 OCR 也可以经 DirectML 在 GPU 上运行。包可以在整帧或一个区域里找出一个锚点的每一处匹配（可带遮罩、按几个比例找），再选中其中一处（v0.12.43）。MuMu：Nemu IPC 截图与输入，经 MuMuManager 发现实例、启停模拟器，可选由 Runtime 自动开启实例的模拟器。实例的触控与截图后端可以在 Runtime 运行中切换（v0.12.39）。USB 连接的安卓真机也可以绑定为实例。自带 adb 37.0.1。在框里点击时，落点集中在框的中部，并在几个候选点之间轮换。 |
+| 账本 | 单写者的 SQLite 账本，记的是脱敏后的类型化事件，每个结果都带登记过的结果码；截图按内容摘要存放。历史留在磁盘上，启动时从带标记的记录载入 Runtime 的状态，不再重放整本账本（v0.12.13）。截图清理器删去不再需要的截图，并把为错误与 Lab 保留的截图移进 `<state root>\kept\<date>\`，由人删除。 |
+| 命令行与工具 | `actingctl`（状态与总览、事件、运行列表与运行证据、「为什么没跑」、暂停与恢复、模拟器控制、设置、设备、请求关闭、看门狗、MCP，以及从 v0.12.18 起的 `actingctl install`：接管、更新和回退一个根）；`actinglab` 从实机画面录制 `linear_steps` 任务包，检查任务包、标准包与资源仓，另有日常查看与控制用的短命令（v0.12.47），以及救急与安装模块：启动、停止、部署、回退、放置标准包、替换配置（v0.12.48）；`actingledger` 离线读账本；看门狗启动器 `actingwatch.exe`。 |
+| MCP 服务 | `actingctl mcp-serve`：给智能体用的 41 个工具，见[配合智能体使用](#配合智能体使用mcp)。 |
+| 控制台（`acui.exe`） | 原生控制台。工作台显示 Runtime 的状态和各账号，可拉起 Runtime 或请求它关闭，列出 Runtime 的设置（其中只能改「未确认的证据帧保留天数」），可在 Runtime 运行中切换每台设备的触控与截图后端，并显示看门狗是否开着。账本窗口读账本的六个视图，可离线直接读状态根，也可经 Runtime 在线读。它没有实例配置窗口：实例要手动编辑 Runtime 配置来添加。能用于 0.12 的 Runtime；它按 Runtime v0.12.47 构建，不显示之后的 Runtime 新加的设置。 |
+| 安装向导（`acsetup`） | UI 的 0.12 系列版本不带它；0.12 的 Runtime 手动铺好，之后用 `actingctl install` 维护（见[安装](#安装)）。0.11 系列的安装向导在本仓 v0.11.4 里，安装该系列：A/B 安装与升级，改动之前逐个文件核对；也有命令行。它拒绝安装 0.12 的 Runtime。 |
+| 标准包 | 明日方舟、碧蓝航线、蔚蓝档案、少女前线2：各游戏的全部任务包，加上程序与智能体所需的数据。0.12 系列的标准包未公开；本仓（v0.11.4）里公开的是前三个游戏 0.11 系列的标准包。现在的标准包都按 1280×720 的画面制作：同比例的更大画面缩小后只用于识别、不接受输入，其他尺寸的画面让任务明确失败。 |
 
 ## 安装
 
-**Runtime 0.12 系列。** 目前发布的安装向导都装不了它：UI v0.11.4 的安装向导与它声明的接口对不上，会在改动任何东西之前以退出码 6 拒绝。0.12 的 Runtime 要手动铺在一个空的状态根上：从 [Runtime 的 Releases](https://github.com/HS7097/ActingCommand-Runtime/releases) 取 Runtime zip、Tools zip 和 `SHA256SUMS`，核对后把 Runtime zip 解到 `<root>\runtime\`，把 Tools zip 解到 `<root>\tools\`，再按模板写好私有配置 `<root>\actingd.config.json`。配置、自带 adb、启动 / 查看 / 关闭以及看门狗，见 Runtime 的 [INSTALL.md](https://github.com/HS7097/ActingCommand-Runtime/blob/main/distribution/windows/INSTALL.md)。0.12 系列内升级时替换 `runtime\` 和 `tools\`，配置和账本不动。0.12 系列的标准包未公开。
+**Runtime 0.12 系列。** 目前发布的安装向导都装不了它：UI 的 0.12 系列版本不带 `acsetup`，0.11 系列的安装向导与它声明的接口对不上，会在改动任何东西之前以退出码 6 拒绝。0.12 的 Runtime 要手动铺一次，铺在单一位置、空的状态根上：从 [Runtime 的 Releases](https://github.com/HS7097/ActingCommand-Runtime/releases) 取 Runtime zip、Tools zip 和 `SHA256SUMS`，核对后把 Runtime zip 解到 `<root>\runtime\`，把 Tools zip 解到 `<root>\tools\`，再按模板写好私有配置 `<root>\actingd.config.json`。配置（含经 DirectML 在 GPU 上跑 OCR）、自带 adb、启动 / 查看 / 关闭以及看门狗，见 Runtime 的 [INSTALL.md](https://github.com/HS7097/ActingCommand-Runtime/blob/v0.12.54/distribution/windows/INSTALL.md)。之后由 `actingctl install`（从 Runtime v0.12.18 起）维护这个根：`install adopt` 接管这样铺好的根，`install release stage` 核对下载好的版本并留存在根下，`install update plan` 与 `update apply` 就地替换 `runtime\` 和 `tools\`，可以顺带停下、再启动 Runtime，配置和账本不动；`install rollback` 只能回到上一次更新替换掉的那个构建。0.12 系列的标准包未公开。
 
 **本仓 v0.11.4（0.11 系列），用安装向导安装。** 需要 Windows；游戏实例运行在 MuMu 安卓模拟器上，分辨率 1280×720。按当前用户安装，不需要管理员权限。
 
@@ -95,7 +95,7 @@ acsetup --root <abs path> (--plan|--yes) [--conflicts new|old] [--associate <ali
 
 **Runtime 看门狗：** 从 Runtime v0.11.3 起，Runtime 没经过正式关闭就结束时（崩溃、窗口被关、重启电脑），可以自动再拉起来；0.12 系列里，上一次启动以错误结束时也会拉起。它不会自动启用：请在 Runtime 所属用户的普通（非管理员）PowerShell 里运行一次 `<root>\runtime\actingctl.exe watchdog install --root <root>`。它注册一个按用户运行的计划任务，每分钟运行 `<root>\tools\actingwatch.exe`。看门狗从不拉起正式关闭的 Runtime；上一次启动以致命结局收场时保持停止；30 分钟内最多拉起 3 次。它看管 A/B 安装，从 Runtime v0.12.1 起也看管上面那样手动铺开的根。`watchdog status --root <root>` 只报告、不改动任何东西，`watchdog uninstall --root <root>` 删除该任务（移除安装之前先运行它），记录在 `<root>\watchdog\watchdog.log`。详见 Runtime 的 INSTALL.md「Runtime watchdog」一节。
 
-这些也可以交给智能体来做，程序 skill 写了怎么做。安装向导的完整说明（包括升级、离线版、安装日志）见 UI 仓 README 的 [Setup wizard acsetup](https://github.com/HS7097/ActingCommand-UI#setup-wizard-acsetup) 一节。
+安装向导的完整说明（包括升级、离线版、安装日志）见 UI 仓 README 的 [Setup wizard acsetup](https://github.com/HS7097/ActingCommand-UI#setup-wizard-acsetup) 一节。
 
 ## 配合智能体使用（MCP）
 
@@ -111,14 +111,14 @@ acsetup --root <abs path> (--plan|--yes) [--conflicts new|old] [--associate <ali
 - Claude Code：运行打印出来的命令，`claude mcp add --scope user actingcommand -- "<root>\runtime\actingctl.exe" mcp-serve --tier …`。
 - Codex：把打印出来的 `[mcp_servers.actingcommand]` 一段加进 Codex 的 `config.toml`。
 
-在 A/B 安装上打印出的程序是固定入口 `<root>\runtime\actingctl.exe`，切槽之后注册照样有效。注册后新开一个客户端会话才会加载这个服务。
+在 A/B 安装（0.11 系列）上打印出的程序是固定入口 `<root>\runtime\actingctl.exe`，切槽之后注册照样有效。在 0.12 系列的根上，从 Runtime v0.12.18 起，`mcp-config --client claude|codex|antigravity|dsh --entry --root <root> --tier …` 改为打印稳定 MCP 入口的注册内容：更新之后它在两次调用之间换到新版 Runtime，只有第一次改用它时要重启客户端（见 Runtime README 的 [MCP server](https://github.com/HS7097/ActingCommand-Runtime/blob/v0.12.54/README.md#mcp-server) 一节）。注册后新开一个客户端会话才会加载这个服务。
 
-**档位。** `observer` 总是开着，也是默认；除了读取，它还含 Runtime 运行中可改的设置、手机设备绑定、本地能力缺口记录和实例的补救选择。`operator` 加上设备、应用与调度，`author` 加上 Lab 录制。不在已开档位里的工具回答 `tier_not_enabled`；要换档位，用别的 `--tier` 重新注册。Runtime v0.12.10 有下面 38 个工具：
+**档位。** `observer` 总是开着，也是默认；除了读取，它还含 Runtime 运行中可改的设置、性能预设、手机设备绑定、本地能力缺口记录、实例的补救选择和例行运行的健康统计。`operator` 加上设备、应用、调度与证据已读确认，`author` 加上 Lab 录制。`ac_config_set` 属于 observer，但切换实例触控或截图后端的调用要 operator 档。不在已开档位里的工具回答 `tier_not_enabled`；要换档位，用别的 `--tier` 重新注册。Runtime v0.12.54 有下面 41 个工具：
 
 | 档位 | 工具 |
 |---|---|
-| observer（23 个） | `ac_overview`、`ac_events`、`ac_material`、`ac_observe`、`ac_get_run`、`ac_diagnose`、`ac_runs`、`ac_run_evidence`、`ac_resources_list`、`ac_targets_get`、`ac_config_set`、`ac_packs`、`ac_facts`、`ac_outcome_code`、`ac_devices`、`ac_device_bind`、`ac_device_unbind`、`ac_capability_gap`、`ac_remedy_set`、`ac_remedy_get`、`ac_schedule`、`ac_pack_check`、`ac_catalog_check` |
-| operator（8 个） | `ac_run_pack`、`ac_stop_run`、`ac_pause`、`ac_resume`、`ac_emulator`、`ac_app`、`ac_ladder_drill`、`ac_targets_set` |
+| observer（25 个） | `ac_overview`、`ac_events`、`ac_material`、`ac_observe`、`ac_get_run`、`ac_diagnose`、`ac_runs`、`ac_run_evidence`、`ac_resources_list`、`ac_targets_get`、`ac_config_set`、`ac_perf_preset`、`ac_packs`、`ac_facts`、`ac_outcome_code`、`ac_devices`、`ac_device_bind`、`ac_device_unbind`、`ac_capability_gap`、`ac_remedy_set`、`ac_remedy_get`、`ac_schedule`、`ac_routine_summary`、`ac_pack_check`、`ac_catalog_check` |
+| operator（9 个） | `ac_run_pack`、`ac_stop_run`、`ac_pause`、`ac_resume`、`ac_emulator`、`ac_app`、`ac_ladder_drill`、`ac_evidence_confirm_read`、`ac_targets_set` |
 | author（7 个） | `ac_lab_observe`、`ac_lab_do`、`ac_record_start`、`ac_record_mark`、`ac_record_stop`、`ac_record_status`、`ac_binding_draft` |
 
 `actingctl mcp-serve --list-tools --format markdown` 打印完整的工具表，含每个工具的参数。工具报错是 `{class, outcome}`，`mcp-serve --detail codes|full` 决定每个 outcome 带多少细节。
@@ -136,7 +136,7 @@ acsetup --root <abs path> (--plan|--yes) [--conflicts new|old] [--associate <ali
 
 每个版本在本仓发布为 `vX.Y.Z`，标记为预发布（pre-release）。各成员已解耦：每个成员（Runtime、UI、各标准包）各自从确切的提交发布，并且只在有改动时才发布；只要接口保持兼容，各成员就能继续搭配使用。每次 Runtime 和 UI 构建都在自己的 `BUILD-MANIFEST.json` 里声明它读写的接口修订，acsetup 在改动任何东西之前，按这些声明核对它要安装的每一种组合。本仓的每个版本带上每个成员最新的发布，资产原样不动，因此各成员的版本号可以彼此不同，也可以与本仓的版本号不同；`MEMBERS.json` 记录每个成员自己的 tag。
 
-本仓最新的版本 **v0.11.4** 带的是 Runtime v0.11.4、UI v0.11.3、明日方舟标准包 v0.11.4、碧蓝航线标准包 v0.11.3 和蔚蓝档案标准包 v0.11.4。此后发布、还没有进本仓版本的有：[Runtime 仓 Releases 页面](https://github.com/HS7097/ActingCommand-Runtime/releases)上的 Runtime v0.11.5、v0.11.6 以及 0.12 系列（到 v0.12.10），[UI 仓 Releases 页面](https://github.com/HS7097/ActingCommand-UI/releases)上的 UI v0.11.4。所以安装向导装的是 Runtime v0.11.4 和 UI v0.11.3。0.12 的 Runtime 与 0.11 的 UI、0.11 的标准包搭配不上。
+本仓最新的版本 **v0.11.4** 带的是 Runtime v0.11.4、UI v0.11.3、明日方舟标准包 v0.11.4、碧蓝航线标准包 v0.11.3 和蔚蓝档案标准包 v0.11.4。此后发布、还没有进本仓版本的有：[Runtime 仓 Releases 页面](https://github.com/HS7097/ActingCommand-Runtime/releases)上的 Runtime v0.11.5、v0.11.6 以及 0.12 系列（到 v0.12.54），[UI 仓 Releases 页面](https://github.com/HS7097/ActingCommand-UI/releases)上的 UI v0.11.4 以及 0.12 系列（到 v0.12.15）。所以安装向导装的是 Runtime v0.11.4 和 UI v0.11.3。0.12 的 Runtime 与 0.11 的 UI、0.11 的标准包搭配不上。
 
 | 资产 | 内容 |
 |---|---|
