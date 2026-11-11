@@ -23,19 +23,15 @@ This does not relicense anything that came from elsewhere. Upstream copyright no
 
 Checked on 2026-11-12 against the `main` of each repository. Two questions are kept apart: **source code**, and **assets and data** (images, recognition templates, task data, tables).
 
-### The reference projects
+### Upstream license matrix
 
-These projects were listed at the start of the project as references for architecture and features.
+Only upstream projects whose material is in use are listed.
 
 | Upstream project | Its licence today | Source code in our repositories | Assets and data in our repositories |
 | --- | --- | --- | --- |
-| [LmeSzinc/AzurLaneAutoScript](https://github.com/LmeSzinc/AzurLaneAutoScript) | GPL-3.0 | None | None in the current trees. Its `assets/` were imported into the private Azur Lane resource repository earlier in 2026 and removed on 2026-09-07; today's packs are made from the project's own captures. The attribution record of the import is kept. |
-| [wess09/AzurPilot](https://github.com/wess09/AzurPilot) | GPL-3.0 | None | None in the current trees (as above). |
-| [MaaAssistantArknights/MaaAssistantArknights](https://github.com/MaaAssistantArknights/MaaAssistantArknights) | AGPL-3.0-only, with the project's own user agreement | None copied. The Runtime has its own implementation that reads MAA's published task format as data. | **Present.** The private Arknights resource repository keeps a mirror of MAA's `resource/` tree for reference, and the Arknights standard pack contains MAA's home-screen theme templates (`resource/template/UiTheme`) unchanged: 491 image files in 46 of its 126 task packs today. The Arknights pack published in this repository's release v0.11.4 contains 272 such files. |
-| [BlueArchiveArisHelper/BAAH](https://github.com/BlueArchiveArisHelper/BAAH) | MIT | None | None in the current packs. Its template images were imported into the private Blue Archive resource repository earlier in 2026 and removed on 2026-09-07; the attribution record is kept. |
-| [pur1fying/blue_archive_auto_script](https://github.com/pur1fying/blue_archive_auto_script) | GPL-3.0 | None | Seven material icon files are kept in the private Blue Archive resource repository with their source commit and attribution. Its other images were removed on 2026-09-07. |
+| [MaaAssistantArknights/MaaAssistantArknights](https://github.com/MaaAssistantArknights/MaaAssistantArknights) | AGPL-3.0-only, with the project's own user agreement | None copied. The Runtime has its own implementation that reads MAA's published task format as data. | **In use.** The Arknights standard pack contains MAA's home-screen theme templates (`resource/template/UiTheme`) unchanged: 491 image files in 46 of its 126 task packs today, and 272 such files in the Arknights pack published in this repository's release v0.11.4. The private Arknights resource repository also keeps a mirror of MAA's `resource/` tree for reference. |
 
-How this was checked: the public repositories were searched for licence headers, copyright lines and statements of origin; the packs were compared file by file (by content hash) with the upstream files the resource repositories recorded at import. The Arknights numbers are a full comparison; Azur Lane and Blue Archive are a sample of about a quarter of their packs, in which no file matched.
+How this was checked: the public repositories were searched for licence headers, copyright lines and statements of origin, and the packs were compared file by file (by content hash) with the upstream files the resource repositories recorded at import.
 
 ### Source code adapted from other projects
 

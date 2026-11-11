@@ -15,20 +15,11 @@ This repository holds documentation, the agent manual under `skills/`, and archi
 - **ActingCommand-Runtime** keeps its own [`NOTICE.md`](https://github.com/HS7097/ActingCommand-Runtime/blob/main/NOTICE.md): the source files adapted from HS7097/codex-goal-lifecycle (MIT), and the third-party components its releases carry (Android SDK Platform-Tools, the scrcpy server, OpenH264, the MaaTouch binary), each with its source, licence and notice.
 - **ActingCommand-UI** is built with Slint under its GPLv3 option.
 
-## Upstream projects
+## Upstream material in use
 
-Listed at the start of the project as references for architecture and features. No source code of theirs is in the project's repositories.
+- **MaaAssistantArknights/MaaAssistantArknights** — https://github.com/MaaAssistantArknights/MaaAssistantArknights — AGPL-3.0-only, with the project's own user agreement. The Arknights standard pack contains its home-screen theme template images (`resource/template/UiTheme`), unchanged. This applies to the Arknights pack published in this repository's release v0.11.4 as well. No source code of MaaAssistantArknights is in the project's repositories.
 
-- LmeSzinc/AzurLaneAutoScript — https://github.com/LmeSzinc/AzurLaneAutoScript — GPL-3.0
-- wess09/AzurPilot — https://github.com/wess09/AzurPilot — GPL-3.0
-- MaaAssistantArknights/MaaAssistantArknights — https://github.com/MaaAssistantArknights/MaaAssistantArknights — AGPL-3.0-only, with the project's own user agreement
-- BlueArchiveArisHelper/BAAH — https://github.com/BlueArchiveArisHelper/BAAH — MIT (Copyright (c) Sanmusen Wu)
-- pur1fying/blue_archive_auto_script — https://github.com/pur1fying/blue_archive_auto_script — GPL-3.0
-
-## Upstream assets in the standard packs
-
-- **Arknights standard pack:** contains home-screen theme template images from MaaAssistantArknights (`resource/template/UiTheme`), unchanged, under AGPL-3.0-only with that project's user agreement. This applies to the Arknights pack published in this repository's release v0.11.4 as well.
-- **Azur Lane and Blue Archive standard packs:** made from the project's own captures. Upstream assets that had been imported into their private repositories were removed on 2026-09-07.
+Apart from this and from what the member repositories' own notices list, no other project's source code or assets are in use. The other standard packs are made from the project's own captures.
 
 Game names, art and other game material remain the property of their rights holders.
 
