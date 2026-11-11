@@ -149,4 +149,4 @@ ActingCommand is organized as a decoupled repository family combining **open-sou
 ## Contributing & License
 
 - **Feedback & Issues**: Have suggestions or run into an issue while running `0.12` or authoring packs? Open an [Issue](https://github.com/HS7097/ActingCommand/issues) in this repository or the relevant public member repository.
-- **License**: Released under [`AGPL-3.0-only`](LICENSE). See [`LICENSE_POLICY.md`](LICENSE_POLICY.md) and [`NOTICE.md`](NOTICE.md) for upstream compliance rules and asset licensing boundaries.
+- **License**: This repository and ActingCommand-Runtime are released under [`AGPL-3.0-only`](LICENSE); ActingCommand-UI is `GPL-3.0-only`. No source code of other automation projects is in the project's repositories; the Arknights standard pack contains interface template images from MaaAssistantArknights (`AGPL-3.0-only`). See [`LICENSE_POLICY.md`](LICENSE_POLICY.md) and [`NOTICE.md`](NOTICE.md) for the upstream license matrix, third-party components and the compliance rules.
