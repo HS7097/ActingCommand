@@ -19,7 +19,7 @@
 </div>
 
 > [!IMPORTANT]
-> **Active `0.12` Convergence Series (Road to `v1.00`)**: Interfaces, configuration schemas, and pack formats are actively converging through live-device validation. Only the newest release is supported; older series receive no backported fixes.
+> **Active `0.12` Convergence Preview Series (Road to `v1.00`)**: Interfaces, configuration schemas, and pack formats are actively converging through live-device validation. Only the newest release is supported; older series receive no backported fixes.
 
 ---
 
@@ -38,9 +38,9 @@ All capabilities below are shipped and working in the latest member releases ([`
 - **Net-Benefit & Dual-Waterline Smart Scheduling**
   - Dispatches tasks on both clock slots and live instance facts read into the ledger (such as stamina recovery timestamps or facility cooldowns).
   - Ranks business tasks dynamically by **`net benefit ÷ expected run time`**, refusing to dispatch tasks whose benefit is unknown or non-positive; resource pools enforce **stop lines** and **hard redlines** so reserves saved for banners or events are never drained.
-  - Supports persistent global or per-instance pause/resume, priority offsets, resource targets, and disk-capacity gates—and **every skipped task records an explicit reason**.
+  - Supports persistent global or per-instance pause/resume, priority offsets, resource targets, and disk-capacity gates—and **every task that did not run states an explicit reason**.
 - **Hybrid Deterministic Vision + Graded Recovery Ladder**
-  - Eight recognition target kinds: template matching, multi-scale masked anchor search, color, color digest, click-only, OCR, ONNX neural network, composite (2–8 targets), and value comparison; ONNX models load in-process on first use, OCR supports DirectML GPU acceleration, and clicks rotate naturally among central candidate points.
+  - Eight recognition target kinds: template matching, color, color digest, click-only, OCR, ONNX neural network, composite (2–8 targets), and value comparison, plus multi-match anchor search with masks and several scales; ONNX models load in-process on first use, OCR supports DirectML GPU acceleration, and clicks rotate naturally among central candidate points.
   - Failed scheduled runs automatically hand the instance over to a configurable **recovery ladder** (return home → restart game app → restart emulator); manual debug runs never trigger the ladder accidentally.
 - **Single-Writer Authoritative Ledger & Native Console (`acui`)**
   - Every step—what was seen, where it clicked, and which registered outcome code returned—is sanitized into an append-only SQLite ledger; frames are deduplicated by content digest, expired frames are cleaned automatically, and error/Lab evidence frames are archived under `kept/`.
@@ -79,7 +79,7 @@ flowchart LR
 1. **Strictly Neutral Core—Switch Games by Switching Packs**: The source code, contracts, configuration templates, outcome catalogs, and tests of the Runtime, UI, CLI, and MCP server contain **zero game logic or game-specific strings** (enforced by CI guard scans). Every image, click region, state transition, and value table lives inside per-game standard packs validated before admission.
 2. **The Ledger Is the Single Source of Truth**: The scheduler decides what runs next from ledger facts, the console reads ledger views exclusively, and any incident can be reconstructed from the ledger and its evidence frames alone.
 3. **Fail Loud**: Every operation returns a registered outcome code and deterministic exit status; invalid configuration, unexpected frame resolution (all current standard packs target `1280×720`), or missing evidence fails explicitly with preserved diagnostics rather than clicking blindly or degrading silently.
-4. **Local Loopback Only**: `actingd` listens strictly on `127.0.0.1` / `[::1]` and contains no networking code—credentials and screen frames never leave your machine.
+4. **Local Loopback Only**: `actingd` listens strictly on `127.0.0.1` / `[::1]` and contains no networking code: the Runtime itself sends nothing off your machine. What a connected AI agent reads through MCP goes wherever that agent sends it.
 5. **Decoupled, Interface-Verified Releases**: Runtime, UI, and each standard pack release independently when changed; compatibility is verified against declared interface revisions in `BUILD-MANIFEST.json`, not by matching version strings.
 
 ---
@@ -87,14 +87,14 @@ flowchart LR
 ## 4. What You Need to Do
 
 ### System Prerequisites
-- **OS**: Windows 10 / 11 (installs per user; no administrator privileges required).
+- **OS**: Windows (developed and tested on Windows 11; installs per user; no administrator privileges required).
 - **Target Device**: **MuMu Android Emulator** configured to **`1280×720`**, or an Android phone connected via USB debugging.
 - **Optional Runtimes**: ONNX Runtime + vision models under `vision\` for OCR / neural-network targets; Python 3.13 for the standalone `acmodel` economy solver.
 
 ### Choose Your Onboarding Path
 
 - **For Everyday Players (Looking for Turnkey Daily Farming)**
-  - The `0.12` series introduced a new ledger (revision 7) and pack format; **`0.12` standard packs are not yet publicly distributed, and the `acsetup` wizard is temporarily omitted from `0.12` UI builds**. Watch this repository for the upcoming `v1.00` milestone release when turnkey installers and standard packs reconverge.
+  - The `0.12` series introduced a new ledger and pack format; **`0.12` standard packs are not yet publicly distributed, and the `acsetup` wizard is temporarily omitted from `0.12` UI builds**. Watch this repository for the upcoming `v1.00` milestone release when turnkey installers and standard packs reconverge.
   - *(Legacy note: Release [`v0.11.4`](https://github.com/HS7097/ActingCommand/releases) on this repository still carries the older `0.11` setup wizard and `0.11` packs for Arknights, Azur Lane, and Blue Archive as a historical reference; `0.11` is incompatible with `0.12` and is no longer maintained.)*
 
 - **For Developers & Pack Authors (Running the Latest `0.12` Core + AI Tooling Today)**
@@ -148,5 +148,5 @@ ActingCommand is organized as a decoupled repository family combining **open-sou
 
 ## Contributing & License
 
-- **Feedback & Issues**: Have suggestions or ran into an issue while running `0.12` or authoring packs? Open an [Issue](https://github.com/HS7097/ActingCommand/issues) in this repository or the relevant public member repository.
+- **Feedback & Issues**: Have suggestions or run into an issue while running `0.12` or authoring packs? Open an [Issue](https://github.com/HS7097/ActingCommand/issues) in this repository or the relevant public member repository.
 - **License**: Released under [`AGPL-3.0-only`](LICENSE). See [`LICENSE_POLICY.md`](LICENSE_POLICY.md) and [`NOTICE.md`](NOTICE.md) for upstream compliance rules and asset licensing boundaries.
