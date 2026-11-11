@@ -149,4 +149,4 @@ ActingCommand 采用「中立开源内核 + 独立私有资源与估值包」的
 ## 参与反馈与开源许可
 
 - **问题与建议**：如果你有更好的想法，或在使用与自制包过程中遇到任何问题，欢迎在本仓或对应的公开成员仓提交 [Issue](https://github.com/HS7097/ActingCommand/issues)。
-- **开源许可**：本项目遵循 [`AGPL-3.0-only`](LICENSE) 许可证，上游合规与资产边界说明详见 [`LICENSE_POLICY.md`](LICENSE_POLICY.md) 与 [`NOTICE.md`](NOTICE.md)。
+- **开源许可**：本仓与 ActingCommand-Runtime 遵循 [`AGPL-3.0-only`](LICENSE) 许可证，ActingCommand-UI 为 `GPL-3.0-only`。项目各仓内没有使用其他自动化项目的源码；《明日方舟》标准包内含取自 MaaAssistantArknights 的界面模板图（`AGPL-3.0-only`）。上游许可矩阵、第三方组件与合规规则详见 [`LICENSE_POLICY.md`](LICENSE_POLICY.md) 与 [`NOTICE.md`](NOTICE.md)。

@@ -1,62 +1,69 @@
 # LICENSE_POLICY.md
 
-## Overall license direction
+State as of 2026-11-12. This file records facts and the project's own rules; it is not legal advice.
 
-This project is planned to use:
+## Licences of the project's own work
 
-`AGPL-3.0-only`
+| Repository | Visibility | Licence of the project's own files |
+| --- | --- | --- |
+| HS7097/ActingCommand (this repository) | public | `AGPL-3.0-only` |
+| HS7097/ActingCommand-Runtime | public | `AGPL-3.0-only` |
+| HS7097/ActingCommand-UI | public | `GPL-3.0-only` (since 2026-09-17; its UI toolkit, Slint, is used under its GPLv3 option) |
+| Per-game resource repositories, the Models repository, the Workflow repository | private | not published; game material in them stays the property of its rights holders |
 
-as the overall project license direction.
-
-This does not automatically relicense upstream code. Upstream copyright notices and license obligations must be preserved.
-
-## SPDX identifier
-
-Use the following SPDX identifier for newly written project files where appropriate:
+Use the matching SPDX identifier in newly written files of each repository, for example:
 
 ```text
 SPDX-License-Identifier: AGPL-3.0-only
 ```
 
-## Upstream license matrix
+This does not relicense anything that came from elsewhere. Upstream copyright notices and licence obligations are preserved where upstream material is present (see below).
 
-Before copying or adapting code, verify the license of each upstream repository from its actual `LICENSE`, `COPYING`, `NOTICE`, or equivalent files.
+## Third-party material: what is in the project today
 
-| Upstream project                            | URL                                                            | Expected license | Verified from repository | Direct code use status       | Notes                                           |
-| ------------------------------------------- | -------------------------------------------------------------- | ---------------- | ------------------------ | ---------------------------- | ----------------------------------------------- |
-| wess09/AzurPilot                            | https://github.com/wess09/AzurPilot                            | GPL-3.0 license text | Yes, local `LICENSE` file | Conditional after file-level review | Code may be incorporated or refactored only when attribution, license, source, and modification-record obligations are satisfied |
-| LmeSzinc/AzurLaneAutoScript                 | https://github.com/LmeSzinc/AzurLaneAutoScript                 | GPL-3.0 license text | Yes, local `LICENSE` file | Conditional after file-level review | Code may be incorporated or refactored only when attribution, license, source, and modification-record obligations are satisfied |
-| MaaAssistantArknights/MaaAssistantArknights | https://github.com/MaaAssistantArknights/MaaAssistantArknights | To verify        | No                       | No, pending license verification | AGPL/GPL boundary must be checked               |
-| BlueArchiveArisHelper/BAAH                  | https://github.com/BlueArchiveArisHelper/BAAH                  | To verify        | No                       | No, pending license verification | MIT or other license must be verified from repo |
-| pur1fying/blue_archive_auto_script          | https://github.com/pur1fying/blue_archive_auto_script          | To verify        | No                       | No, pending license verification | GPL/AGPL boundary must be checked               |
+Checked on 2026-11-12 against the `main` of each repository. Two questions are kept apart: **source code**, and **assets and data** (images, recognition templates, task data, tables).
 
-## Compliance rules
+### Upstream license matrix
 
-- This project follows `AGPL-3.0-only` as its overall project license direction.
-- Compatible upstream code may be copied, adapted, referenced directly, or refactored inside this repository when the license conditions are satisfied.
-- Before direct upstream code use, verify repository-level and file-level licenses.
-- Preserve upstream copyright notices.
-- Preserve upstream license texts.
-- Record copied/adapted files in `NOTICE.md`.
-- Record modification summaries for copied, adapted, or refactored upstream files.
-- Provide corresponding source code when distributing builds or offering network-service access as required by `AGPL-3.0-only`.
-- Keep plugin boundaries explicit.
-- Prefer clean-room reimplementation when license compatibility is unclear.
-- Treat non-code assets separately from source code.
-- Do not assume game screenshots, templates, icons, OCR models, or other assets are covered by the same license as code.
+Only upstream projects whose material is in use are listed.
 
-## AGPL network-service note
+| Upstream project | Its licence today | Source code in our repositories | Assets and data in our repositories |
+| --- | --- | --- | --- |
+| [MaaAssistantArknights/MaaAssistantArknights](https://github.com/MaaAssistantArknights/MaaAssistantArknights) | AGPL-3.0-only, with the project's own user agreement | None copied. The Runtime has its own implementation that reads MAA's published task format as data. | **In use.** The Arknights standard pack contains interface template images from MAA's `resource/template` (the home-screen themes, the return button, quick switch, the store and the confirmation prompts) unchanged: 711 of the 2284 image files of its 126 task packs today. The Arknights packs published in this repository's releases v0.10.3 to v0.11.4 contain such files too (386 of 1014 image files in v0.11.4). The private Arknights resource repository also keeps a mirror of MAA's `resource/` tree for reference. |
 
-If this project exposes a web UI, remote control panel, or network service, ensure that users who interact with the modified program over a network can access the corresponding source code as required by AGPL-3.0.
+How this was checked: the public repositories were searched for licence headers, copyright lines and statements of origin, and every file of the packs, today's and the published ones, was compared by content hash with the upstream files the resource repositories recorded at import. The comparison finds unchanged files only.
 
-ActingCommand currently carries an `AGPL-3.0-only` license file in the renamed `HS7097/ActingCommand` repository and the split `HS7097/ActingCommand-UI` and `HS7097/ActingCommand-Runtime` repositories. Newly written ActingCommand runtime and UI files should follow that project license direction unless a later license review changes it.
+### Source code adapted from other projects
 
-## GPL and AGPL note
+| Where | From | Licence | Record |
+| --- | --- | --- | --- |
+| ActingCommand-Runtime, `crates/agent-forward` (ten files) | HS7097/codex-goal-lifecycle, the owner's own project | MIT | the Runtime's `NOTICE.md`; the licence text ships in the crate and each file says so at its top |
 
-GPL-3.0 and AGPL-3.0 compatibility must be reviewed before combining code.
+No other source file in the public repositories is copied or adapted from another project. Libraries are used as unmodified dependencies under their own licences (the Rust crates of each `Cargo.lock`).
 
-Do not assume that `GPL-3.0-only`, `GPL-3.0-or-later`, `AGPL-3.0-only`, and `AGPL-3.0-or-later` are interchangeable.
+### Third-party components that releases carry
 
-## MIT note
+The Runtime's own `NOTICE.md` is the authoritative list, with versions, sources, checksums and the notices that ship. In summary: Android SDK Platform-Tools (adb) in the Tools archive; the scrcpy server and OpenH264 inside the Runtime executable; the MaaTouch binary in the Runtime repository. ONNX Runtime, DirectML and the recognition models are not shipped; an operator obtains them.
 
-MIT-licensed code may generally be incorporated into stronger copyleft projects, but the original MIT copyright and license notice must be preserved.
+### Game material
+
+Game names, art, screenshots and anything derived from them (templates, cropped patches, coordinates, colours) remain the property of the games' rights holders. The project claims no copyright in them, and they are not covered by the licences above.
+
+### Data used for modelling
+
+Tables and pages taken from wikis and community sources are kept in private repositories with their source, author and terms recorded, and are not redistributed in the public repositories. Some of them carry non-commercial terms.
+
+## Rules
+
+- Before any upstream code or asset is copied or adapted, verify its licence from the upstream repository's own `LICENSE`, `COPYING`, `NOTICE` or equivalent files, at repository level and at file level.
+- Record every copied or adapted file in the `NOTICE.md` of the repository that receives it: the upstream project and URL, the upstream path and commit, the licence and copyright notice, the local path and a summary of the changes. Keep the upstream licence text beside it.
+- Whatever is distributed carries its notices: a release or a pack that contains third-party material ships the attribution and the licence text with it.
+- Provide the corresponding source when distributing builds, as the licences above require.
+- Prefer an own implementation from public specifications when licence compatibility is unclear, and say in the code what was used as a reference.
+- Treat assets and data separately from source code. Do not assume that game screenshots, templates, icons, recognition models or data tables are covered by the same licence as code.
+- `GPL-3.0-only`, `GPL-3.0-or-later`, `AGPL-3.0-only` and `AGPL-3.0-or-later` are not interchangeable; review compatibility before combining code under different ones.
+- MIT-licensed code may be incorporated, with its copyright and licence notice preserved.
+
+## Network use
+
+`actingd` listens on the loopback address only and offers no network service. If a later component offers one, users who interact with it over a network must be able to obtain the corresponding source, as AGPL-3.0 section 13 requires.
