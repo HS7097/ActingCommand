@@ -29,9 +29,9 @@ Only upstream projects whose material is in use are listed.
 
 | Upstream project | Its licence today | Source code in our repositories | Assets and data in our repositories |
 | --- | --- | --- | --- |
-| [MaaAssistantArknights/MaaAssistantArknights](https://github.com/MaaAssistantArknights/MaaAssistantArknights) | AGPL-3.0-only, with the project's own user agreement | None copied. The Runtime has its own implementation that reads MAA's published task format as data. | **In use.** The Arknights standard pack contains MAA's home-screen theme templates (`resource/template/UiTheme`) unchanged: 491 image files in 46 of its 126 task packs today, and 272 such files in the Arknights pack published in this repository's release v0.11.4. The private Arknights resource repository also keeps a mirror of MAA's `resource/` tree for reference. |
+| [MaaAssistantArknights/MaaAssistantArknights](https://github.com/MaaAssistantArknights/MaaAssistantArknights) | AGPL-3.0-only, with the project's own user agreement | None copied. The Runtime has its own implementation that reads MAA's published task format as data. | **In use.** The Arknights standard pack contains interface template images from MAA's `resource/template` (the home-screen themes, the return button, quick switch, the store and the confirmation prompts) unchanged: 711 of the 2284 image files of its 126 task packs today. The Arknights packs published in this repository's releases v0.10.3 to v0.11.4 contain such files too (386 of 1014 image files in v0.11.4). The private Arknights resource repository also keeps a mirror of MAA's `resource/` tree for reference. |
 
-How this was checked: the public repositories were searched for licence headers, copyright lines and statements of origin, and the packs were compared file by file (by content hash) with the upstream files the resource repositories recorded at import.
+How this was checked: the public repositories were searched for licence headers, copyright lines and statements of origin, and every file of the packs, today's and the published ones, was compared by content hash with the upstream files the resource repositories recorded at import. The comparison finds unchanged files only.
 
 ### Source code adapted from other projects
 
