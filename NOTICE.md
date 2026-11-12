@@ -17,7 +17,7 @@ This repository holds documentation, the agent manual under `skills/`, and archi
 
 ## Upstream material in use
 
-- **MaaAssistantArknights/MaaAssistantArknights** — https://github.com/MaaAssistantArknights/MaaAssistantArknights — AGPL-3.0-only, with the project's own user agreement. The Arknights standard pack contains interface template images from its `resource/template` (the home-screen themes, the return button, quick switch, the store and the confirmation prompts), unchanged. This applies to the Arknights packs published in this repository's releases v0.10.3 to v0.11.4 as well. No source code of MaaAssistantArknights is in the project's repositories.
+- **MaaAssistantArknights/MaaAssistantArknights** — https://github.com/MaaAssistantArknights/MaaAssistantArknights — AGPL-3.0-only, with the project's own user agreement. The Arknights standard pack contains interface template images from its `resource/template` (the home-screen themes, the return button, quick switch, the store and the confirmation prompts), unchanged. This applies to the Arknights packs published in this repository's releases v0.10.3 to v0.11.4 as well. No source code of MaaAssistantArknights is in the project's public repositories or in any pack. The private Arknights resource repository keeps a mirror of MAA's `resource/` tree for reference; that tree includes one script of MAA's, `resource/tasks/MiniGame/PV-Reproduction.py`, kept as imported.
 
 Apart from this and from what the member repositories' own notices list, no other project's source code or assets are in use. The other standard packs are made from the project's own captures.
 
