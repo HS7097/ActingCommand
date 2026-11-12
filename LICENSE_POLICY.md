@@ -29,7 +29,7 @@ Only upstream projects whose material is in use are listed.
 
 | Upstream project | Its licence today | Source code in our repositories | Assets and data in our repositories |
 | --- | --- | --- | --- |
-| [MaaAssistantArknights/MaaAssistantArknights](https://github.com/MaaAssistantArknights/MaaAssistantArknights) | AGPL-3.0-only, with the project's own user agreement | None in the public repositories or in any pack: the Runtime has its own implementation that reads MAA's published task format as data. The private mirror of MAA's `resource/` tree (next column) includes one script of MAA's, `resource/tasks/MiniGame/PV-Reproduction.py`, kept as imported. | **In use.** The Arknights standard pack contains interface template images from MAA's `resource/template` (the home-screen themes, the return button, quick switch, the store and the confirmation prompts) unchanged: 711 of the 2284 image files of its 126 task packs today. The Arknights packs published in this repository's releases v0.10.3 to v0.11.4 contain such files too (386 of 1014 image files in v0.11.4). The private Arknights resource repository also keeps a mirror of MAA's `resource/` tree for reference. |
+| [MaaAssistantArknights/MaaAssistantArknights](https://github.com/MaaAssistantArknights/MaaAssistantArknights) | AGPL-3.0-only, with the project's own user agreement | None in the public repositories or in any pack: the Runtime has its own implementation that reads MAA's published task format as data. The private mirror of MAA's `resource/` tree (next column) includes one script of MAA's, `resource/tasks/MiniGame/PV-Reproduction.py`, kept as imported. | **In use.** The Arknights standard pack contains interface template images from MAA's `resource/template` (the home-screen themes, the return button, quick switch, the store and the confirmation prompts) unchanged: 711 of the 2284 image files of its 125 task packs today. The Arknights packs published in this repository's releases v0.10.3 to v0.11.4 contain such files too (386 of 1014 image files in v0.11.4). The private Arknights resource repository also keeps a mirror of MAA's `resource/` tree for reference. |
 
 How this was checked: the public repositories were searched for licence headers, copyright lines and statements of origin, and every file of the packs, today's and the published ones, was compared by content hash with the upstream files the resource repositories recorded at import. The comparison finds unchanged files only.
 
@@ -49,9 +49,9 @@ The Runtime's own `NOTICE.md` is the authoritative list, with versions, sources,
 
 Game names, art, screenshots and anything derived from them (templates, cropped patches, coordinates, colours) remain the property of the games' rights holders. The project claims no copyright in them, and they are not covered by the licences above.
 
-### Data used for modelling
+### Data taken from wikis
 
-Tables and pages taken from wikis and community sources are kept in private repositories with their source, author and terms recorded, and are not redistributed in the public repositories. Some of them carry non-commercial terms.
+Part of the data in the packs and in the modelling comes from wikis. It states facts of the games, which can also be read in the games themselves, so the project treats it as the game publishers' data (see "Game material" above). When you use it, follow the terms of the wiki it came from; some of them carry non-commercial terms.
 
 ## Rules
 
