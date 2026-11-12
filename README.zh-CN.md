@@ -29,7 +29,7 @@
 
 ## 1. 我们现在能做什么
 
-以下能力均已在当前最新发布（[`Runtime v0.12.54`](https://github.com/HS7097/ActingCommand-Runtime/releases/tag/v0.12.54) · [`UI v0.12.15`](https://github.com/HS7097/ActingCommand-UI/releases/tag/v0.12.15)）中落地可用：
+以下能力均已在当前最新发布（[`Runtime v0.12.55`](https://github.com/HS7097/ActingCommand-Runtime/releases/tag/v0.12.55) · [`UI v0.12.16`](https://github.com/HS7097/ActingCommand-UI/releases/tag/v0.12.16)）中落地可用：
 
 - **多实例本地常驻与无人值守（`actingd`）**
   - 常驻后台进程独立运行，关闭控制台或命令行不影响后台调度；支持 `actingwatch` 用户级看门狗在崩溃或重启后自动拉起。
@@ -98,7 +98,7 @@ flowchart LR
   - *(历史存档说明：本仓 [Releases](https://github.com/HS7097/ActingCommand/releases) 页保留的 `v0.11.4` 附带旧版安装向导与前三款游戏的 `0.11` 标准包，仅供旧架构参考，与 `0.12` 互不兼容且不再维护。)*
 
 - **如果你是开发者或自制包玩家（体验最新 `0.12` 内核与 AI 辅助制包）**
-  1. **首次手动铺设 `0.12` 根目录**：从 [`ActingCommand-Runtime` Releases](https://github.com/HS7097/ActingCommand-Runtime/releases) 下载最新的 `actingcommand-runtime-<sha>.zip`、`actingcommand-tools-<sha>.zip` 与 `SHA256SUMS`，校验后分别解压至空目录 `<root>\runtime\` 与 `<root>\tools\`，并按模板编写 `<root>\actingd.config.json`（含 DirectML GPU OCR、自带 `adb`、启动与关闭说明详见 Runtime 仓的 [`INSTALL.md`](https://github.com/HS7097/ActingCommand-Runtime/blob/v0.12.54/distribution/windows/INSTALL.md)）。如需图形监控台，从 [`ActingCommand-UI` Releases](https://github.com/HS7097/ActingCommand-UI/releases) 下载 `acui-windows-<sha>.zip`。
+  1. **首次手动铺设 `0.12` 根目录**：从 [`ActingCommand-Runtime` Releases](https://github.com/HS7097/ActingCommand-Runtime/releases) 下载最新的 `actingcommand-runtime-<sha>.zip`、`actingcommand-tools-<sha>.zip` 与 `SHA256SUMS`，校验后分别解压至空目录 `<root>\runtime\` 与 `<root>\tools\`，并按模板编写 `<root>\actingd.config.json`（含 DirectML GPU OCR、自带 `adb`、启动与关闭说明详见 Runtime 仓的 [`INSTALL.md`](https://github.com/HS7097/ActingCommand-Runtime/blob/v0.12.55/distribution/windows/INSTALL.md)）。如需图形监控台，从 [`ActingCommand-UI` Releases](https://github.com/HS7097/ActingCommand-UI/releases) 下载 `acui-windows-<sha>.zip`。
   2. **接管后续更新与开启看门狗**：首次铺好后，运行 `<root>\runtime\actingctl.exe install adopt` 接管该根目录，后续即可用 `actingctl install`（`release stage` / `update plan` / `update apply` / `rollback`）就地升级或回退（跨单向账本修订升级时附加 `--accept-ledger-one-way`）；在普通 PowerShell 中运行一次 `<root>\runtime\actingctl.exe watchdog install --root <root>` 即可启用崩溃自动拉起看门狗。
   3. **（可选）注册本地 MCP 服务配合智能体使用**：运行以下命令打印稳定入口注册配置（不改写文件），按提示添加到你的智能体客户端（支持 `claude` / `codex` / `antigravity` / `dsh`）后重开会话即可：
      ```powershell
@@ -107,7 +107,7 @@ flowchart LR
      ```
 
 <details>
-<summary><b>展开查看：MCP 权限档位、41 个工具清单与智能体协作约定（Runtime v0.12.54）</b></summary>
+<summary><b>展开查看：MCP 权限档位、41 个工具清单与智能体协作约定（Runtime v0.12.55）</b></summary>
 
 <br/>
 
@@ -132,8 +132,8 @@ ActingCommand 采用「中立开源内核 + 独立私有资源与估值包」的
 | 仓库 | 属性 | 职责定位 | 当前状态 |
 |---|---|---|---|
 | [**ActingCommand**](https://github.com/HS7097/ActingCommand)（本仓） | 🔓 公开 | **项目族伞仓（门面页）**：总体说明、许可策略、`skills/` 智能体手册及跨组件整包 Releases | 文档持续更新（整包 Release 停留在旧系 `v0.11.4`，待 `v1.00` 合拢更新） |
-| [**ActingCommand-Runtime**](https://github.com/HS7097/ActingCommand-Runtime) | 🔓 公开 | **核心运行时仓**：常驻进程 `actingd`、调度器、视觉识别、SQLite 账本、`actingctl` / `actinglab` / `actingledger` / `actingwatch` 及本地 MCP 服务 | 活跃迭代（最新 [`v0.12.54`](https://github.com/HS7097/ActingCommand-Runtime/releases/tag/v0.12.54)） |
-| [**ActingCommand-UI**](https://github.com/HS7097/ActingCommand-UI) | 🔓 公开 | **桌面端与中立建模仓**：原生监控台 `acui`、安装向导 `acsetup`、固定入口 `acforward`，以及中立经济建模工具 `acmodel` | 活跃迭代（最新 [`v0.12.15`](https://github.com/HS7097/ActingCommand-UI/releases/tag/v0.12.15)） |
+| [**ActingCommand-Runtime**](https://github.com/HS7097/ActingCommand-Runtime) | 🔓 公开 | **核心运行时仓**：常驻进程 `actingd`、调度器、视觉识别、SQLite 账本、`actingctl` / `actinglab` / `actingledger` / `actingwatch` 及本地 MCP 服务 | 活跃迭代（最新 [`v0.12.55`](https://github.com/HS7097/ActingCommand-Runtime/releases/tag/v0.12.55)） |
+| [**ActingCommand-UI**](https://github.com/HS7097/ActingCommand-UI) | 🔓 公开 | **桌面端与中立建模仓**：原生监控台 `acui`、安装向导 `acsetup`、固定入口 `acforward`，以及中立经济建模工具 `acmodel` | 活跃迭代（最新 [`v0.12.16`](https://github.com/HS7097/ActingCommand-UI/releases/tag/v0.12.16)） |
 | **ActingCommand-Models** | 🔒 私有 | **游戏估值与经济引擎仓**：对接 `acmodel` 宿主协议的各游戏专属角色估值、养成计算与经济适配器 | 内部研发联调中 |
 | **ActingCommand-Resources-Arknights** | 🔒 私有 | **《明日方舟》标准包仓**：`1280×720` 识别锚点、点击框、任务包与排程收益数据 | `0.12` 标准包补齐与实机运行中 |
 | **ActingCommand-Resources-AzurLane** | 🔒 私有 | **《碧蓝航线》标准包仓**：`1280×720` 识别锚点、点击框、任务包与排程收益数据 | `0.12` 标准包补齐与实机运行中 |

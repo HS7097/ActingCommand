@@ -29,7 +29,7 @@
 
 ## 1. What It Can Do Today
 
-All capabilities below are shipped and working in the latest member releases ([`Runtime v0.12.54`](https://github.com/HS7097/ActingCommand-Runtime/releases/tag/v0.12.54) · [`UI v0.12.15`](https://github.com/HS7097/ActingCommand-UI/releases/tag/v0.12.15)):
+All capabilities below are shipped and working in the latest member releases ([`Runtime v0.12.55`](https://github.com/HS7097/ActingCommand-Runtime/releases/tag/v0.12.55) · [`UI v0.12.16`](https://github.com/HS7097/ActingCommand-UI/releases/tag/v0.12.16)):
 
 - **Unattended Local Resident Daemon (`actingd`)**
   - Runs independently in the background; closing consoles or CLI clients never interrupts active schedules, and the per-user `actingwatch` watchdog can automatically restart the daemon after crashes or reboots.
@@ -98,7 +98,7 @@ flowchart LR
   - *(Legacy note: Release [`v0.11.4`](https://github.com/HS7097/ActingCommand/releases) on this repository still carries the older `0.11` setup wizard and `0.11` packs for Arknights, Azur Lane, and Blue Archive as a historical reference; `0.11` is incompatible with `0.12` and is no longer maintained.)*
 
 - **For Developers & Pack Authors (Running the Latest `0.12` Core + AI Tooling Today)**
-  1. **Lay Out a `0.12` Root Once**: Download the newest `actingcommand-runtime-<sha>.zip`, `actingcommand-tools-<sha>.zip`, and `SHA256SUMS` from [`ActingCommand-Runtime` Releases](https://github.com/HS7097/ActingCommand-Runtime/releases), verify checksums, extract into `<root>\runtime\` and `<root>\tools\`, and create `<root>\actingd.config.json` from the template (see Runtime's [`INSTALL.md`](https://github.com/HS7097/ActingCommand-Runtime/blob/v0.12.54/distribution/windows/INSTALL.md) for DirectML GPU OCR, bundled `adb`, startup, and shutdown). Optionally grab `acui-windows-<sha>.zip` from [`ActingCommand-UI` Releases](https://github.com/HS7097/ActingCommand-UI/releases) for the `acui.exe` console.
+  1. **Lay Out a `0.12` Root Once**: Download the newest `actingcommand-runtime-<sha>.zip`, `actingcommand-tools-<sha>.zip`, and `SHA256SUMS` from [`ActingCommand-Runtime` Releases](https://github.com/HS7097/ActingCommand-Runtime/releases), verify checksums, extract into `<root>\runtime\` and `<root>\tools\`, and create `<root>\actingd.config.json` from the template (see Runtime's [`INSTALL.md`](https://github.com/HS7097/ActingCommand-Runtime/blob/v0.12.55/distribution/windows/INSTALL.md) for DirectML GPU OCR, bundled `adb`, startup, and shutdown). Optionally grab `acui-windows-<sha>.zip` from [`ActingCommand-UI` Releases](https://github.com/HS7097/ActingCommand-UI/releases) for the `acui.exe` console.
   2. **Adopt Managed Updates & Watchdog**: Run `<root>\runtime\actingctl.exe install adopt` once so `actingctl install` (`release stage`, `update plan`, `update apply`, `rollback`) manages in-place updates while keeping your config and ledger intact (pass `--accept-ledger-one-way` across one-way ledger revisions). Run `<root>\runtime\actingctl.exe watchdog install --root <root>` from a non-elevated PowerShell to enable automatic crash recovery.
   3. **(Optional) Connect an AI Agent via Local MCP**: Print the stable MCP entry registration (writes no files) and add it to your agent harness (`claude` / `codex` / `antigravity` / `dsh`), then start a fresh client session:
      ```powershell
@@ -107,7 +107,7 @@ flowchart LR
      ```
 
 <details>
-<summary><b>Expand: MCP Permission Tiers, All 41 Tools & Agent Conventions (Runtime v0.12.54)</b></summary>
+<summary><b>Expand: MCP Permission Tiers, All 41 Tools & Agent Conventions (Runtime v0.12.55)</b></summary>
 
 <br/>
 
@@ -132,8 +132,8 @@ ActingCommand is organized as a decoupled repository family combining **open-sou
 | Repository | Visibility | Role & Scope | Current Status |
 |---|---|---|---|
 | [**ActingCommand**](https://github.com/HS7097/ActingCommand) *(this repo)* | 🔓 Public | **Umbrella Portal**: Project overview, license policy, `skills/` agent manual, and cross-member milestone Releases | Docs active (bundled Release stays at legacy `v0.11.4` until `v1.00`) |
-| [**ActingCommand-Runtime**](https://github.com/HS7097/ActingCommand-Runtime) | 🔓 Public | **Core Runtime**: Resident `actingd` daemon, scheduler, vision engine, SQLite ledger, `actingctl` / `actinglab` / `actingledger` / `actingwatch`, and local MCP server | Active (`v0.12` series, latest [`v0.12.54`](https://github.com/HS7097/ActingCommand-Runtime/releases/tag/v0.12.54)) |
-| [**ActingCommand-UI**](https://github.com/HS7097/ActingCommand-UI) | 🔓 Public | **Desktop UI & Neutral Modeler**: Native `acui` console, `acsetup` wizard, `acforward` launcher, and game-neutral `acmodel` economy solver | Active (`v0.12` series, latest [`v0.12.15`](https://github.com/HS7097/ActingCommand-UI/releases/tag/v0.12.15)) |
+| [**ActingCommand-Runtime**](https://github.com/HS7097/ActingCommand-Runtime) | 🔓 Public | **Core Runtime**: Resident `actingd` daemon, scheduler, vision engine, SQLite ledger, `actingctl` / `actinglab` / `actingledger` / `actingwatch`, and local MCP server | Active (`v0.12` series, latest [`v0.12.55`](https://github.com/HS7097/ActingCommand-Runtime/releases/tag/v0.12.55)) |
+| [**ActingCommand-UI**](https://github.com/HS7097/ActingCommand-UI) | 🔓 Public | **Desktop UI & Neutral Modeler**: Native `acui` console, `acsetup` wizard, `acforward` launcher, and game-neutral `acmodel` economy solver | Active (`v0.12` series, latest [`v0.12.16`](https://github.com/HS7097/ActingCommand-UI/releases/tag/v0.12.16)) |
 | **ActingCommand-Models** | 🔒 Private | **Game Valuation & Economy Engines**: Per-game character valuation, progression calculators, and adapters hosted by `acmodel` | Active internal integration |
 | **ActingCommand-Resources-Arknights** | 🔒 Private | **Arknights Standard Pack**: `1280×720` visual anchors, click boxes, task packs, and schedule value tables | `0.12` pack completion & live testing |
 | **ActingCommand-Resources-AzurLane** | 🔒 Private | **Azur Lane Standard Pack**: `1280×720` visual anchors, click boxes, task packs, and schedule value tables | `0.12` pack completion & live testing |
