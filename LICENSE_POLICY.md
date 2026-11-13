@@ -1,6 +1,6 @@
 # LICENSE_POLICY.md
 
-State as of 2026-11-12. This file records facts and the project's own rules; it is not legal advice.
+State as of 2026-11-13. This file records facts and the project's own rules; it is not legal advice.
 
 ## Licences of the project's own work
 
@@ -52,6 +52,10 @@ Game names, art, screenshots and anything derived from them (templates, cropped 
 ### Data taken from wikis
 
 Part of the data in the packs and in the modelling comes from wikis. It states facts of the games, which can also be read in the games themselves, so the project treats it as the game publishers' data (see "Game material" above). When you use it, follow the terms of the wiki it came from; some of them carry non-commercial terms.
+
+### Data taken from public game-data repositories
+
+Part of the modelling data comes from public repositories that publish data exported from the games. Today that is [AzurLaneTools/AzurLaneData](https://github.com/AzurLaneTools/AzurLaneData), which states no licence and no terms for redistribution or attribution. Such data states facts of the games, which can also be read in the games themselves, so the project treats it as the game publishers' data (see "Game material" above). The copies of those files are kept in the project's private repositories only and are not redistributed. When you use such data, follow the terms of the repository it came from.
 
 ## Rules
 
