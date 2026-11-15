@@ -70,7 +70,7 @@ Report the state, outcome, failure code, final page and executed steps.
 2. `ac_diagnose` for the instance, optionally for one task. The window is the last 24 h by default and reaches back at most 7 days. It gives the failed or open runs, the first page of errors, and this instance's rows of the actingd suspended report (`suspended`, `lift`, `repeating`) verbatim. A `suspended_report.status` other than `ok`, or `incomplete`, means part is missing: say so.
 3. `ac_get_run` with a run's `run_id` for its full status: `terminal.failure_code`, `progress`, `evidence`.
 4. Continue the errors with `ac_events` (view errors, same instance and window). Read evidence with `ac_material`: text in pieces of up to 8 KiB; images and archives only as exported files.
-5. Report the failing step, its failure code and whether it repeats. Lifting a suspension is the user's: update the pack, point the binding at it, restart actingd (`references/lab-recording.md` 7.9). Never re-run, change packs or edit the configuration on your own.
+5. Report the failing step, its failure code and whether it repeats. Lifting a suspension is the user's: a changed package content at the place its binding names lifts the pause at the pair's next due evaluation, with no restart and no manual lift (`references/lab-recording.md` 7.9; a screen the package never recorded, its "Rules for making a package"). Never re-run, change packs or edit the configuration on your own.
 
 ### R5. Resource targets (setting them: operator, on request)
 
@@ -82,12 +82,12 @@ An actingd older than v0.11.0 answers `runtime_operation_unsupported`: read the 
 
 ## Lab recording (author, on request)
 
-Read `references/lab-recording.md` first. It maps each author tool to its actinglab command and keeps the full recording rules. The tool flow:
+Read `references/lab-recording.md` first. It opens with the owner's two rules for making a package: record a linear package, never write a page graph by hand (a complex looping battle is the one exception); record the main path once, stop when the last press has taken effect, and add an ending later from the frame a real run pinned (`contained_task_linear_unrecorded_screen`). It maps each author tool to its actinglab command on both MCP servers and keeps the recording rules of Runtime 0.12.61. The tool flow:
 
-`ac_pause` (the instance) → `ac_record_start` → device frames with `ac_lab_observe` or `ac_lab_do` (capture and record), marks, clicks and offline frames with `ac_record_mark` → `ac_record_status` → `ac_record_stop` as a dry run → more `ac_record_mark` → `ac_record_stop` → `ac_binding_draft` → `ac_resume`.
+`ac_pause` (the instance) → `ac_record_start` → the first frame with `ac_lab_observe` (capture and record) → one `ac_lab_do` per step (capture, record, `mark` and `next_frame_after_ms`) → `ac_record_mark` of the last screen → `ac_record_stop` as a dry run → `ac_record_stop` → `ac_binding_draft` → `ac_resume`.
 
 - The author tools' `instance` is the actinglab instance alias.
-- `ac_lab_do` with capture acts on the device and does not read the destructive guard flags.
+- `ac_lab_do` with capture acts on the device and refuses the destructive guard flags (`conflicting`).
 - `ac_binding_draft` only drafts. The binding, the catalog task, its approval and the daemon restart are the user's steps (`manual_steps`).
 
 ## Failures
@@ -131,5 +131,5 @@ The table generated from `actingctl mcp-serve --list-tools --format markdown` at
 
 - `references/tools.md`: the generated tool table.
 - `references/gold-samples.md`: a real call sequence for each recipe, with abridged outputs.
-- `references/lab-recording.md`: Lab recording, with the tool-to-command map.
+- `references/lab-recording.md`: the two rules for making a package, and Lab recording for Runtime 0.12.61 with the tool-to-command map.
 - `references/cli-workshop.md`: the command-line manual, for work without the MCP server.
