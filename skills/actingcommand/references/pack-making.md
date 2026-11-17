@@ -30,6 +30,7 @@ What an agent does because of them, with the owner's other rulings on making a p
 6. **Tried first where it was recorded.** A new package is tried on the instance and the application it was recorded on (`ac_standard_pack_trial`, §5.5) before anything else is done with it on a device.
 7. **Nothing enables a package by itself.** Nothing you do lifts a hold or lets a package enter scheduling by itself: that is a placement that names its authorization (`ac_place` with `authorization` and `enables`, §5.7). An adoption, a passed trial, a check or a plan is no authorization.
 8. **Break-in first.** A package that enters scheduling is in its break-in period first (§5.7).
+9. **A numbered level by its number.** A level, a stage or a chapter that carries a code (such as `13-4`, or a chapter's number) is recognised by that code, read as text, and never by the name written after it; an event's levels too. Where a code is not unique by itself (the same number under several places or kinds), keep what tells them apart, and say so in the package's notes. (The owner's ruling of 2026-11-17, recorded on the project board by the channel that keeps the resource repositories.) Until the offline regression can check a press that follows a located text, give such a level's press a fixed box guarded by a check that reads the code, rather than a press that follows the text.
 
 ## 2. Before you start
 
