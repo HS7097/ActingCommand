@@ -8,7 +8,19 @@ A tool is `ac_` and the operation row's words with spaces and `-` as `_` (`recor
 
 The project owner set these rules on the project board. They bind every package.
 
-1. **Only recorded linear packages.** A package is made by recording a business and turning the recording into a `linear_steps` package. Do not write a page graph by hand.
+The two rules for making a package stand here in the owner's own words, unchanged. The English under each is a rendering, not the owner's words.
+
+> 「铁律一：除极少数复杂循环战斗外，一律只准交 record 录出来的线性包，严禁再手写几千行的 page_graph 状态机。」
+
+*Rendering:* Iron rule one: apart from the very few complex looping battles, hand in only linear packages recorded with `record`; writing page_graph state machines of thousands of lines by hand again is strictly forbidden.
+
+> 「铁律二：只录一遍正常主路径（Happy Path），点完最后一下业务生效立即停！ 严禁在制包时提前去造“余额不足、售罄、背包满”等还没碰到的分支。正常跑起来真遇到了，0.12.61 会自动停在 unrecorded_screen 并留好现场帧，到时候用 R2 对着那张真实截图 1 分钟补一个结局就行」
+
+*Rendering:* Iron rule two: record the normal main path (the happy path) once, and stop as soon as the last press has made the business take effect! While making a package, never build in advance branches not met yet, such as "balance not enough", "sold out" or "bag full". When a normal run really meets one, 0.12.61 stops by itself at unrecorded_screen and keeps the frame of the scene; then it is enough to add an ending with R2 from that real screenshot, in a minute. (R2 is the ending a stopped recording takes from a frame, §4.8.)
+
+What an agent does because of them, with the owner's other rulings on making a package:
+
+1. **Only recorded linear packages.** A package is made by recording a business and turning the recording into a `linear_steps` package. Do not write a page graph by hand. The rule's one exception is a complex looping battle, which a linear package cannot carry: it runs one declared path, with no branch and no loop of variable length (`linear-steps.md` "What a linear task cannot express"). A list that scrolls is no such exception: it is recorded (§4.5). Before you write a page graph for such a battle, tell the session that gave you the work which battle it is and why a recording cannot carry it.
 2. **The main path, once.** Record the business's normal path once, and end on the screen its last press brings. Do not build branches the recording did not meet. What a run meets later (a pop-up after which the path goes on, another way the business ends) is added from that run's frame, without recording again (§5.8).
 3. **The tools hand back material and propose nothing.** Every region, choice, name and number is yours. No answer carries a suggestion, a candidate box or a ready-made request.
 4. **Recognition by mapping.** The region that recognises a page and the region that is pressed are different places, and neither holds account data (a name, an identifier, an amount).
@@ -24,7 +36,8 @@ The project owner set these rules on the project board. They bind every package.
 - **The screen size.** Packages are made at 1280×720 today, the base size every standard package declares. `ac_record_start` refuses an instance whose display the Runtime last observed at another size, `record_display_not_base` (`frame_width`, `frame_height`, `base_width`, `base_height`), and the recording's first frame of another size is refused with the same code; a recording whose frames are not the base size is `record_size_not_base` (archive it and record again on a display of the base size). `display_last_observed` in the start's answer is the display a task last saw, not the display now. `ac_frame` gives the device's own size, and `ac_tap`, `ac_swipe` and `ac_long_tap` take the device's own pixels: at 1280×720 these are the recording's pixels (`lab-recording.md` "A recording's size").
 - **A recording holds its instance.** `ac_record_start` pauses the instance's scheduling with a reason of its own, `lab-record-<ms>`, and waits until the task running there has ended (up to 335 s). An instance already paused by another party is held by that pause, which the recording never resumes (`hold.state` `foreign`). Do not call `ac_pause` or `ac_resume` for a recording. `ac_record_archive` and `ac_record_stop` resume the recording's own pause and nothing else; a release that fails keeps the hold (`hold.kept`), and `next.release` names the call that tries it again (`lab-recording.md` "A recording holds its instance").
 - **Never leave a recording open.** A forgotten recording keeps its instance's scheduling paused, with no expiry; `ac_status` shows the pause with its reason. While a recording is active (a reopened one too), every call with `record` on that instance, whoever sends it, adds a step to it. Never pass `force` to `ac_record_start`: when it answers `record_session_active`, a recording is open; read `ac_record_status` and end that recording first.
-- **Text recognition.** Names in a list, OCR marks and value tests are read by the Lab's OCR model, on the CPU. Without one they are `not_evaluated` (`lab_ocr_unavailable`), never passed. A read names its model by `model_ref` and `model_sha256`: `ac_vision_check` lists the models the installed packs need (`required_models`, each `model_ref`, `model_sha256`), `ac_vision_manifest` (`provider` `cpu`) every model of the vision root.
+- **Text recognition.** Names in a list, OCR marks and value tests are read by the Lab's OCR model, on the CPU. Without one they are `not_evaluated` (`lab_ocr_unavailable`), never passed. A read names its model by `model_ref` and `model_sha256`: `ac_vision_check` lists the models the installed packs need (`required_models`, each `model_ref`, `model_sha256`), `ac_vision_manifest` (`provider` `cpu`) every model of the vision root. A seat that does not list these two tools (next item) takes the two values from the session that coordinates the work, which reads them there; it does not guess them.
+- **The tools your seat lists.** A client lists the tools of the modules its registration names. The recording tools, `ac_standard_pack_adopt`, `ac_resource_regression`, `ac_standard_pack_trial`, `ac_standard_pack_status`, `ac_standard_pack_catalog` and `ac_standard_pack_build` are in the module `authoring`; `ac_standard_pack_check`, `ac_standard_pack_ready` and the device tools are in `core`. **`ac_place`, `ac_op_status`, `ac_undo`, `ac_vision_check` and `ac_vision_manifest` are in the module `rescue`**, beside the tools that start, stop, deploy and roll back the Runtime: a seat registered without that module does not list them. Such a seat makes the package up to the build (§5.6) and hands the build's files and the plan's words (`next.place`) to the session that coordinates the work, which places it and reads it back (§5.7). Do not work around a tool your seat does not list.
 - **How answers come back** (`apps/actinglab-mcp/MANUAL.md` sections 3 to 7). A refusal is `{outcome, message?, details?}`; warnings are in `warnings`. A call not done within 25 s answers `{handle, job_phase}` and goes on: follow it with `ac_run_show` (`id` the handle, `wait_s`). An answer over 24 KiB is written whole to the export directory with the warning `answer_exported`: read that file, and never call a writing tool again to see its answer. After an interrupted or uncertain write, read first (`ac_record_status`, `ac_status`) and never send it again with new arguments. Every path is absolute (`not_absolute` otherwise).
 
 ## 3. Stage one: record
@@ -275,7 +288,7 @@ A stopped recording takes, on its existing steps: marks, samples, pages, press b
 - **What it writes**: `packs/<package_id>/` (its `control.json` and `resources/**`, each JSON file in the canonical form) and the held entry in `schedule.json`; nothing deleted. Every check runs before the first write.
 - **The answer**: `status` (`adopted`, `validated`), `class`, `review` (`recording_checked`, whether the recording was checked offline; `trial`, the trials of this content, `state` `passed`, `failed` or `none`), `held`, `written`, `check_tree`, `readiness` (the pack's readiness row on the check tree, `waiting` with S2 `held` for a held pack), `warnings` (`not_tried`: no passed trial of this content) and `next`: the repository's own items to write, each `{path}` (a regression case `regression/<game>/`, `docs/PACKS.md`, `ours/coverage/business-v1.csv` where the checkout holds them; `ours/model/bindings.json` while the rule has no value).
 - **Refused** `adopt_refused` with `adopt_problem`: `repository_invalid`, `recording_not_current` (marked since its stop: stop it again), `package_invalid`, `package_mismatch`, `pack_exists` (adopted before: `replace`), `pack_dirty`, `replace_across_volumes`, `decision_invalid`, `value_origin_model`, `business_rule_in_the_way`, `recording_unreviewed`, `local_path` (a text of the package holds an absolute local path), `root_file_not_canonical` (write that root file once in the canonical form, two-space indentation, one member per line, LF line ends and a final newline, in a commit of its own), `check_tree_link`, `check_tree_unmarked`, `check_tree_busy`, `rule_refused`. A failed write is `adopt_write_failed`.
-- **Adoption does not copy the regression cases** (§5.2) and writes no entry of `pack-catalog.json` (§5.3).
+- **Adoption does not copy the regression cases** (§5.2) and writes no entry of `pack-catalog.json`: that entry is written after the pack's rule, in §5.6 (§5.3 says why).
 - **Commit** the adoption in the checkout: a later adoption with `replace` refuses changes under `packs/<package_id>` the version control does not hold (`pack_dirty`).
 
 ### 5.2 The regression cases, by hand
@@ -284,9 +297,9 @@ Adoption does not copy them yet. Copy each case directory of `lab.cases.director
 
 `ac_resource_regression` (`repo` the checkout, `package_id`, optionally `game`, `case`) runs the cases offline on the package `packs/<package_id>/` each names and reads only. Its answer: `counts` (`cases`, `passed`, `failed`, `partial`, `not_run`) and, with a filter, `cases` (each `{path, id, package_id, verdict, checks, warnings?}`, `checks` only those that did not pass, each with its `problem` or `reason`). A failed case makes the call the refusal `resource_regression_failed`, its details the counts, `failed_total`, `listed` and the first 10 cases that did not pass; `partial` cases add the warning `resource_regression_partial`. `ac_standard_pack_build` and `ac_resource_verify` do not run the cases yet. Commit them.
 
-### 5.3 The pack's declaration in `pack-catalog.json`
+### 5.3 The pack's declaration in `pack-catalog.json`: after the rule, not before
 
-Each game root declares its packages in `pack-catalog.json` at the checkout's root (`pack-catalog.md`). It is written by a tool, not by hand: `ac_standard_pack_catalog` (`root` the checkout, `plan: true` first, then without `plan`). A new pack gets an entry `{package_id, consumes, produces}`: its `consumes` and `produces` the union over the package's rules in `schedule.json` (none for a held pack without a rule), and a display (`title`, `summary`, `group`, `risk`) only from a leftover `ui.json`. An entry already there is kept as written, and its differences from the rules are answered (`differences`) and warned (`standard_pack_catalog_schedule_differs`). The answer: `status` (`planned`, `written`, `unchanged`), `path`, `added`, `kept`, `removed`, `dropped`, `document` (with `plan`), `warnings`. Adoption writes no entry, and no tool writes a new entry's display yet: an entry without a display shows by its `package_id`. A file wrong in its business part makes the root wrong (`standard_pack_root_invalid`). Commit the file.
+Each game root declares its packages in `pack-catalog.json` at the checkout's root (`pack-catalog.md`). It is written by a tool, not by hand: `ac_standard_pack_catalog` (`root` the checkout, `plan: true` first, then without `plan`). A package without an entry gets one, `{package_id, consumes, produces}`: its `consumes` and `produces` are the union over the package's rules in `schedule.json` **at the moment the entry is written**, and a display (`title`, `summary`, `group`, `risk`) comes only from a leftover `ui.json`. **An entry already there is never written again**: its differences from the rules are only answered (`differences`) and warned (`standard_pack_catalog_schedule_differs`), and no tool brings an entry up to date yet. So an entry written while the pack is held without a rule stays empty for good. **Do not call the tool for such a pack: write the entry once, in §5.6, after the adoption with the decision has put the rule into `schedule.json`.** Until then the pack has no entry, which is neither an error nor a warning: it runs as before and shows by its id, and `ac_standard_pack_check` counts it under `unlisted` (`pack-catalog.md` "Neither: coverage"). The call writes an entry for every package of the registry that has none, not for yours alone: read the plan's `added` first, and when it names a package that is still held without a rule (yours or another's), do not write; tell the session that coordinates the work, which makes the call when every such pack has its rule. The answer: `status` (`planned`, `written`, `unchanged`), `path`, `added`, `kept`, `removed`, `dropped`, `document` (with `plan`), `warnings`. Adoption writes no entry, and no tool writes a new entry's display yet: an entry without a display shows by its `package_id`. A file wrong in its business part makes the root wrong (`standard_pack_root_invalid`). Commit the file.
 
 ### 5.4 Checking the pack: `check`, `ready`, `status`
 
@@ -309,12 +322,12 @@ Refused: `trial_authorization_missing`, `trial_irreversible_unacknowledged`, `tr
 
 1. **The decision document** `actingcommand.pack-decision.v1`, a file you write: `class` (`business`, a rule judged by its value; `maintenance`; or `held`), `trigger` (a predicate object as `schedule.json` writes it; a new rule needs one), `value` (`"pending"`, or `{"fixed_value_milli": <n>, "origin": "pack"}`; the origin `model` is refused, `value_origin_model`), optionally `consumes`, `produces`, `overrides` (`standard-pack-authoring.md` "The decision document"). The value is not yours to invent: with `"pending"` the rule is written and waits for its value (`waits_for_value`), and `next` names `ours/model/bindings.json`.
 2. **Adopt again**: `ac_standard_pack_adopt` (`repo`, `record_id` or `package` as §5 says, `decide` the file, `replace: true`, the same `state_dir` the trial used). A class other than `held` lifts the hold and needs `review.recording_checked`; the answer warns `enabling_needs_authorization` (adoption enables nothing: the placement does) and, without a passed trial of this content, `not_tried`.
-3. **Commit** the checkout (the pack, `schedule.json`, the cases, `pack-catalog.json` brought up to date with `ac_standard_pack_catalog`).
+3. **The declaration, now that the rule is written** (§5.3): `ac_standard_pack_catalog` with `plan: true`; read `added` and, in `document`, the new entry's `consumes` and `produces` against the rule; then the same call without `plan`. **Commit** the checkout (the pack, `schedule.json`, the cases, `pack-catalog.json`).
 4. **Build**: `ac_standard_pack_build` (`repo` the top of the clean work tree, `source_repository` `<owner>/<name>`, `out` a new or empty directory outside the checkout, optionally `commit`, which must be HEAD). It writes `<game>-resources-<sha7>.zip`, `SHA256SUMS` and `build.json` into `out`; its answer carries `files`, `readiness` and `next.place`, the plan's words: `["place", "<zip>", "--sums", "<SHA256SUMS>", "--plan"]`.
 
 ### 5.7 The placement, the break-in and the undo
 
-`ac_place` places a built bundle into the installation (`install-cli.md` "The authorization a placement names"). It is irreversible and journalled.
+`ac_place` places a built bundle into the installation (`install-cli.md` "The authorization a placement names"). It is irreversible and journalled. It is a tool of the module `rescue`, as `ac_op_status` and `ac_undo` are: a seat that does not list them hands the build over to the session that coordinates the work (§2).
 
 1. **The plan**: `ac_place` (`bundle` the zip, `sums`, `plan: true`). Its `schedule_changes` say which packages the placement makes enter or leave scheduling: `packages` (each `{package_id, before, after, content?}`), `enters`, `leaves`, `content_only`, and `unread` when a side could not be read.
 2. **The placement**: the same call without `plan`, with `authorization` (the reference of the owner's authorization; every placement whose plan changes something needs one) and `enables`, every package of the plan's `enters`, once each (absent when nothing enters). Refused before anything is held or written: `place_authorization_missing` (`install_command_refused`), `actingctl_usage_invalid` (`unusable`) for a malformed reference, `place_enables_unknown` (the plan could not name what enters), `place_enables_mismatch` (`expected`, `given`), `pack_invalid`. A failed check after the placement is `post_check_failed`, its `next` naming the undo. The tool records the authorization and grants nothing.
@@ -339,6 +352,8 @@ Any other answer (a result after an earlier press, a branch that goes on, a step
 - A trial cannot yet prove that the content it ran is the content it planned (§5.5).
 - Readiness does not read the installation's six items (I1 to I6), and `place --plan` answers no readiness (§5.4).
 - Adoption writes no entry of `pack-catalog.json`, and no tool writes a new entry's display (§5.3).
+- No tool brings an entry of `pack-catalog.json` up to date once it is written: write it only after the pack's rule is in `schedule.json` (§5.3, §5.6).
+- `ac_place`, `ac_op_status`, `ac_undo`, `ac_vision_check` and `ac_vision_manifest` are listed only for a seat registered with the module `rescue` (§2).
 - A list that fits on one screen is no scrolling choice: use the fixed slots (§4.4).
 - Only 1280×720: no recording on another screen size, and no package for phones (§2).
 
@@ -488,12 +503,8 @@ Copy the four case directories of `lab.cases.directory` to `<checkout>\regressio
 ```text
 → ac_resource_regression {"repo": "<checkout>", "package_id": "neutral.std.catalogue_collect"}
 ← counts {cases: 4, passed: 4, failed: 0, partial: 0, not_run: 0}, cases
-→ ac_standard_pack_catalog {"root": "<checkout>", "plan": true}
-← status "planned", added ["neutral.std.catalogue_collect"], document, warnings
-→ ac_standard_pack_catalog {"root": "<checkout>"}
-← status "written"
 → ac_standard_pack_check {"root": "<check_tree>\\installed\\neutral"}
-← catalog (standard_pack_catalog_coverage), warnings
+← catalog (the pack is under unlisted: it has no entry yet, which is no error; §5.3), warnings
 ```
 
 Commit the checkout. Then the trial, on the instance it was recorded on:
@@ -525,8 +536,11 @@ Enable it. `<work>\decision.json`:
                           "decide": "<work>\\decision.json", "replace": true}
 ← status "adopted", class "business", review.trial.state "passed",
   warnings [enabling_needs_authorization], waits_for_value, next (ours/model/bindings.json)
+→ ac_standard_pack_catalog {"root": "<checkout>", "plan": true}
+← status "planned", added ["neutral.std.catalogue_collect"], document (the new entry's consumes and
+  produces, from the rule just written: none here, the rule names no pool), warnings
 → ac_standard_pack_catalog {"root": "<checkout>"}
-← status, differences (none while the rule names no pool)
+← status "written"
 ```
 
 Commit the checkout, then build and place:
