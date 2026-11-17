@@ -113,7 +113,7 @@ flowchart LR
 
 - **Permission Tiers**: `observer` is enabled by default (reads, safe live settings, performance presets, handset binding, capability-gap logs, remedy choices, and routine health); `operator` adds device/app/schedule controls and evidence read confirmations (also required when `ac_config_set` switches touch/capture backends); `author` adds live Lab observation and pack recording.
 - **Operating Conventions**: Call `ac_overview` first; long operations immediately return a restart-safe handle polled via `ac_get_run` (`wait_s`)—always query `ac_get_run` before retrying an uncertain write. Configuration file edits, catalog approvals, and Runtime restarts stay with the human operator.
-- **Skill Reference**: [`skills/actingcommand/SKILL.md`](skills/actingcommand/SKILL.md) preserves recipes written against `v0.11.3`; on a `0.12` Runtime, use `<root>\runtime\actingctl.exe mcp-serve --list-tools --format markdown` as the authoritative tool and parameter reference.
+- **Skill Reference**: [`skills/actingcommand/SKILL.md`](skills/actingcommand/SKILL.md) describes Runtime `0.12.70` and the Lab's MCP server `actinglab-mcp` (it differs from the first-generation server this section still describes: no tiers, other tool names); [`references/pack-making.md`](skills/actingcommand/references/pack-making.md) is the way from a recording to a placed package, and [`references/tools.md`](skills/actingcommand/references/tools.md) lists every tool. At run time the server's `tools/list` is authoritative.
 
 | Tier | Tools |
 |---|---|
