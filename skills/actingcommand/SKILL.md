@@ -1,6 +1,6 @@
 ---
 name: actingcommand
-description: Operate an installed ActingCommand through its local MCP server (actingctl mcp-serve, Runtime v0.11.3) and its ac_* tools. Use when the machine has an ActingCommand install (runtime\, tools\ and ui\ folders beside install\active.json, or before v0.11.1 beside actingd.config.json) and the user wants the system's health, what each emulator instance is doing, one task pack run once or stopped, a pack checked, a failed or suspended scheduled task diagnosed, instance resource targets set, or a task pack recorded with Lab. Without the MCP server it follows references/cli-workshop.md. It never approves, never edits the daemon configuration and never starts or stops the daemon.
+description: Operate an installed ActingCommand through its local MCP server (actingctl mcp-serve, Runtime v0.11.3) and its ac_* tools. Use when the machine has an ActingCommand install (runtime\, tools\ and ui\ folders beside install\active.json, or before v0.11.1 beside actingd.config.json) and the user wants the system's health, what each emulator instance is doing, one task pack run once or stopped, a pack checked, a failed or suspended scheduled task diagnosed, instance resource targets set, a task pack recorded with Lab, or a task package made with the Lab's MCP server (actinglab-mcp, Runtime 0.12.70), from a business recorded while playing to a linear package adopted into its game's resource repository, tried on the device and placed (references/pack-making.md). Without the MCP server it follows references/cli-workshop.md. It never approves, never edits the daemon configuration and never starts or stops the daemon.
 ---
 
 # ActingCommand program skill v1 (MCP)
@@ -10,6 +10,7 @@ description: Operate an installed ActingCommand through its local MCP server (ac
 ## When to use
 
 - An ActingCommand install is on the machine, and the user asks for its health and what each instance is doing (R1), one task pack run once (R2) or a run stopped (Stop), a pack checked (R3), why a scheduled task failed or was suspended (R4), resource targets (R5), or a pack recorded with Lab.
+- A task package is to be made through the Lab's MCP server (`actinglab-mcp`, tools such as `ac_record_start`, `ac_tap` with `record`, `ac_record_ready`, `ac_standard_pack_adopt`, `ac_standard_pack_trial`, `ac_place`): read `references/pack-making.md` first and follow it from stage one to the placement.
 - Tools named `ac_*` are available. If they are not, see Connecting.
 - Read-only tools need no request. Every write (the operator and author tiers) needs the user's request for that action.
 
@@ -82,9 +83,9 @@ An actingd older than v0.11.0 answers `runtime_operation_unsupported`: read the 
 
 ## Lab recording (author, on request)
 
-Read `references/lab-recording.md` first. It opens with the owner's two rules for making a package: record a linear package, never write a page graph by hand (a complex looping battle is the one exception); record the main path once, stop when the last press has taken effect, and add an ending later from the frame a real run pinned (`contained_task_linear_unrecorded_screen`). It maps each author tool to its actinglab command on both MCP servers and keeps the recording rules of Runtime 0.12.61. The tool flow:
+To make a package, read `references/pack-making.md` first: it opens with the owner's rules for making a package, binding on every package, and takes the Lab's MCP server (Runtime 0.12.70) from the recording to the placement. `references/lab-recording.md` maps each author tool to its actinglab command on both MCP servers and keeps the recording rules of the command line at Runtime 0.12.61; where the two differ, `pack-making.md` holds. The tool flow on today's server:
 
-`ac_pause` (the instance) → `ac_record_start` → the first frame with `ac_lab_observe` (capture and record) → one `ac_lab_do` per step (capture, record, `mark` and `next_frame_after_ms`) → `ac_record_mark` of the last screen → `ac_record_stop` as a dry run → `ac_record_stop` → `ac_binding_draft` → `ac_resume`.
+`ac_record_start` (it holds the instance itself; no `ac_pause`) → the first frame with `ac_lab_observe` (capture and record) → one `ac_lab_do` per step (capture, record, `mark` and `next_frame_after_ms`) → `ac_record_mark` of the last screen → `ac_record_stop` as a dry run → `ac_record_stop` (it releases the hold; no `ac_resume`) → `ac_binding_draft`.
 
 - The author tools' `instance` is the actinglab instance alias.
 - `ac_lab_do` with capture acts on the device and refuses the destructive guard flags (`conflicting`).
@@ -131,5 +132,6 @@ The table generated from `actingctl mcp-serve --list-tools --format markdown` at
 
 - `references/tools.md`: the generated tool table.
 - `references/gold-samples.md`: a real call sequence for each recipe, with abridged outputs.
-- `references/lab-recording.md`: the two rules for making a package, and Lab recording for Runtime 0.12.61 with the tool-to-command map.
+- `references/pack-making.md`: making a package through the Lab's MCP server at Runtime 0.12.70: the owner's rules, recording while playing, turning the recording into a package (marks, choices, the scrolling choice, the key step, endings, the regression cases), adoption, the trial, the placement and its break-in, what does not exist yet, and a worked example.
+- `references/lab-recording.md`: Lab recording for Runtime 0.12.61 with the tool-to-command map.
 - `references/cli-workshop.md`: the command-line manual, for work without the MCP server.

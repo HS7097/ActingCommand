@@ -1,40 +1,10 @@
 # Lab recording
 
-This is the Lab recording part of the `actingcommand` skill, for Runtime **0.12.61**. It opens with the owner's two rules for making a package, then maps the recording commands to the tools of the two MCP servers, then keeps the recording rules (§7). Every command, member and code here was taken from the Runtime's contracts and the two MCP servers' tool lists as they are to be released in 0.12.61; a citation `file.md "Section"` names the contract under `contracts/` of the Runtime repository. References to §1–§5, R2 and R3 point to `cli-workshop.md`, which also holds the shell variables (`$Lab`, `$Ctl`, `$State`, `$Root`, `$Config`).
+This is the Lab recording part of the `actingcommand` skill, for Runtime **0.12.61**. It maps the recording commands to the tools of the two MCP servers, then keeps the recording rules of the command line (§7). **Making a package with the Lab's MCP server at Runtime 0.12.70** (the owner's rules, recording while playing, marking, the choice in a scrolling list, the key step, adoption, the trial and the placement) is `pack-making.md`: read it first; where this file and that one differ, `pack-making.md` is the newer and holds. Every command, member and code here was taken from the Runtime's contracts and the two MCP servers' tool lists as they are to be released in 0.12.61; a citation `file.md "Section"` names the contract under `contracts/` of the Runtime repository. References to §1–§5, R2 and R3 point to `cli-workshop.md`, which also holds the shell variables (`$Lab`, `$Ctl`, `$State`, `$Root`, `$Config`).
 
 ## Rules for making a package
 
-The owner set two rules for making a package. They stand here in her own words, unchanged. The English under each is a rendering, not her words.
-
-> 「铁律一：除极少数复杂循环战斗外，一律只准交 record 录出来的线性包，严禁再手写几千行的 page_graph 状态机。」
-
-*Rendering:* Iron rule one: apart from the very few complex looping battles, hand in only linear packages recorded with `record`; writing page_graph state machines of thousands of lines by hand again is strictly forbidden.
-
-> 「铁律二：只录一遍正常主路径（Happy Path），点完最后一下业务生效立即停！ 严禁在制包时提前去造“余额不足、售罄、背包满”等还没碰到的分支。正常跑起来真遇到了，0.12.61 会自动停在 unrecorded_screen 并留好现场帧，到时候用 R2 对着那张真实截图 1 分钟补一个结局就行」
-
-*Rendering:* Iron rule two: record the normal main path (the happy path) once, and stop as soon as the last press has made the business take effect! While making a package, never build in advance branches not met yet, such as "balance not enough", "sold out" or "bag full". When a normal run really meets one, 0.12.61 stops by itself at unrecorded_screen and keeps the frame of the scene; then it is enough to add an ending with R2 from that real screenshot, in a minute. (R2 is the ending a stopped recording takes from a frame, §7.12.)
-
-What an agent does because of them:
-
-- **Record; do not write a page graph by hand.** The one exception is a complex looping battle: a linear package runs one declared path, with no branch and no loop of variable length (linear-steps.md "What a linear task cannot express"). A business that has to scroll a list to find its item cannot be recorded in 0.12.61: a select reads the fixed slots of one screen, and a list that scrolls is a later slice (lab-recording.md "Selecting in a list"). Such a business waits for that release; it is not written by hand.
-- **Record the main path once, and stop when the last press has taken effect.** The screen that press arrives at is the last step: its marks and its `page`, no click (§7.2). Do not build a branch the recording did not meet; a run that meets one later brings its frame (next items).
-- **When a run meets a screen the package never recorded** (since 0.12.60; linear-steps.md "Failure codes", "Retries"). After a step's press whose wait failed, the step's closing decision watches the screen for one step timeout and never presses. When the screen stays still and nothing the package declares shows on it, the run ends with `contained_task_linear_unrecorded_screen`; its `artifact_id` is the frame of the run's `Failure` pin, the decision's last frame. A scheduled run pauses its pair (catalog task, instance) at once, with no rerun, whatever its `on_failure`; nothing else is paused, and a direct run pauses nothing (policy-suspension.md "A failure that pauses at its first occurrence"). The decision names no such screen when any of these holds:
-  - the screen is not still: the decision's last two captures, or its first and last frames, differ by the Runtime's frame-change measure;
-  - a page the failed wait awaited or the step's own page passes on one of its frames, a frame is a loading (transition) frame, a shared interrupt page shows, or another page the package declares passes on its last frame;
-  - the run's time left before its deadline or the end of its runtime budget is less than twice the decision's bound (or a scheduled run's budget end could not be read);
-  - the run is not the task's own: a prerequisite, return-home, navigation or interrupt layer, a startup package or a ladder rung; or it is inside a restart segment;
-  - the failed wait missed the intermediate page or ended on its loading allowance, or the package declares sample consensus.
-
-  Then the run ends with the code the failed wait gave (`page_confirmation_failed` for the usual end), its pair follows its `on_failure` as before, and `run evidence` still lists the run's frames.
-- **From that failure to an ending**, as the code's catalog entry gives its handling (read it with `ac_outcome_code`, or `ac_codes` on the Lab's server):
-  1. `actinglab run evidence <request_id>` (MCP `ac_run_evidence`) lists the run's frames as material refs `<seq>:<event_id>:<artifact_id>`. The `artifact_id` alone is no material ref; the ref whose last part is it is the pinned frame.
-  2. `actinglab material <ref> --out <dir>` writes it as `<dir>/<sha256>.png` (MCP `ac_material` with export writes the same file into the server's materials folder). Take it in time: a pinned frame nobody confirmed as read is removed once `frame_retention_evidence_max_age_days` (15 by default) have passed since its ingestion, and one confirmed as read at the ledger store's next pass.
-  3. On the stopped recording, `actinglab record mark --ending --frame <png> --outcome-key <key>` with a mark of that screen only, such as `--template` of its message (MCP: `ac_record_mark` with an `ending` request, §7.12). Give the file as `material` wrote it: a frame of another resolution that is a pure scale of the recording's is converted by the Lab itself.
-  4. `actinglab record stop` regenerates the package, which then ends such a run Completed on that screen with that key, its message left on the screen. A changed package content lifts the pause at the pair's next due evaluation; `actingd suspended` and `ac_diagnose` list the paused pair until then.
-
-  An ending is only for a screen that ends the business after the path's last press (too little balance, nothing to collect). Every other answer is a new recording. A pop-up in the middle of the path, after which the path goes on, is an optional step; a stopped recording takes no new step, so the package is recorded again, and the new recording can be assembled offline from the frames the earlier one kept, with the pop-up's frame inserted as an optional step (§7.8). A result after an earlier press, or a branch that continues the business, is a step and a page. A slow screen nobody declared is declared as a page or a loading page.
-- **In a list, choose by the name read, never by the position** (§7.11). The choice is confirmed on a fresh frame before its one tap. A wanted item that is not there ends the run normally, Completed with the select's `on_empty` key, a result with a name; an item that cannot be read and could change the choice fails the run (`selection_result_blocked`) and is never guessed.
-- **A regenerated package reaches a running installation only through the game's resource repository and a placement** (§7.14).
+The owner's rules for making a package are `pack-making.md` §1. What a run that meets a screen its package never recorded leads to, its break-in and the way from its frame to an ending or an optional step, is `pack-making.md` §5.7 and §5.8. Choosing in a list, on one screen or in a list that scrolls, is `pack-making.md` §4.4 and §4.5.
 
 ## MCP mapping (author tier)
 
@@ -51,31 +21,34 @@ Two MCP servers serve the recording. Today's server, `actingctl mcp-serve`, has 
 | `observe --capture --record` | `ac_lab_observe` (`capture`, `record`, `package`) | `ac_lab_observe` |
 | `do --capture --record`, one call per step (§7.2) | `ac_lab_do` (`capture`, `record`, `package` or `zip`, `mark`, `next_frame_after_ms`, `next_frame_out`) | `ac_do` (`mark_request_json` or `mark_request` in place of `mark`) |
 | `record draft`: the binding parts of a `record stop` answer, `package preflight` and `actingd check-config`, read only | `ac_binding_draft` | `ac_record_draft` |
-| `capture --record`, `session capture --record`, `session app … --record`, `session instance app … --record` | none (`ac_app` records no step) | none |
+| `capture --record`, `session capture --record` | none | none |
+| `session app … --record`, `session instance app … --record` (since 0.12.64 with the screens before and after) | none (`ac_app` records no step) | `ac_app_launch`, `ac_app_restart`, `ac_app_stop` with `record` (`pack-making.md` §3.1) |
+| `tap`, `swipe`, `long-tap --record` (since 0.12.64) | none | `ac_tap`, `ac_swipe`, `ac_long_tap` with `record` (`pack-making.md` §3) |
+| `record ready`, `record review`, `record frames` (since 0.12.65 to 0.12.68) | none | `ac_record_ready`, `ac_record_review`, `ac_record_frames` (`pack-making.md` §4.1) |
 | `run evidence`, `material` (observer) | `ac_run_evidence`, `ac_material` (`mode: export`) | `ac_run_evidence`, `ac_material` (`export: true`) |
 | `package check`, `resource catalog` (observer) | `ac_pack_check`, `ac_catalog_check` | `ac_package_check`, `ac_resource_catalog` |
 | `goals`, `goals get`, `goals set`, `goals clear`, `package variables` (§7.13) | none | `ac_goals`, `ac_goals_get`, `ac_goals_set`, `ac_goals_clear`, `ac_package_variables` |
-| `standard-pack adopt`, `build`, `check`, `ready` (§7.14) | none | `ac_standard_pack_adopt`, `ac_standard_pack_build`, `ac_standard_pack_check`, `ac_standard_pack_ready` |
-| `actingctl pause`, `resume` (operator, §7.1) | `ac_pause`, `ac_resume` | `ac_pause`, `ac_resume` |
+| `standard-pack adopt`, `build`, `check`, `ready`, `status`, `trial`, `catalog`, `resource regression`, `place`, `undo` (`pack-making.md` §5) | none | `ac_standard_pack_adopt`, `ac_standard_pack_build`, `ac_standard_pack_check`, `ac_standard_pack_ready`, `ac_standard_pack_status`, `ac_standard_pack_trial`, `ac_standard_pack_catalog`, `ac_resource_regression`, `ac_place`, `ac_undo` |
+| `actingctl pause`, `resume` (operator; a recording needs neither, §7.1) | `ac_pause`, `ac_resume` | `ac_pause`, `ac_resume` |
 
 Rules that come with the tools:
 
 - **Instance.** The tools' `instance` is the actinglab instance alias, passed as `--instance`.
 - **State directory.** In a device recording leave the record tools' state directory unset: `--record` refuses `--state-dir` (§7.1), and a recording kept elsewhere answers `record_flag_reachable: false`.
-- **Pause.** `ac_pause` the instance before `ac_record_start`, and `ac_resume` it with that pause's `owner_epoch` and `revision` after the final `ac_record_stop` or when the recording is given up (§7.1).
+- **Hold.** Since 0.12.64 `ac_record_start` holds the instance itself (its scheduling paused with the recording's own reason) and `ac_record_stop` or `ac_record_archive` releases that hold; call neither `ac_pause` nor `ac_resume` for a recording (§7.1; `pack-making.md` §2).
 - **Destructive guard flags.** `ac_lab_do` with capture and without a dry run refuses `destructive` and `allow_destructive` as `conflicting` before actinglab runs; offline and with a dry run they are read as before.
 - **Answers over the output budget** are written whole to `%TEMP%\actingcommand-mcp\materials\<sha256>.json` and answered as `export {path, sha256, size}` with the warning `answer_exported`. Read that file. A command that acts on the device or the recording was performed or attempted: never run it again to see its answer. An exported `ac_record_stop` answer still carries its binding parts inline when they fit; give it to `ac_binding_draft` (`ac_record_draft`) as it is, or as `record_stop_export {path, sha256}`.
 - **Handles.** A Lab call that outlasts the call budget answers a handle for `ac_get_run` (`ac_run_show` on the Lab's server), and actinglab keeps running. The handle lives in that MCP process only (`handle_unknown` afterwards); then read the recording with `ac_record_status`.
 - **A second stop** answers `already_generated` without `binding_requires`; after `ac_record_mark` on the stopped recording it generates again and answers `regenerated` (§7.4).
-- **Ledger.** `ac_lab_observe` and `ac_lab_do` (`ac_do`) with capture reach the Runtime, and the server then records one client action naming the Lab request. `ac_record_start`, `ac_record_mark`, `ac_record_status` and `ac_record_stop` change or read recording files only.
+- **Ledger.** `ac_lab_observe` and `ac_lab_do` (`ac_do`) with capture reach the Runtime, and the server then records one client action naming the Lab request. `ac_record_mark` and `ac_record_status` change or read recording files only; since 0.12.64 `ac_record_start`, and `ac_record_stop` or `ac_record_archive`, also set and lift the recording's own scheduling pause through the Runtime, which records it as every pause.
 
 ## 7. Lab recording (Runtime 0.12.61)
 
-A Lab recording turns real screens into a `linear_steps` task package. Each step is one screen with its recognition marks and at most one effect: a click (a tap, a drag, a long press, a swipe), a select, or an application operation. The last step only recognizes. `record stop` checks the package the way actingd will load it, writes it as `<package_id>.zip` (when it has template marks) or `<package_id>.json`, and prints binding parts (lab-recording.md; linear-steps.md). You record and write the package; binding it, the catalog task and its approval stay with the user (`cli-workshop.md` §1). A recording needs the user's request. Commands use the variables of `cli-workshop.md` §2.2 plus `$I = '<alias>'`.
+A Lab recording turns real screens into a `linear_steps` task package. Each step is one screen with its recognition marks and at most one effect: a click (a tap, a drag, a long press, a swipe), a select, or an application operation. The last step only recognizes. `record stop` checks the package the way actingd will load it, writes it as `<package_id>.zip` (when it has template marks) or `<package_id>.json`, and prints binding parts (lab-recording.md; linear-steps.md). You record and write the package; it reaches scheduling through its game's resource repository and a placement that names its authorization (`pack-making.md` §5), never through a binding you write. A recording needs the user's request. Commands use the variables of `cli-workshop.md` §2.2 plus `$I = '<alias>'`.
 
 ### 7.1 Before and after a recording
 
-- **Pause the instance first, resume it afterwards.** Run `& $Ctl pause --state-root $State --instance $I` before `record start`, and `& $Ctl resume --state-root $State --instance $I` after the final `record stop`, or when you give the recording up. Otherwise a scheduled task between two of your commands acts on another screen (lab-recording.md "`--record` on device commands"). A pause survives an actingd restart with a new `owner_epoch` and revision 1: read both before you resume (`SKILL.md`, "Handles, cursors and pauses").
+- **A recording holds its instance** (since 0.12.64; lab-recording.md "A recording holds its instance"). `record start` pauses the instance's scheduling with the recording's own reason `lab-record-<ms>`, and `record stop` or `record archive` resumes that pause and no other, so that no scheduled task acts on the instance between two of your commands. Run no `pause` or `resume` of your own for a recording, and never leave one open: `pack-making.md` §2.
 - **Device commands need the daemon and a physical instance.** `capture`, `observe`, `do` and `session app` with `--record` go through the Runtime; `record start`, `mark`, `status` and `stop` work offline. On a fixture instance `session app … --record` is refused (`fixture_execution_scope_forbidden`), and application steps need a physical instance (§7.7).
 - **One process per instance.** Every state-writing recording command takes `<state>\record-<instance>.lock` without waiting; another holder gives `record_busy` (exit 3, `details.holder`). Do not retry blindly: run `record status`, see which step is open, then decide; a `record mark` without `--step` may otherwise land on a step the other process just opened. `record status` takes no lock. `record_lock_failed` is exit 5. There is no unlock command; the lock ends with its process (lab-recording.md "Recording lock").
 - **Do not mix actinglab versions during a recording.** A build before 0.12.61 does not decode a recording that holds a select or an ending (`record_lab_unavailable`, reason `lab_recording_unreadable`), and the file is left as it is (lab-recording.md "recording.json").
@@ -97,22 +70,22 @@ A Lab recording turns real screens into a `linear_steps` task package. Each step
 
 ### 7.2 Recording a path: one call per step
 
-`do --capture --record` with a mark request records a whole step in one call: it marks the open step (its marks, its `page`, its click), presses, and with `--next-frame-after-ms` takes the next step's frame (lab-recording.md "One call per step"). A recording of n steps with a press takes n + 5 calls: `record start`, the first frame, one call per step, the last screen's marks, `record stop --dry-run` and `record stop`.
+Since 0.12.64 a press is recorded by the command that makes it (`tap`, `swipe`, `long-tap --record`), with the screen before it and the screens after it and nothing marked; that is how a package is made, `pack-making.md` §3. This section keeps the one-call form of `do --capture --record`, which marks while it presses.
+
+`do --capture --record` with a mark request records a whole step in one call: it marks the open step (its marks, its `page`, its click), presses, and with `--next-frame-after-ms` takes the next step's frame (lab-recording.md "One call per step"). A recording of n steps with a press takes n + 5 calls: `record start`, the first frame, one call per step, the last screen's marks, `record stop --dry-run` and `record stop`. A swipe it records stores no screen after it, so a choice in a scrolling list cannot read it (`pack-making.md` §3.6).
 
 ```powershell
 $I = '<alias>'
 $Carrier = '<root>\packages\<game>\<package_id>.zip'       # any admissible package of the same game and resolution
-& $Ctl pause --state-root $State --instance $I
-& $Lab --json --instance $I record start --task-id <task_id> --locale <locale>   # task id ^[a-z0-9][a-z0-9_]{0,63}$
+& $Lab --json --instance $I record start --task-id <task_id> --locale <locale>   # task id ^[a-z0-9][a-z0-9_]{0,63}$; it holds the instance
 & $Lab --json --instance $I capture --record                                     # opens step 1 on the current screen
 & $Lab --json --instance $I do --capture --record --package $Carrier `
   --mark-request '<dir>\step-1.json' --next-frame-after-ms 800 --next-frame-out '<dir>\step-2.png'
 & $Lab --json --instance $I do --capture --record --package $Carrier `
   --mark-request '<dir>\step-2.json' --next-frame-after-ms 800 --next-frame-out '<dir>\step-3.png'
 & $Lab --json --instance $I record mark --request '<dir>\final.json'             # the last screen: marks and page, no click
-& $Lab --json --instance $I record stop --dry-run --lab-dir "$Root\packages\<game>"   # §7.4
-& $Lab --json --instance $I record stop --lab-dir "$Root\packages\<game>"
-& $Ctl resume --state-root $State --instance $I
+& $Lab --json --instance $I record stop --dry-run --lab-dir "<dir>"  # §7.4
+& $Lab --json --instance $I record stop --lab-dir "<dir>"            # it releases the hold; §7.4
 ```
 
 `step-1.json` marks the screen in front of you and declares its click; write each next file after reading the frame the call before wrote, UTF-8 without a byte order mark. One rectangle given once is both the template's crop and the click (`"click": {"from": "<mark id>"}`):
@@ -133,7 +106,7 @@ Through MCP the same: `ac_record_start`, `ac_lab_observe` with `capture` and `re
 - **Repeating a press.** The same call sent again is refused by `record mark`'s own check (`record_click_exists`, `record_mark_id_conflict`) and presses nothing twice. Look at the screen first (`observe --capture` without `--record`, `ac_lab_observe` with capture and without record) or read `record status`. Only while the screen still shows the step's own page, send the same call without the mark request (for a step without a click, its `--tap-rect` or `--swipe` kept). If it shows the page the press leads to, the press was performed: do not send it again.
 - **A next frame that was not taken.** The press and its closed step stand; take the frame with `capture --record` or `ac_lab_observe` with capture and record, and do not press again. Both a press not performed and a next frame not taken can be `device_error`: the second's details carry `record` (`step_closed` true) and `next_frame.taken` false. Today's server with `--detail codes` shows them alike; read `ac_record_status` before you press again.
 - **The last screen** is a step of its own: a `record mark` request with its marks and `page` and no click. Its `page` names the package's terminal page, `step_<nn>_<page>`. `record stop` refuses a last step with a click (`record_final_step_has_click`) and any step without a mark (`record_step_without_recognition`).
-- **Step numbers.** Steps are serial numbers that are never reused. The package numbers the remaining steps 1..n again; `record status` shows that number as `artifact_step`. Remediation acts on the last step only: `--drop-step <n>`, `--reopen-step <n>`, `--close-step`, `--to-transition <n>`. Nothing is deleted.
+- **Step numbers.** Steps are serial numbers that are never reused. The package numbers the remaining steps 1..n again; `record status` shows that number as `artifact_step`. Remediation acts on the last step only: `--drop-step <n>`, `--reopen-step <n>`, `--close-step`, `--to-transition <n>`; since 0.12.68 `--drop-step` also takes a step before the last whose stored frames show no change at its press (`pack-making.md` §4.10). Nothing is deleted.
 - **Offline frames.** `record mark --frame <png>` without `--step` adds a whole frame of the recording's size as the next screen. `record mark --step <n> …` adds marks or samples to an existing step.
 - **Main interface.** Mark the main interface with `--page home`. That page counts as the main interface for restart packages (§7.7).
 
@@ -149,10 +122,10 @@ What happens between a step's effect and the next step (lab-recording.md "Transi
 
 ### 7.4 Check with `--dry-run`, add marks, then stop
 
-1. `record stop --dry-run --lab-dir "$Root\packages\<game>"` runs the pre-checks, generation, admission, the first decision, the cross-check and the `--lab-dir` checks in memory. Use the same options as the final stop. It writes nothing and both states stay active; its output has `status: "validated"`, `lab.would_write[]` and `lab.lab_dir_status` (`to_write` or `to_replace`). Report any refusal before deciding whether to proceed.
+1. `record stop --dry-run --lab-dir "<dir>"` runs the pre-checks, generation, admission, the first decision, the cross-check and the `--lab-dir` checks in memory. Use the same options as the final stop. It writes nothing and both states stay active; its output has `status: "validated"`, `lab.would_write[]` and `lab.lab_dir_status` (`to_write` or `to_replace`). Report any refusal before deciding whether to proceed.
 2. Read `lab.warnings` and the refusals. Add what they ask for with `record mark --step <n> …`; the stored frames suffice. Run `--dry-run` again.
-3. `record stop --lab-dir "$Root\packages\<game>"` writes `<package_id>.zip` or `<package_id>.json` there (the package id defaults to `<game>.<server>.<task_id>`; `--package-id` sets it). `--lab-dir` is never guessed: only its last level is created. A file of that name is replaced in place (`lab_dir_status: "replaced"`); no digest names the package (lab-recording.md "Container and name", "Writing").
-4. **After the stop** the recording is stopped, and it still takes `record mark` on its existing steps: marks, samples, pages, clicks, guards, retries, transitions, optional steps, a select (§7.11) and an ending (§7.12). The next `record stop` generates the package again (`lab.status: "regenerated"`). It takes no new step, no step operation and no application operation (`record_session_not_active`, reason `recording_stopped`): a missing step means recording again (lab-recording.md "Marking after stop").
+3. `record stop --lab-dir "<dir>"` writes `<package_id>.zip` or `<package_id>.json` there (the package id defaults to `<game>.<server>.<task_id>`; `--package-id` sets it); without `--lab-dir` the package stays in the recording, where adoption reads it (`pack-making.md` §4.11). `--lab-dir` is never guessed: only its last level is created, and since 0.12.63 a directory that is or lies inside an installed root is refused (`record_lab_dir_invalid`, `inside_installed_root`). A file of that name is replaced in place (`lab_dir_status: "replaced"`); no digest names the package (lab-recording.md "Container and name", "Writing").
+4. **After the stop** the recording is stopped, and it still takes `record mark` on its existing steps: marks, samples, pages, clicks, guards, retries, transitions, optional steps, a select (§7.11) and an ending (§7.12); since 0.12.63 to 0.12.70 also an optional step inserted after a step's effect from a frame, boxes, a choice, a fold of swipes and a key (`pack-making.md` §4.13). The next `record stop` generates the package again (`lab.status: "regenerated"`). It takes no other new step, no other step operation and no application operation (`record_session_not_active`, reason `recording_stopped`): any other missing step means recording again (lab-recording.md "Marking after stop").
 
 Warnings you must act on:
 - `arrival_unconfirmed`: the next step's page also passes on the frames before the click, so a run cannot tell whether the click took effect. Give the next step a mark the earlier screen does not have, or declare a window.
@@ -165,7 +138,7 @@ Other output to look at: `first_decision` (`would_click` of `step_01_click`; `wo
 
 ### 7.5 Binding parts
 
-`record stop` prints these in `lab` (lab-recording.md "Output"). Show them to the user; never apply them yourself.
+`record stop` prints these in `lab` (lab-recording.md "Output"). Show them to the user; never apply them yourself. Since 0.12.63 a package goes into its game's resource repository by adoption (`adoption_example`, `pack-making.md` §5); `binding_example` stays for `record draft`.
 
 | Field | Use |
 |---|---|
@@ -193,7 +166,7 @@ A linear package runs its path from step 1, and only step 1's page is checked at
 
 A step's effect may be `launch`, `restart` or `stop` of the application assigned to the instance; the package never names the application. A step has one effect (lab-recording.md "Application steps"; application-lifecycle.md).
 
-- **Recording.** On the device: `& $Lab --json --instance $I session app restart --record` (also `launch`, `stop`, `force-stop`, which is recorded as `stop`; `session instance app` works the same way). Offline: `record mark --application <action>`, or the request member `"application": {"action": "restart"}` through `ac_record_mark`. No MCP tool records `session app`.
+- **Recording.** On the device: `& $Lab --json --instance $I session app restart --record` (also `launch`, `stop`, `force-stop`, which is recorded as `stop`; `session instance app` works the same way). Offline: `record mark --application <action>`, or the request member `"application": {"action": "restart"}` through `ac_record_mark`. Today's server has no tool that records `session app`; the Lab's server records it with `ac_app_launch`, `ac_app_restart` and `ac_app_stop` with `record` (since 0.12.64, `pack-making.md` §3.1).
 - **`--record` never goes with `--dry-run` on `session app`** (`record_flag_unsupported`).
 - **Uncertain results.** `record_application_indeterminate` (exit 4) means the operation may have run. Look at the instance, then run the same command again (launch, restart and stop can be repeated) or accept the step with `record mark --close-step`. Only that code and `record_append_failed_after_input` mean it may have run or ran; every other error means it did not. Tell them apart by the code, not the exit code.
 - **After `stop`, the next effect must be `launch` or `restart`** (`record_step_after_stop_invalid`).
@@ -214,12 +187,12 @@ An optional step is a screen that does not always appear after the click of the 
 - **N must not pass under the pop-up.** Otherwise `record stop` refuses with `record_optional_skip_target_insensitive`. Give N a `--color` mark on a bright area the pop-up darkens: `record mark --step <N's serial> --color <id>=x,y,w,h`. For a small pop-up that does not darken, mark the area it covers.
 - **The pop-up must not pass where it is absent.** Otherwise the refusal is `record_optional_step_ambiguous`, with `against` naming the screen. Give the pop-up a mark of its own, such as its title or a button.
 - **One pop-up several times.** Record it as many times as it can appear; each copy runs at most once per run. Reuse its marks with `--reuse <id>` and the same click rectangle. `optional_steps[].same_as` names the earlier copy, with one `arrival_unconfirmed` warning.
-- **Inserting a pop-up that did not appear while recording.** You need a whole frame of it at the recording's size: `capture --out <png>` on a day it appears, or a failed run's frame from the evidence (§ "Rules for making a package"). Right after the step before it was executed:
+- **Inserting a pop-up that did not appear while recording.** You need a whole frame of it at the recording's size: `capture --out <png>` on a day it appears, or a failed run's frame from the evidence (`pack-making.md` §5.8). Right after the step before it was executed:
   1. `record mark --frame <popup.png> --template … --click … --optional [--settle-ms <ms>]`
   2. `record mark --close-step`
   3. `capture --record` of the next screen.
 
-  A second copy from the same PNG also needs `--close-step` first. A stopped recording takes no new step: a pop-up found missing after the stop means recording again, which can be assembled offline from frames kept with the earlier recording.
+  A second copy from the same PNG also needs `--close-step` first. A pop-up found missing after the stop is inserted on the stopped recording from its frame, without recording again (`optional_after`, since 0.12.63: `pack-making.md` §4.7).
 - **What optional steps cannot express:**
   - A pop-up later than its settle, shown more often than the copies recorded, or never recorded: the run fails loudly, or ends with `contained_task_linear_unrecorded_screen` (§ "Rules for making a package").
   - A pop-up already on the screen before the preceding click: use a prerequisite package, or start earlier.
@@ -232,7 +205,7 @@ For scheduled `linear_steps` tasks with the recommended `on_failure` (§7.5). Se
 
 - **Rerun (R22).** A failure that carries a failure identity is rerun at the first evaluation after `retry_backoff_ms`, without waiting for its trigger or cooldown, while the retry round of its original activity window and budget cycle lasts. Budgets, windows, pause, performance and lease gates still apply. Reaching an original count limit, a runtime budget that cannot reserve the next run, or the window's end closes the round (`policy_retry_round_ended`). Budget availability alone opens no round; success clears it; a restart rebuilds it from the ledger.
 - **Suspended (`paused_task`) when the same problem repeats.** `page_confirmation_failed`, `contained_task_linear_intermediate_unobserved` or `contained_task_guard_refused` in the package's own steps, outside the restart segment, twice with the same failure identity; a `contained_task_prerequisite_*` refusal while the run is prepared; the navigation and interrupt codes of a standard pack. A severe failure, a sensitive task and an exceeded runtime budget pause at the first failure.
-- **Paused at its first occurrence:** `contained_task_linear_unrecorded_screen`, with no rerun (§ "Rules for making a package").
+- **Paused at its first occurrence:** `contained_task_linear_unrecorded_screen`, with no rerun; since 0.12.63 only while the pair is in its package's break-in, after which the same screen ends the run with `page_confirmation_failed` and the ordinary handling (`pack-making.md` §5.7).
 - **Rerun only, never suspended**, and listed in `repeating` once it fails again: everything else. That includes the gate, prerequisite and return-home packages, a start not on step 1, `contained_task_linear_application_unconfirmed`, the restart segment (after a `launch` or `restart`, before the main interface), adb failures (R25-2), device errors, cancellation, deadlines, the task timeout and recognition errors.
 - **A success, never a failure:** a run that ends on a select's `on_empty` key (§7.11) or on an ending page (§7.12).
 - **`& $Actingd suspended --config $Config`** is read-only and runs beside the daemon; `ac_diagnose` shows the instance's rows of it. It lists `suspended` (paused pairs, with the failure, its frames and `lifts_when`), `lifted` (pairs a package change lifted) and `repeating` (pairs failing again and again without being suspended).
@@ -284,8 +257,8 @@ A step may choose in a list of fixed slots on one screen by the name read in eac
 - **Refusals** (`record_select_invalid`, `details.select_problem`): a click that follows a mark, a gesture, a click declared beside it, a retry, an optional step, an application operation, the last step of a stopped recording (`on_final_step`), and a page that gives no guard (`guard_missing`: the page needs a template, colour, colour digest or check mark).
 - **The self-test** is the kernel's own dry run of the select on every live frame of the step: every slot must read a known name (`select_name_unread`), the pressed name must select a slot on the primary frame (`select_pressed_absent`), and no other step's page may pass there (`select_other_page_passes`). Without an OCR model it is `not_evaluated`, and a select whose step has no recorded press is refused `lab_ocr_unavailable`.
 - **At run time** the choice is decided on the step's frame by its policy document, confirmed on a fresh frame, and one tap is drawn in the chosen slot. An `empty` decision taps nothing and ends the run Completed on the step's page with the `on_empty` key, a success. An item the package does not know or cannot read, which could change the decision, fails the run (`selection_result_blocked`); an ambiguous or insufficient decision fails it too (`selection_not_selected`). Nothing is skipped or guessed.
-- **The wanted value is a constant of the package** in 0.12.61: the select's `wanted.default`, written as the one gate of its policy document. Change it by declaring the select again with another default (also on a stopped recording), then `record stop` (`regenerated`). A list that scrolls, and the wanted value as a variable, are later slices.
-- **Which to use.** A control found by its fixed label whose position moves: a click that follows a located text (§7.10). An item chosen by a value that may change, where "not there" is a normal result: a select.
+- **The wanted value is a variable of the package** (since 0.12.68): an `ordered` variable named `wanted.name`, its default `[wanted.default]`; a choice may also be marked first and refined later; a list that scrolls is a select over the recorded swipes folded into its press (since 0.12.70). All three: `pack-making.md` §4.4 and §4.5.
+- **Which to use.** A control found by its fixed label whose position moves: a click that follows a located text (§7.10). An item chosen by a value that may change, where "not there" is a normal result: a select; in a list that scrolls, the scrolling choice (`pack-making.md` §4.5).
 - **Revision.** A `linear_steps` task with a select step needs `package` 13; an earlier Runtime refuses it (`contained_task_linear_invalid`, `reason=operation_effect`). `record stop` writes no revision; the bundle's packaging computes it (§7.14).
 
 ### 7.12 Endings after the stop
@@ -314,7 +287,7 @@ The command form is `record mark --ending --frame <png> --outcome-key <key> [--s
 A **variable** is a named slot a package's policies read at run time and do not choose themselves: "which one", "how many", "in which order" (package-variables.md).
 
 - **The declaration** is the top-level member `variables` of the package's `control.json`: 1 to 16 entries, each `name` (`^[a-z][a-z0-9_]{0,63}$`), `type` (`choice`, `integer`, `switch` or `ordered`), `title`, the type's members and its `default`. A package that provides an irreversible capability declares none (`variables_on_irreversible`). A bundle whose packs declare variables declares `package` 14; an earlier Runtime refuses such a pack.
-- **No recording writes a variable in 0.12.61**: a select's wanted value is a constant of the package (§7.11); generating a variable from a recording is a later slice.
+- **A recording writes one variable per select step** (since 0.12.68): the wanted value of each select (§7.11; `pack-making.md` §4.4).
 - **Read what a package declares:** `actinglab package variables --package <dir>` (`ac_package_variables`), offline, without a Runtime.
 - **Read and set an application's value by name** (the Lab's rows `goals`; MCP on the Lab's server only):
   - `goals <inst> [--package <id>]` (`ac_goals`): the application's goal page, each entry with its value, default and whether it is in effect, and the record's `version`;
@@ -328,11 +301,4 @@ A **variable** is a named slot a package's policies read at run time and do not 
 
 ### 7.14 Adopting, building and checking a game's packages
 
-A recorded package becomes a member of its game's standard pack in a resource repository's checkout, is built into the bundle an installation places, and is judged for readiness. These are the Lab's rows; over MCP they are tools of the Lab's server only.
-
-- **`standard-pack adopt --repo <checkout> (--record-id <id> | --package <path>) [--decide <decision.json>] [--replace] [--state-dir <dir>]`** (`ac_standard_pack_adopt`): writes the pack directory and its rule, held entry or maintenance entry into the checkout, every check before the first write (`adopt_refused`, `adopt_problem` naming the check), nothing deleted. The decision document `actingcommand.pack-decision.v1` holds only what the Lab cannot know (its `class`, `trigger`, `value` `"pending"` or `{fixed_value_milli, origin: "pack"}`); a value with origin `model` is refused (`value_origin_model`). `--replace` adopts a regenerated package again. The global `--dry-run` writes nothing (standard-pack-authoring.md).
-- **`standard-pack build --repo <checkout> --source-repository <owner>/<name> --out <dir> [--commit <40-hex>]`** (`ac_standard_pack_build`): builds the game's whole standard pack from one clean commit into `<out>`: `<game>-resources-<sha7>.zip`, `SHA256SUMS` and `build.json`, its `package` revision computed from the content, never written by hand (13 for a select step, 15 for an ending page) (resource-verify.md "`standard-pack build`").
-- **`standard-pack ready --root <game root>`** (`ac_standard_pack_ready`): judges every pack by its thirteen readiness items: `dispatchable`, `ready_to_place`, `waiting` with every reason, or `not_scheduled`. It reads no installation, so a pack answers `ready_to_place` at best (standard-pack-schedule.md "Readiness").
-- **`standard-pack check --root <game root>`** (`ac_standard_pack_check`): checks an installed root, the root check of its variables included.
-
-After a package is regenerated (§7.4, §7.12), it reaches a running installation only through the game's resource repository and a placement: adopted into the checkout again, built, and placed with `place <zip> --sums <SHA256SUMS>` (package-reference.md "The built standard pack").
+Adopting a recorded package into its game's resource repository (a first adoption held), its regression cases, its declaration in `pack-catalog.json`, `standard-pack check`, `ready` and `status`, the trial, the build, and the placement under a named authorization with its break-in and its undo are `pack-making.md` §5. A package regenerated after the stop (§7.4, §7.12) reaches a running installation only that way.
