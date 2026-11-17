@@ -137,7 +137,7 @@ Every effective step but an application entry needs at least one mark (`record_s
 
 ### 4.5 The scrolling choice
 
-**1. Fold the swipes into the press.** `ac_record_mark` with `request_json` `{"schema_version":"actingcommand.lab-record-mark.v1","step_action":{"kind":"fold_scan","step":<b>,"first":<a>}}`, `a` the first swipe's serial number and `b` the press's. The answer's `status` is `scan_folded` and `scan_fold` holds `{first, axis, moves, folded_at_unix_ms}`, each move `forward` or `back`. The swipes stay in the recording whole but are no steps of the package. Refused `record_scan_invalid` with `scan_problem`: `fold_range_invalid` (a step of the range is no recorded swipe, or `b` no performed tap), `inserted_in_range`, `would_lose_marks`, `would_lose_page`, `would_lose_optional`, `would_lose_choice`, `would_lose_transition`, `would_lose_inserted` (take that off first, or fold another range), `move_axis_unclear`, `move_after_back`. `{"kind":"unfold_scan","step":<b>}` undoes it (`not_folded` on a step without a fold; `scan_selected` while the select stands: `clear_select` first). A step operation, a mark or a transition on a step of the fold is `step_in_fold`. Until a scrolling select reads the fold, `ac_record_ready` lists `scan_without_select` and `ac_record_stop` refuses `scan_not_selected`. The fold is taken on an active recording and on a stopped one.
+**1. Fold the swipes into the press.** `ac_record_mark` with `fold_scan` `<b>` and `fold_first` `<a>`, `a` the first swipe's serial number and `b` the press's (the request form says the same with `step_action` `{"kind":"fold_scan","step":<b>,"first":<a>}`). The answer's `status` is `scan_folded` and `scan_fold` holds `{first, axis, moves, folded_at_unix_ms}`, each move `forward` or `back`. The swipes stay in the recording whole but are no steps of the package. Refused `record_scan_invalid` with `scan_problem`: `fold_range_invalid` (a step of the range is no recorded swipe, or `b` no performed tap), `inserted_in_range`, `would_lose_marks`, `would_lose_page`, `would_lose_optional`, `would_lose_choice`, `would_lose_transition`, `would_lose_inserted` (take that off first, or fold another range), `move_axis_unclear`, `move_after_back`. `unfold_scan` `<b>` undoes it, in the request form `step_action` `{"kind":"unfold_scan","step":<b>}` (`not_folded` on a step without a fold; `scan_selected` while the select stands: `clear_select` first). A step operation, a mark or a transition on a step of the fold is `step_in_fold`. Until a scrolling select reads the fold, `ac_record_ready` lists `scan_without_select` and `ac_record_stop` refuses `scan_not_selected`. The fold is taken on an active recording and on a stopped one.
 
 **2. Mark the press step's page** (a title of the list's screen, §4.2): the select's guard comes from it.
 
@@ -341,7 +341,6 @@ Any other answer (a result after an earlier press, a branch that goes on, a step
 - Adoption writes no entry of `pack-catalog.json`, and no tool writes a new entry's display (§5.3).
 - A list that fits on one screen is no scrolling choice: use the fixed slots (§4.4).
 - Only 1280×720: no recording on another screen size, and no package for phones (§2).
-- The operation table's `record mark` row has no `fold_scan`, `fold_first` or `unfold_scan` parameter: fold with `request_json` (§4.5).
 
 ## 7. A worked example
 
@@ -413,8 +412,7 @@ Step 1, the main screen: its title recognises it; the Catalogue button is presse
 Fold the four swipes (steps 2 to 5) into the press of step 6:
 
 ```text
-→ ac_record_mark {"instance": "emu-a", "request_json":
-    "{\"schema_version\":\"actingcommand.lab-record-mark.v1\",\"step_action\":{\"kind\":\"fold_scan\",\"step\":6,\"first\":2}}"}
+→ ac_record_mark {"instance": "emu-a", "fold_scan": 6, "fold_first": 2}
 ← status "scan_folded"; scan_fold.axis "vertical", scan_fold.moves (three forward, one back)
 → ac_record_mark {"instance": "emu-a", "step": 6, "page": "catalogue", "box": ["recognize=40,24:359,63"]}
 ← status "marks_recorded"
