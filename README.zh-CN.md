@@ -116,7 +116,7 @@ flowchart LR
 - **第一代服务 `actingctl mcp-serve`（在移除前保持可用）**：下面的档位、约定与工具表说的都是它，注册用 `<root>\runtime\actingctl.exe mcp-config --client <客户端> --entry --root <root> --tier <档位>`。
 - **权限档位**：默认开启 `observer`（读取、运行中安全设置、性能预设、真机绑定、能力缺口记录、补救选择与健康统计）；`operator` 增加设备、应用、调度控制与证据已读确认（热切换实例触控/截图后端亦需此档）；`author` 增加 Lab 实机观察与录制。
 - **协作约定**：会话先调 `ac_overview`；耗时操作立即返回跨重启有效的句柄，用 `ac_get_run`（带 `wait_s`）轮询，结果未明时先查句柄勿重发写操作；编辑配置文件、审批与重启 Runtime 均归人工执行。
-- **工具参考说明**：本仓 [`skills/actingcommand/SKILL.md`](skills/actingcommand/SKILL.md) 保留了 `v0.11.3` 时期的操作范式参考；在 `0.12` Runtime 上，请以 `<root>\runtime\actingctl.exe mcp-serve --list-tools --format markdown` 打印的实时工具与参数表为准。
+- **工具参考说明**：本仓 [`skills/actingcommand/SKILL.md`](skills/actingcommand/SKILL.md) 写的是 Runtime `0.12.70` 和 Lab 的 MCP 服务器 `actinglab-mcp`（和本节仍在描述的第一代服务器不同：不分档，工具名也不同）；[`references/pack-making.md`](skills/actingcommand/references/pack-making.md) 讲从录制到放置一个任务包的全过程，[`references/tools.md`](skills/actingcommand/references/tools.md) 列出全部工具。运行时以服务器的 `tools/list` 为准。
 
 | 档位 | 工具清单 |
 |---|---|
